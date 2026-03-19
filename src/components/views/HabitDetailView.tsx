@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { X, ArrowLeft, MoreHorizontal, Calendar, Clock, RotateCcw, Trash2, CheckCircle2 } from 'lucide-react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Habit } from '../../types';
 import { cn } from '../../utils/cn';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -43,8 +44,15 @@ const colorMap: Record<string, string> = {
 };
 
 export default function HabitDetailView({ habit, onUpdate, onClose, onDelete }: Props) {
-  const [isEditing, setIsEditing] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const isEditing = location.pathname.endsWith('/edit');
   const [editedHabit, setEditedHabit] = useState<Habit>(habit);
+  
+  // Update local state if the prop habit changes
+  useEffect(() => {
+    setEditedHabit(habit);
+  }, [habit]);
   
   // Progress Arc Logic (Static for now, but UI-ready)
   const progress = 75; // 75% progress
@@ -54,7 +62,15 @@ export default function HabitDetailView({ habit, onUpdate, onClose, onDelete }: 
 
   const handleSave = () => {
     onUpdate(editedHabit);
-    setIsEditing(false);
+    navigate(`/habit/${habit.id}`, { replace: true, state: location.state });
+  };
+
+  const toggleEdit = () => {
+    if (isEditing) {
+      navigate(`/habit/${habit.id}`, { replace: true, state: location.state });
+    } else {
+      navigate(`/habit/${habit.id}/edit`, { state: location.state });
+    }
   };
 
   const toggleDay = (index: number) => {
@@ -80,7 +96,7 @@ export default function HabitDetailView({ habit, onUpdate, onClose, onDelete }: 
         </button>
         <h1 className="text-lg font-medium text-[#2d2d2d]">habit details</h1>
         <button 
-          onClick={() => setIsEditing(!isEditing)} 
+          onClick={toggleEdit} 
           className={cn(
             "w-10 h-10 rounded-full flex items-center justify-center shadow-sm transition-colors",
             isEditing ? "bg-[#2d2d2d] text-white" : "bg-white text-[#2d2d2d]"

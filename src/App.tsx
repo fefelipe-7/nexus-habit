@@ -1,11 +1,7 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
-
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { format } from 'date-fns';
 import { AnimatePresence, motion } from 'framer-motion';
+import { Routes, Route, useLocation, useNavigate, Navigate, useParams } from 'react-router-dom';
 import HomeView from './components/views/HomeView';
 import AddHabitView from './components/views/AddHabitView';
 import StatisticsView from './components/views/StatisticsView';
@@ -23,10 +19,13 @@ const pageVariants = {
 };
 
 export default function App() {
-  const [currentView, setCurrentView] = useState<'home' | 'explore' | 'stats' | 'streak' | 'profile' | 'add'>('home');
+  const location = useLocation();
+  const navigate = useNavigate();
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [selectedHabitId, setSelectedHabitId] = useState<string | null>(null);
   
+  // This state allows us to keep the "background" route rendered under our modals
+  const background = location.state?.background;
+
   // Mock initial data
   const [habits, setHabits] = useState<Habit[]>([
     { id: '1', name: 'drink a glass of water', emojiUrl: '/newhabitwizard/water.png', color: 'blue', repeatDays: [0,1,2,3,4,5,6], reminders: true, createdAt: new Date().toISOString(), duration: 8, unit: 'cups', streak: 16 },
@@ -55,7 +54,7 @@ export default function App() {
 
   const addHabit = (habit: Habit) => {
     setHabits([...habits, habit]);
-    setCurrentView('home');
+    navigate('/');
   };
 
   const updateHabit = (updatedHabit: Habit) => {
@@ -64,62 +63,103 @@ export default function App() {
 
   const deleteHabit = (habitId: string) => {
     setHabits(habits.filter(h => h.id !== habitId));
-    setSelectedHabitId(null);
+    navigate(-1);
   };
 
-  const selectedHabit = habits.find(h => h.id === selectedHabitId);
+  const navigateToModal = (path: string) => {
+    navigate(path, { state: { background: location } });
+  };
+
+  // Determine current tab for BottomNav
+  const path = background?.pathname || location.pathname;
+  let currentTab: 'home' | 'explore' | 'stats' | 'streak' | 'profile' | 'add' = 'home';
+  if (path === '/explore') currentTab = 'explore';
+  else if (path === '/journey') currentTab = 'stats';
+  else if (path === '/streak') currentTab = 'streak';
+  else if (path === '/profile') currentTab = 'profile';
+
+  const isModalOpen = !!background || location.pathname === '/add' || location.pathname.startsWith('/habit/') || location.pathname === '/profile';
 
   return (
     <div className="h-[100dvh] bg-gray-100 text-[#2d2d2d] font-sans flex justify-center lowercase selection:bg-[#f27d26] selection:text-white overflow-hidden">
       <div className="w-full bg-[#f8f6f2] h-full relative shadow-2xl overflow-hidden flex flex-col">
         
         <div className="flex-1 relative overflow-hidden">
+          {/* Main Background Views */}
           <AnimatePresence mode="wait">
-            {currentView === 'home' && (
-              <motion.div key="home" variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.2 }} className="absolute inset-0 flex flex-col pb-24">
-                <HomeView 
+            <Routes location={background || location} key={background?.pathname || location.pathname}>
+              <Route path="/" element={
+                <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.2 }} className="absolute inset-0 flex flex-col pb-24 px-6 overflow-y-auto scrollbar-hide">
+                  <HomeView 
+                    habits={habits} 
+                    completions={completions} 
+                    selectedDate={selectedDate} 
+                    setSelectedDate={setSelectedDate}
+                    toggleCompletion={toggleCompletion}
+                    onHabitClick={(id) => navigateToModal(`/habit/${id}`)}
+                    onShowStreak={() => navigate('/streak')}
+                    onProfileClick={() => navigateToModal('/profile')}
+                  />
+                </motion.div>
+              } />
+              
+              <Route path="/explore" element={
+                <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.2 }} className="absolute inset-0 flex flex-col pb-24 px-6 overflow-y-auto scrollbar-hide">
+                  <ExploreView />
+                </motion.div>
+              } />
+
+              <Route path="/journey" element={
+                <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.2 }} className="absolute inset-0 flex flex-col pb-24 px-6 overflow-y-auto scrollbar-hide">
+                  <StatisticsView habits={habits} completions={completions} onHabitClick={(id) => navigateToModal(`/habit/${id}`)} />
+                </motion.div>
+              } />
+
+              <Route path="/streak" element={
+                <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.2 }} className="absolute inset-0 flex flex-col pb-24 px-6 overflow-y-auto scrollbar-hide">
+                  <StreakView streak={16} />
+                </motion.div>
+              } />
+            </Routes>
+          </AnimatePresence>
+
+          {/* Modal / Overlay Routes */}
+          <AnimatePresence>
+            <Routes location={location} key={location.pathname}>
+              <Route path="/add" element={
+                <AddHabitView onSave={addHabit} onClose={() => navigate(-1)} />
+              } />
+              <Route path="/add/:step" element={
+                <AddHabitView onSave={addHabit} onClose={() => navigate(-1)} />
+              } />
+              <Route path="/profile" element={
+                <motion.div initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} transition={{ type: 'spring', damping: 25, stiffness: 200 }} className="absolute inset-0 z-50 bg-[#f8f6f2] flex flex-col">
+                  <ProfileView onBack={() => navigate(-1)} />
+                </motion.div>
+              } />
+              <Route path="/habit/:id" element={
+                <HabitDetailRoute 
                   habits={habits} 
-                  completions={completions} 
-                  selectedDate={selectedDate} 
-                  setSelectedDate={setSelectedDate}
-                  toggleCompletion={toggleCompletion}
-                  onHabitClick={setSelectedHabitId}
-                  onShowStreak={() => setCurrentView('streak')}
-                  onProfileClick={() => setCurrentView('profile')}
+                  onUpdate={updateHabit} 
+                  onDelete={deleteHabit} 
+                  onClose={() => navigate(-1)} 
                 />
-              </motion.div>
-            )}
-            {currentView === 'explore' && (
-              <motion.div key="explore" variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.2 }} className="absolute inset-0 flex flex-col pb-24">
-                <ExploreView />
-              </motion.div>
-            )}
-            {currentView === 'stats' && (
-              <motion.div key="stats" variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.2 }} className="absolute inset-0 flex flex-col pb-24">
-                <StatisticsView habits={habits} completions={completions} onHabitClick={setSelectedHabitId} />
-              </motion.div>
-            )}
-            {currentView === 'streak' && (
-              <motion.div key="streak" variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.2 }} className="absolute inset-0 flex flex-col pb-24">
-                <StreakView streak={16} />
-              </motion.div>
-            )}
-            {currentView === 'profile' && (
-              <motion.div key="profile" variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.2 }} className="absolute inset-0 flex flex-col pb-24">
-                <ProfileView onBack={() => setCurrentView('home')} />
-              </motion.div>
-            )}
+              } />
+              <Route path="/habit/:id/edit" element={
+                <HabitDetailRoute 
+                  habits={habits} 
+                  onUpdate={updateHabit} 
+                  onDelete={deleteHabit} 
+                  onClose={() => navigate(-1)} 
+                />
+              } />
+              <Route path="*" element={null} />
+            </Routes>
           </AnimatePresence>
         </div>
 
         <AnimatePresence>
-          {currentView === 'add' && (
-            <AddHabitView onSave={addHabit} onClose={() => setCurrentView('home')} />
-          )}
-        </AnimatePresence>
-
-        <AnimatePresence>
-          {currentView !== 'add' && currentView !== 'profile' && (
+          {!isModalOpen && (
             <motion.div 
               initial={{ y: 100 }} 
               animate={{ y: 0 }} 
@@ -127,21 +167,35 @@ export default function App() {
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
               className="absolute bottom-0 left-0 right-0 z-40"
             >
-              <BottomNav currentView={currentView} onChangeView={setCurrentView} onAddClick={() => setCurrentView('add')} />
+              <BottomNav currentView={currentTab} onChangeView={(v) => {
+                const viewToPath = {
+                  'home': '/',
+                  'explore': '/explore',
+                  'stats': '/journey',
+                  'streak': '/streak',
+                  'profile': '/profile',
+                  'add': '/add'
+                } as any;
+                if (v === 'add') navigateToModal('/add');
+                else navigate(viewToPath[v]);
+              }} onAddClick={() => navigateToModal('/add')} />
             </motion.div>
-          )}
-        </AnimatePresence>
-        <AnimatePresence>
-          {selectedHabit && (
-            <HabitDetailView 
-              habit={selectedHabit} 
-              onUpdate={updateHabit} 
-              onClose={() => setSelectedHabitId(null)} 
-              onDelete={deleteHabit} 
-            />
           )}
         </AnimatePresence>
       </div>
     </div>
   );
+}
+
+// Helper component for Habit Details
+function HabitDetailRoute({ habits, onUpdate, onDelete, onClose }: { 
+  habits: Habit[], 
+  onUpdate: (h: Habit) => void, 
+  onDelete: (id: string) => void,
+  onClose: () => void 
+}) {
+  const { id } = useParams();
+  const habit = habits.find(h => h.id === id);
+  if (!habit) return null;
+  return <HabitDetailView habit={habit} onUpdate={onUpdate} onDelete={onDelete} onClose={onClose} />;
 }

@@ -49,14 +49,7 @@ export function ExpandableTabs({
   const [selected, setSelected] = React.useState<number | null>(defaultSelected);
   const outsideClickRef = React.useRef(null);
 
-  useOnClickOutside(outsideClickRef, () => {
-    // For a bottom nav, we usually don't want to deselect when clicking outside.
-    // But to keep the component generic as requested, we'll keep this behavior
-    // unless it causes issues. Actually, let's just not reset if it's a bottom nav.
-    // We'll leave it as is, but maybe the parent will handle it.
-    setSelected(null);
-    onChange?.(null);
-  });
+  const outsideClickRef = React.useRef(null);
 
   // Sync with defaultSelected if it changes
   React.useEffect(() => {
