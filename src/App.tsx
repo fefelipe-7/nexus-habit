@@ -58,7 +58,7 @@ export default function App() {
 
   return (
     <div className="h-[100dvh] bg-gray-100 text-[#2d2d2d] font-sans flex justify-center lowercase selection:bg-[#f27d26] selection:text-white overflow-hidden">
-      <div className="w-full max-w-md bg-[#f8f6f2] h-full relative shadow-2xl overflow-hidden flex flex-col">
+      <div className="w-full max-w-[430px] bg-[#f8f6f2] h-full relative shadow-2xl overflow-hidden flex flex-col">
         
         <div className="flex-1 relative overflow-hidden">
           <AnimatePresence mode="wait">

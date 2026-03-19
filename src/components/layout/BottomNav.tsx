@@ -48,8 +48,8 @@ export default function BottomNav({ currentView, onChangeView, onAddClick }: Pro
   return (
     <>
       {/* Gradient fade for smooth scrolling behind the nav */}
-      <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md h-24 bg-gradient-to-t from-[#f8f6f2] via-[#f8f6f2]/80 to-transparent pointer-events-none z-30" />
-      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40">
+      <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] h-24 bg-gradient-to-t from-[#f8f6f2] via-[#f8f6f2]/80 to-transparent pointer-events-none z-30" />
+      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 w-max max-w-[calc(100vw-2rem)]">
         <ExpandableTabs 
           tabs={tabs} 
           activeColor="text-[#f27d26] bg-[#f27d26]/10" 
