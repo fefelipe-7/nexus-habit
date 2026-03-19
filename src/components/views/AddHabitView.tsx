@@ -13,25 +13,33 @@ const DAYS = ['s', 'm', 't', 'w', 't', 'f', 's'];
 const COLORS = ['blue', 'green', 'pink', 'orange', 'yellow', 'purple'];
 
 const CATEGORIES = [
-  { id: 'health', name: 'health & fitness', emojiUrl: '/health.png' },
-  { id: 'productivity', name: 'productivity', emojiUrl: '/productivity.png' },
-  { id: 'mind', name: 'mind', emojiUrl: '/mind.png' },
-  { id: 'learning', name: 'learning', emojiUrl: '/learning.png' },
-  { id: 'finance', name: 'finance', emojiUrl: '/finance.png' },
-  { id: 'relation', name: 'relation', emojiUrl: '/relation.png' },
+  { id: 'health', name: 'health & fitness', emojiUrl: '/newhabitwizard/body.png' },
+  { id: 'productivity', name: 'productivity', emojiUrl: '/newhabitwizard/pencil.png' },
+  { id: 'mind', name: 'mind', emojiUrl: '/newhabitwizard/pray.png' },
+  { id: 'learning', name: 'learning', emojiUrl: '/newhabitwizard/book.png' },
+  { id: 'finance', name: 'finance', emojiUrl: '/newhabitwizard/pig.png' },
+  { id: 'relation', name: 'relation', emojiUrl: '/newhabitwizard/skills.png' },
 ];
 
 const EMOJIS = [
-  'https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Travel%20and%20places/Droplet.png',
-  'https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Travel%20and%20places/Footprints.png',
-  'https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Activities/Dumbbell.png',
-  'https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Objects/Pill.png',
-  'https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Travel%20and%20places/Crescent%20Moon.png',
-  'https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Objects/Laptop.png',
-  'https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Food/Green%20Apple.png',
-  'https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Activities/Person%20Running.png',
-  'https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Objects/Books.png',
-  'https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Zzz.png',
+  '/newhabitwizard/body.png',
+  '/newhabitwizard/book.png',
+  '/newhabitwizard/diamond.png',
+  '/newhabitwizard/dislike.png',
+  '/newhabitwizard/idea.png',
+  '/newhabitwizard/job.png',
+  '/newhabitwizard/medicine.png',
+  '/newhabitwizard/pencil.png',
+  '/newhabitwizard/pig.png',
+  '/newhabitwizard/pray.png',
+  '/newhabitwizard/running.png',
+  '/newhabitwizard/secret.png',
+  '/newhabitwizard/skills.png',
+  '/newhabitwizard/sleep.png',
+  '/newhabitwizard/student.png',
+  '/newhabitwizard/sugar.png',
+  '/newhabitwizard/test.png',
+  '/newhabitwizard/water.png',
 ];
 
 export default function AddHabitView({ onSave, onClose }: Props) {
@@ -44,6 +52,7 @@ export default function AddHabitView({ onSave, onClose }: Props) {
   const [color, setColor] = useState(COLORS[0]);
   const [repeatDays, setRepeatDays] = useState<number[]>([1,2,3,4,5]); // Default M-F
   const [reminders, setReminders] = useState(true);
+  const [duration, setDuration] = useState(10);
 
   const toggleDay = (index: number) => {
     if (repeatDays.includes(index)) {
@@ -77,7 +86,7 @@ export default function AddHabitView({ onSave, onClose }: Props) {
       categoryId,
       createdAt: new Date().toISOString(),
       streak: 0,
-      duration: 10, // Default mock duration
+      duration: duration,
     };
     
     onSave(newHabit);
@@ -257,18 +266,18 @@ export default function AddHabitView({ onSave, onClose }: Props) {
             {/* Goal */}
             <div>
               <div className="flex items-center justify-between mb-2">
-                <label className="text-sm text-[#8c8c8c]">set a goal</label>
-                <input type="checkbox" className="w-4 h-4 rounded text-[#f27d26] focus:ring-[#f27d26] accent-[#f27d26]" />
+                <label className="text-sm text-[#8c8c8c]">set a daily goal (optional)</label>
               </div>
               <div className="flex gap-4">
-                <button className="flex-1 bg-white rounded-2xl px-4 py-4 flex items-center justify-between text-[#8c8c8c] shadow-sm hover:bg-gray-50 transition-colors">
-                  <span>add date</span>
-                  <Calendar size={18} />
-                </button>
-                <button className="flex-1 bg-white rounded-2xl px-4 py-4 flex items-center justify-between text-[#8c8c8c] shadow-sm hover:bg-gray-50 transition-colors">
-                  <span>add amount</span>
-                  <ChevronDown size={18} />
-                </button>
+                <div className="flex-1 bg-white rounded-2xl px-4 py-4 flex items-center justify-between text-[#2d2d2d] shadow-sm">
+                  <input 
+                    type="number" 
+                    placeholder="amount" 
+                    className="w-full outline-none bg-transparent placeholder:text-gray-300"
+                    onChange={(e) => setDuration(parseInt(e.target.value) || 10)}
+                  />
+                  <span className="text-xs text-[#f27d26] font-medium ml-2">mins</span>
+                </div>
               </div>
             </div>
 
