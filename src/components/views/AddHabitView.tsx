@@ -13,13 +13,15 @@ const DAYS = ['s', 'm', 't', 'w', 't', 'f', 's'];
 const COLORS = ['blue', 'green', 'pink', 'orange', 'yellow', 'purple'];
 
 const CATEGORIES = [
-  { id: 'health', name: 'health & fitness', emojiUrl: '/newhabitwizard/body.png' },
-  { id: 'productivity', name: 'productivity', emojiUrl: '/newhabitwizard/pencil.png' },
-  { id: 'mind', name: 'mind', emojiUrl: '/newhabitwizard/pray.png' },
-  { id: 'learning', name: 'learning', emojiUrl: '/newhabitwizard/book.png' },
-  { id: 'finance', name: 'finance', emojiUrl: '/newhabitwizard/pig.png' },
-  { id: 'relation', name: 'relation', emojiUrl: '/newhabitwizard/skills.png' },
+  { id: 'health', name: 'health & fitness', emojiUrl: '/health.png' },
+  { id: 'productivity', name: 'productivity', emojiUrl: '/productivity.png' },
+  { id: 'mind', name: 'mind', emojiUrl: '/mind.png' },
+  { id: 'learning', name: 'learning', emojiUrl: '/learning.png' },
+  { id: 'finance', name: 'finance', emojiUrl: '/finance.png' },
+  { id: 'relation', name: 'relation', emojiUrl: '/relation.png' },
 ];
+
+const UNITS = ['mins', 'hours', 'kg', 'l', 'km', 'cups', 'units'];
 
 const EMOJIS = [
   '/newhabitwizard/body.png',
@@ -53,6 +55,7 @@ export default function AddHabitView({ onSave, onClose }: Props) {
   const [repeatDays, setRepeatDays] = useState<number[]>([1,2,3,4,5]); // Default M-F
   const [reminders, setReminders] = useState(true);
   const [duration, setDuration] = useState(10);
+  const [unit, setUnit] = useState('mins');
 
   const toggleDay = (index: number) => {
     if (repeatDays.includes(index)) {
@@ -87,6 +90,7 @@ export default function AddHabitView({ onSave, onClose }: Props) {
       createdAt: new Date().toISOString(),
       streak: 0,
       duration: duration,
+      unit: unit,
     };
     
     onSave(newHabit);
@@ -268,7 +272,7 @@ export default function AddHabitView({ onSave, onClose }: Props) {
               <div className="flex items-center justify-between mb-2">
                 <label className="text-sm text-[#8c8c8c]">set a daily goal (optional)</label>
               </div>
-              <div className="flex gap-4">
+              <div className="space-y-4">
                 <div className="flex-1 bg-white rounded-2xl px-4 py-4 flex items-center justify-between text-[#2d2d2d] shadow-sm">
                   <input 
                     type="number" 
@@ -276,7 +280,22 @@ export default function AddHabitView({ onSave, onClose }: Props) {
                     className="w-full outline-none bg-transparent placeholder:text-gray-300"
                     onChange={(e) => setDuration(parseInt(e.target.value) || 10)}
                   />
-                  <span className="text-xs text-[#f27d26] font-medium ml-2">mins</span>
+                  <span className="text-xs text-[#f27d26] font-medium ml-2">{unit}</span>
+                </div>
+                
+                <div className="flex flex-wrap gap-2">
+                  {UNITS.map(u => (
+                    <button
+                      key={u}
+                      onClick={() => setUnit(u)}
+                      className={cn(
+                        "px-3 py-1.5 rounded-full text-xs font-medium transition-colors",
+                        unit === u ? "bg-[#f27d26] text-white" : "bg-white text-[#8c8c8c] border border-gray-100"
+                      )}
+                    >
+                      {u}
+                    </button>
+                  ))}
                 </div>
               </div>
             </div>

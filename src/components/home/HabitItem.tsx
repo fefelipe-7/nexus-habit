@@ -72,7 +72,7 @@ export default function HabitItem({ habit, isCompleted, onToggle, isLast }: Prop
         {habit.duration && (
           <div className="flex flex-col items-center gap-1 text-[#8c8c8c]">
             <Clock size={16} />
-            <span className="text-[10px]">{habit.duration} min</span>
+            <span className="text-[10px] whitespace-nowrap">{habit.duration} {habit.unit || 'mins'}</span>
           </div>
         )}
       </motion.div>

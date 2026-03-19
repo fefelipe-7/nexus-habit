@@ -6,7 +6,8 @@ export type Habit = {
   repeatDays: number[]; // 0 = Sun, 1 = Mon, ..., 6 = Sat
   reminders: boolean;
   createdAt: string;
-  duration?: number; // in minutes
+  duration?: number; // amount of the goal
+  unit?: string; // unit labels like 'kg', 'l', 'mins', etc.
   streak?: number;
   categoryId?: string;
 };

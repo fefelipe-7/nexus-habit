@@ -31,6 +31,10 @@ const itemVariants = {
 };
 
 export default function HomeView({ habits, completions, selectedDate, setSelectedDate, toggleCompletion, onShowStreak, onProfileClick }: Props) {
+  const filteredHabits = habits.filter(habit => 
+    habit.repeatDays.includes(selectedDate.getDay())
+  );
+
   return (
     <motion.div 
       className="flex-1 overflow-y-auto relative"
@@ -49,7 +53,7 @@ export default function HomeView({ habits, completions, selectedDate, setSelecte
       </motion.div>
       <motion.div variants={itemVariants}>
         <HabitList 
-          habits={habits} 
+          habits={filteredHabits} 
           completions={completions} 
           selectedDate={selectedDate} 
           onToggleCompletion={toggleCompletion} 
