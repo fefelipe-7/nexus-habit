@@ -13,6 +13,7 @@ type Props = {
   toggleCompletion: (habitId: string, date: Date) => void;
   onShowStreak: () => void;
   onProfileClick: () => void;
+  onHabitClick: (id: string) => void;
 };
 
 const containerVariants = {
@@ -30,7 +31,7 @@ const itemVariants = {
   show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 24 } }
 };
 
-export default function HomeView({ habits, completions, selectedDate, setSelectedDate, toggleCompletion, onShowStreak, onProfileClick }: Props) {
+export default function HomeView({ habits, completions, selectedDate, setSelectedDate, toggleCompletion, onShowStreak, onProfileClick, onHabitClick }: Props) {
   const filteredHabits = habits.filter(habit => 
     habit.repeatDays.includes(selectedDate.getDay())
   );
@@ -58,6 +59,7 @@ export default function HomeView({ habits, completions, selectedDate, setSelecte
           selectedDate={selectedDate} 
           onToggleCompletion={toggleCompletion} 
           onShowStreak={onShowStreak}
+          onHabitClick={onHabitClick}
         />
       </motion.div>
     </motion.div>

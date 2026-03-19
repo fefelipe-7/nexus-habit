@@ -12,6 +12,7 @@ import StatisticsView from './components/views/StatisticsView';
 import StreakView from './components/views/StreakView';
 import ExploreView from './components/views/ExploreView';
 import ProfileView from './components/views/ProfileView';
+import HabitDetailView from './components/views/HabitDetailView';
 import BottomNav from './components/layout/BottomNav';
 import { Habit, Completion } from './types';
 
@@ -24,6 +25,7 @@ const pageVariants = {
 export default function App() {
   const [currentView, setCurrentView] = useState<'home' | 'explore' | 'stats' | 'streak' | 'profile' | 'add'>('home');
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const [selectedHabitId, setSelectedHabitId] = useState<string | null>(null);
   
   // Mock initial data
   const [habits, setHabits] = useState<Habit[]>([
@@ -56,6 +58,17 @@ export default function App() {
     setCurrentView('home');
   };
 
+  const updateHabit = (updatedHabit: Habit) => {
+    setHabits(habits.map(h => h.id === updatedHabit.id ? updatedHabit : h));
+  };
+
+  const deleteHabit = (habitId: string) => {
+    setHabits(habits.filter(h => h.id !== habitId));
+    setSelectedHabitId(null);
+  };
+
+  const selectedHabit = habits.find(h => h.id === selectedHabitId);
+
   return (
     <div className="h-[100dvh] bg-gray-100 text-[#2d2d2d] font-sans flex justify-center lowercase selection:bg-[#f27d26] selection:text-white overflow-hidden">
       <div className="w-full bg-[#f8f6f2] h-full relative shadow-2xl overflow-hidden flex flex-col">
@@ -70,6 +83,7 @@ export default function App() {
                   selectedDate={selectedDate} 
                   setSelectedDate={setSelectedDate}
                   toggleCompletion={toggleCompletion}
+                  onHabitClick={setSelectedHabitId}
                   onShowStreak={() => setCurrentView('streak')}
                   onProfileClick={() => setCurrentView('profile')}
                 />
@@ -82,7 +96,7 @@ export default function App() {
             )}
             {currentView === 'stats' && (
               <motion.div key="stats" variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.2 }} className="absolute inset-0 flex flex-col pb-24">
-                <StatisticsView habits={habits} completions={completions} />
+                <StatisticsView habits={habits} completions={completions} onHabitClick={setSelectedHabitId} />
               </motion.div>
             )}
             {currentView === 'streak' && (
@@ -115,6 +129,16 @@ export default function App() {
             >
               <BottomNav currentView={currentView} onChangeView={setCurrentView} onAddClick={() => setCurrentView('add')} />
             </motion.div>
+          )}
+        </AnimatePresence>
+        <AnimatePresence>
+          {selectedHabit && (
+            <HabitDetailView 
+              habit={selectedHabit} 
+              onUpdate={updateHabit} 
+              onClose={() => setSelectedHabitId(null)} 
+              onDelete={deleteHabit} 
+            />
           )}
         </AnimatePresence>
       </div>

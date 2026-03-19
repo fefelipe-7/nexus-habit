@@ -8,6 +8,7 @@ type Props = {
   habit: Habit;
   isCompleted: boolean;
   onToggle: () => void;
+  onHabitClick: (id: string) => void;
   isLast?: boolean;
 };
 
@@ -25,9 +26,8 @@ export default function HabitItem({ habit, isCompleted, onToggle, isLast }: Prop
 
   return (
     <motion.div 
-      whileTap={{ scale: 0.98 }}
-      className="flex items-start gap-4 relative cursor-pointer"
-      onClick={onToggle}
+      whileTap={{ scale: 0.99 }}
+      className="flex items-start gap-4 relative"
     >
       {/* Timeline line */}
       {!isLast && (
@@ -36,6 +36,10 @@ export default function HabitItem({ habit, isCompleted, onToggle, isLast }: Prop
       
       {/* Checkbox */}
       <button
+        onClick={(e) => {
+          e.stopPropagation();
+          onToggle();
+        }}
         className={cn(
           "w-6 h-6 rounded-full border-2 flex items-center justify-center mt-3 z-10 transition-colors shrink-0",
           isCompleted ? "border-[#f27d26] bg-[#f27d26]" : "border-[#d1d1d1] bg-[#f8f6f2]"
@@ -52,12 +56,13 @@ export default function HabitItem({ habit, isCompleted, onToggle, isLast }: Prop
 
       {/* Card */}
       <motion.div 
+        onClick={() => onHabitClick(habit.id)}
         animate={{ 
           scale: isCompleted ? 0.98 : 1,
           opacity: isCompleted ? 0.6 : 1,
         }}
         transition={{ type: "spring", stiffness: 300, damping: 20 }}
-        className="flex-1 bg-white rounded-2xl p-4 shadow-sm flex items-center justify-between"
+        className="flex-1 bg-white rounded-2xl p-4 shadow-sm flex items-center justify-between cursor-pointer active:scale-95 transition-transform"
       >
         <div className="flex items-center gap-4">
           <div className={cn("w-12 h-12 rounded-xl flex items-center justify-center", colorClass)}>

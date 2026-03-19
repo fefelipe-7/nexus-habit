@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 type Props = {
   habits: Habit[];
   completions: Completion[];
+  onHabitClick: (id: string) => void;
 };
 
 const colorMap: Record<string, string> = {
@@ -41,7 +42,7 @@ const itemVariants = {
   show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 24 } }
 };
 
-export default function StatisticsView({ habits, completions }: Props) {
+export default function StatisticsView({ habits, completions, onHabitClick }: Props) {
   const [tab, setTab] = useState<'today' | 'weekly' | 'overall'>('weekly');
   const today = new Date();
   const startOfCurrentWeek = startOfWeek(today, { weekStartsOn: 1 });
@@ -123,7 +124,12 @@ export default function StatisticsView({ habits, completions }: Props) {
                 const heatColor = heatMapColors[habit.color] || 'bg-blue-300';
                 
                 return (
-                  <motion.div key={habit.id} variants={itemVariants} className="bg-white rounded-3xl p-5 shadow-sm">
+                  <motion.div 
+                    key={habit.id} 
+                    variants={itemVariants} 
+                    className="bg-white rounded-3xl p-5 shadow-sm cursor-pointer"
+                    onClick={() => onHabitClick(habit.id)}
+                  >
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-3">
                         <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center", colorClass)}>

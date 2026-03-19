@@ -10,6 +10,7 @@ type Props = {
   selectedDate: Date;
   onToggleCompletion: (habitId: string, date: Date) => void;
   onShowStreak: () => void;
+  onHabitClick: (id: string) => void;
 };
 
 const containerVariants = {
@@ -27,7 +28,7 @@ const itemVariants = {
   show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 24 } }
 };
 
-export default function HabitList({ habits, completions, selectedDate, onToggleCompletion, onShowStreak }: Props) {
+export default function HabitList({ habits, completions, selectedDate, onToggleCompletion, onShowStreak, onHabitClick }: Props) {
   const dateStr = format(selectedDate, 'yyyy-MM-dd');
   
   // Filter habits for the selected day of the week
@@ -65,6 +66,7 @@ export default function HabitList({ habits, completions, selectedDate, onToggleC
                     habit={habit}
                     isCompleted={isCompleted}
                     onToggle={() => onToggleCompletion(habit.id, selectedDate)}
+                    onHabitClick={onHabitClick}
                     isLast={index === todaysHabits.length - 1}
                   />
                 </motion.div>
