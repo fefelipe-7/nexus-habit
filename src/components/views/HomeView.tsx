@@ -12,6 +12,7 @@ type Props = {
   setSelectedDate: (date: Date) => void;
   toggleCompletion: (habitId: string, date: Date) => void;
   onShowStreak: () => void;
+  onProfileClick: () => void;
 };
 
 const containerVariants = {
@@ -29,7 +30,7 @@ const itemVariants = {
   show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 24 } }
 };
 
-export default function HomeView({ habits, completions, selectedDate, setSelectedDate, toggleCompletion, onShowStreak }: Props) {
+export default function HomeView({ habits, completions, selectedDate, setSelectedDate, toggleCompletion, onShowStreak, onProfileClick }: Props) {
   return (
     <motion.div 
       className="flex-1 overflow-y-auto relative"
@@ -38,7 +39,7 @@ export default function HomeView({ habits, completions, selectedDate, setSelecte
       animate="show"
     >
       <motion.div variants={itemVariants}>
-        <Header date={selectedDate} />
+        <Header date={selectedDate} onProfileClick={onProfileClick} />
       </motion.div>
       <motion.div variants={itemVariants}>
         <CalendarStrip selectedDate={selectedDate} onSelectDate={setSelectedDate} />

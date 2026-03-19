@@ -1,7 +1,12 @@
 import { format } from 'date-fns';
 import { motion } from 'framer-motion';
 
-export default function Header({ date }: { date: Date }) {
+type Props = {
+  date: Date;
+  onProfileClick: () => void;
+};
+
+export default function Header({ date, onProfileClick }: Props) {
   return (
     <div className="flex items-center justify-between px-6 pt-12 pb-4">
       <div>
@@ -22,7 +27,8 @@ export default function Header({ date }: { date: Date }) {
           {format(date, 'EEEE, d MMMM, yyyy')}
         </motion.p>
       </div>
-      <motion.div 
+      <motion.button 
+        onClick={onProfileClick}
         className="w-12 h-12 rounded-full bg-[#ffdfbf] overflow-hidden border-2 border-white shadow-sm"
         initial={{ opacity: 0, scale: 0.5 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -30,7 +36,7 @@ export default function Header({ date }: { date: Date }) {
         whileTap={{ scale: 0.9 }}
       >
         <img src="https://api.dicebear.com/7.x/adventurer/svg?seed=budi&backgroundColor=ffdfbf" alt="avatar" className="w-full h-full object-cover" />
-      </motion.div>
+      </motion.button>
     </div>
   );
 }

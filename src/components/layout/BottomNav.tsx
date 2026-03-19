@@ -1,10 +1,10 @@
-import { Home, Compass, ClipboardList, User, Plus } from 'lucide-react';
+import { Home, Compass, ClipboardList, Flame, Plus } from 'lucide-react';
 import { cn } from '../../utils/cn';
 import { ExpandableTabs, TabItem } from '../ui/expandable-tabs';
 
 type Props = {
-  currentView: 'home' | 'explore' | 'stats' | 'profile' | 'add';
-  onChangeView: (view: 'home' | 'explore' | 'stats' | 'profile' | 'add') => void;
+  currentView: 'home' | 'explore' | 'stats' | 'streak' | 'profile' | 'add';
+  onChangeView: (view: 'home' | 'explore' | 'stats' | 'streak' | 'profile' | 'add') => void;
   onAddClick: () => void;
 };
 
@@ -16,7 +16,7 @@ export default function BottomNav({ currentView, onChangeView, onAddClick }: Pro
     { title: "Add", icon: Plus },
     { type: "separator" },
     { title: "Journey", icon: ClipboardList },
-    { title: "Profile", icon: User },
+    { title: "Streak", icon: Flame },
   ];
 
   const viewToIndex: Record<string, number> = {
@@ -24,15 +24,15 @@ export default function BottomNav({ currentView, onChangeView, onAddClick }: Pro
     'explore': 1,
     'add': 3,
     'stats': 5,
-    'profile': 6,
+    'streak': 6,
   };
 
-  const indexToView: Record<number, 'home' | 'explore' | 'stats' | 'profile' | 'add'> = {
+  const indexToView: Record<number, 'home' | 'explore' | 'stats' | 'streak' | 'add'> = {
     0: 'home',
     1: 'explore',
     3: 'add',
     5: 'stats',
-    6: 'profile',
+    6: 'streak',
   };
 
   const handleTabChange = (index: number | null) => {

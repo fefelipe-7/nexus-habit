@@ -22,9 +22,8 @@ const pageVariants = {
 };
 
 export default function App() {
-  const [currentView, setCurrentView] = useState<'home' | 'explore' | 'stats' | 'profile' | 'add'>('home');
+  const [currentView, setCurrentView] = useState<'home' | 'explore' | 'stats' | 'streak' | 'profile' | 'add'>('home');
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [showStreak, setShowStreak] = useState(false);
   
   // Mock initial data
   const [habits, setHabits] = useState<Habit[]>([
@@ -71,7 +70,8 @@ export default function App() {
                   selectedDate={selectedDate} 
                   setSelectedDate={setSelectedDate}
                   toggleCompletion={toggleCompletion}
-                  onShowStreak={() => setShowStreak(true)}
+                  onShowStreak={() => setCurrentView('streak')}
+                  onProfileClick={() => setCurrentView('profile')}
                 />
               </motion.div>
             )}
@@ -85,9 +85,14 @@ export default function App() {
                 <StatisticsView habits={habits} completions={completions} />
               </motion.div>
             )}
+            {currentView === 'streak' && (
+              <motion.div key="streak" variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.2 }} className="absolute inset-0 flex flex-col pb-24">
+                <StreakView streak={16} />
+              </motion.div>
+            )}
             {currentView === 'profile' && (
               <motion.div key="profile" variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.2 }} className="absolute inset-0 flex flex-col pb-24">
-                <ProfileView />
+                <ProfileView onBack={() => setCurrentView('home')} />
               </motion.div>
             )}
           </AnimatePresence>
@@ -98,15 +103,9 @@ export default function App() {
             <AddHabitView onSave={addHabit} onClose={() => setCurrentView('home')} />
           )}
         </AnimatePresence>
-        
-        <AnimatePresence>
-          {showStreak && (
-            <StreakView streak={16} onClose={() => setShowStreak(false)} />
-          )}
-        </AnimatePresence>
 
         <AnimatePresence>
-          {currentView !== 'add' && !showStreak && (
+          {currentView !== 'add' && currentView !== 'profile' && (
             <motion.div 
               initial={{ y: 100 }} 
               animate={{ y: 0 }} 

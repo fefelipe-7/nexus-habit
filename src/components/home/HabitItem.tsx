@@ -26,7 +26,8 @@ export default function HabitItem({ habit, isCompleted, onToggle, isLast }: Prop
   return (
     <motion.div 
       whileTap={{ scale: 0.98 }}
-      className="flex items-start gap-4 relative"
+      className="flex items-start gap-4 relative cursor-pointer"
+      onClick={onToggle}
     >
       {/* Timeline line */}
       {!isLast && (
@@ -35,7 +36,6 @@ export default function HabitItem({ habit, isCompleted, onToggle, isLast }: Prop
       
       {/* Checkbox */}
       <button
-        onClick={onToggle}
         className={cn(
           "w-6 h-6 rounded-full border-2 flex items-center justify-center mt-3 z-10 transition-colors shrink-0",
           isCompleted ? "border-[#f27d26] bg-[#f27d26]" : "border-[#d1d1d1] bg-[#f8f6f2]"
@@ -51,16 +51,20 @@ export default function HabitItem({ habit, isCompleted, onToggle, isLast }: Prop
       </button>
 
       {/* Card */}
-      <div className={cn(
-        "flex-1 bg-white rounded-2xl p-4 shadow-sm flex items-center justify-between transition-opacity duration-300",
-        isCompleted && "opacity-60"
-      )}>
+      <motion.div 
+        animate={{ 
+          scale: isCompleted ? 0.98 : 1,
+          opacity: isCompleted ? 0.6 : 1,
+        }}
+        transition={{ type: "spring", stiffness: 300, damping: 20 }}
+        className="flex-1 bg-white rounded-2xl p-4 shadow-sm flex items-center justify-between"
+      >
         <div className="flex items-center gap-4">
           <div className={cn("w-12 h-12 rounded-xl flex items-center justify-center", colorClass)}>
             <img src={habit.emojiUrl} alt={habit.name} className="w-8 h-8 object-contain drop-shadow-sm" />
           </div>
           <div>
-            <h3 className="text-[#2d2d2d] font-medium text-sm">{habit.name}</h3>
+            <h3 className={cn("text-[#2d2d2d] font-medium text-sm transition-all duration-300", isCompleted && "line-through text-[#8c8c8c]")}>{habit.name}</h3>
             <p className="text-[#8c8c8c] text-xs mt-1">streak {habit.streak || 0} days</p>
           </div>
         </div>
@@ -71,7 +75,7 @@ export default function HabitItem({ habit, isCompleted, onToggle, isLast }: Prop
             <span className="text-[10px]">{habit.duration} min</span>
           </div>
         )}
-      </div>
+      </motion.div>
     </motion.div>
   );
 }
