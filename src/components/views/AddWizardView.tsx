@@ -7,8 +7,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { format } from 'date-fns';
 
 type Props = {
-  onSave: (habit: Habit) => void;
-  onAddTask: (task: Task) => void;
+  onSave: (habit: any) => void;
+  onAddTask: (task: any) => void;
   onClose: () => void;
 };
 
@@ -89,20 +89,16 @@ export default function AddWizardView({ onSave, onAddTask, onClose }: Props) {
 
   const handleSaveHabit = () => {
     onSave({
-      id: Math.random().toString(36).substr(2, 9),
       name: name.toLowerCase(),
       emojiUrl, color, repeatDays, reminders, categoryId,
-      createdAt: new Date().toISOString(),
-      streak: 0, duration, unit,
+      duration, unit,
     });
   };
 
   const handleSaveTask = () => {
     onAddTask({
-      id: Math.random().toString(36).substr(2, 9),
       name: name.toLowerCase(),
       description, deadline, priority, estimatedTime, emojiUrl, color,
-      createdAt: new Date().toISOString(),
     });
   };
 

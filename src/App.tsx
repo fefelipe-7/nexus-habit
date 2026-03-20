@@ -90,13 +90,14 @@ export default function App() {
                     onTaskClick={(id) => navigateToModal(`/task/${id}`)}
                     onShowStreak={() => navigate('/streak')}
                     onProfileClick={() => navigateToModal('/profile')}
+                    isLoading={habitsLoading || tasksLoading}
                   />
                 </motion.div>
               } />
               
               <Route path="/tasks" element={
                 <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.2 }} className="absolute inset-0 flex flex-col pb-24 bg-[#f8f6f2]">
-                  <TasksView tasks={tasks} onToggleTask={toggleTask} onTaskClick={(id) => navigateToModal(`/task/${id}`)} />
+                  <TasksView tasks={tasks} onToggleTask={toggleTask} onTaskClick={(id) => navigateToModal(`/task/${id}`)} isLoading={tasksLoading} />
                 </motion.div>
               } />
 

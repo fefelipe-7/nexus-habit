@@ -3,7 +3,11 @@ import Header from '../layout/Header';
 import CalendarStrip from '../home/CalendarStrip';
 import ReminderCard from '../home/ReminderCard';
 import HabitList from '../home/HabitList';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import { HabitSkeleton, TaskSkeleton } from '../ui/Skeleton';
+import { EmptyState } from '../ui/EmptyState';
+import { Plus, Coffee } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 type Props = {
   habits: Habit[];
@@ -17,6 +21,7 @@ type Props = {
   onProfileClick: () => void;
   onHabitClick: (id: string) => void;
   onTaskClick: (id: string) => void;
+  isLoading?: boolean;
 };
 
 const containerVariants = {
@@ -34,7 +39,8 @@ const itemVariants = {
   show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 24 } }
 };
 
-export default function HomeView({ habits, tasks, completions, selectedDate, setSelectedDate, toggleCompletion, toggleTask, onShowStreak, onProfileClick, onHabitClick, onTaskClick }: Props) {
+export default function HomeView({ habits, tasks, completions, selectedDate, setSelectedDate, toggleCompletion, toggleTask, onShowStreak, onProfileClick, onHabitClick, onTaskClick, isLoading }: Props) {
+  const navigate = useNavigate();
   const filteredHabits = habits.filter(habit => 
     habit.repeatDays.includes(selectedDate.getDay())
   );
@@ -55,18 +61,42 @@ export default function HomeView({ habits, tasks, completions, selectedDate, set
       <motion.div variants={itemVariants}>
         <ReminderCard />
       </motion.div>
-      <motion.div variants={itemVariants}>
-        <HabitList 
-          habits={filteredHabits} 
-          tasks={tasks}
-          completions={completions} 
-          selectedDate={selectedDate} 
-          onToggleCompletion={toggleCompletion} 
-          onToggleTask={toggleTask}
-          onShowStreak={onShowStreak}
-          onHabitClick={onHabitClick}
-          onTaskClick={onTaskClick}
-        />
+      <motion.div variants={itemVariants} className="px-6 space-y-4">
+        <AnimatePresence mode="wait">
+          {isLoading ? (
+            <motion.div key="skeletons" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-4">
+              <HabitSkeleton />
+              <HabitSkeleton />
+              <TaskSkeleton />
+            </motion.div>
+          ) : filteredHabits.length === 0 && tasks.length === 0 ? (
+            <motion.div key="empty" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+              <EmptyState 
+                icon={Coffee}
+                title="nothing for today?"
+                description="it looks like you have a clear schedule. why not start a new habit?"
+                action={{
+                  label: "Add New Habit",
+                  onClick: () => navigate('/add')
+                }}
+              />
+            </motion.div>
+          ) : (
+            <motion.div key="list" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+              <HabitList 
+                habits={filteredHabits} 
+                tasks={tasks}
+                completions={completions} 
+                selectedDate={selectedDate} 
+                onToggleCompletion={toggleCompletion} 
+                onToggleTask={toggleTask}
+                onShowStreak={onShowStreak}
+                onHabitClick={onHabitClick}
+                onTaskClick={onTaskClick}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </motion.div>
     </motion.div>
   );

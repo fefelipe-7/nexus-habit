@@ -3,16 +3,19 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { Task, Priority } from '../../types';
 import { cn } from '../../utils/cn';
-import { Plus, Search, Filter, MoreHorizontal, Calendar, Clock, CheckCircle2, Circle, LayoutGrid, List as ListIcon, CalendarDays, ChevronRight } from 'lucide-react';
+import { Plus, Search, Filter, MoreHorizontal, Calendar, Clock, CheckCircle2, Circle, LayoutGrid, List as ListIcon, CalendarDays, ChevronRight, PackageOpen } from 'lucide-react';
 import { format, differenceInDays, isPast, isToday, isTomorrow, startOfDay } from 'date-fns';
+import { HabitSkeleton, TaskSkeleton } from '../ui/Skeleton';
+import { EmptyState } from '../ui/EmptyState';
 
 type Props = {
   tasks: Task[];
   onToggleTask: (id: string) => void;
   onTaskClick: (id: string) => void;
+  isLoading?: boolean;
 };
 
-export default function TasksView({ tasks, onToggleTask, onTaskClick }: Props) {
+export default function TasksView({ tasks, onToggleTask, onTaskClick, isLoading }: Props) {
   const [activeTab, setActiveTab] = useState<'board' | 'list' | 'timeline'>('list');
   const navigate = useNavigate();
 
@@ -62,7 +65,7 @@ export default function TasksView({ tasks, onToggleTask, onTaskClick }: Props) {
         </div>
 
         {/* Dynamic Tab Switcher */}
-        <div className="flex bg-white/50 backdrop-blur-sm border border-white rounded-[24px] p-1.5 mb-8 shadow-sm">
+        <div className="flex p-1 mb-8">
           {[
             { id: 'board', icon: LayoutGrid },
             { id: 'list', icon: ListIcon },
@@ -91,9 +94,33 @@ export default function TasksView({ tasks, onToggleTask, onTaskClick }: Props) {
             exit={{ opacity: 0, y: -10 }}
             className="pb-32"
           >
-            {activeTab === 'list' && <ListView tasks={todoTasks} completed={completedTasks} onToggle={onToggleTask} onDetail={onTaskClick} getUrgencyColor={getUrgencyColor} getPriorityColor={getPriorityColor} />}
-            {activeTab === 'board' && <BoardView tasks={todoTasks} onToggle={onToggleTask} onDetail={onTaskClick} getPriorityColor={getPriorityColor} />}
-            {activeTab === 'timeline' && <TimelineView tasks={todoTasks} onToggle={onToggleTask} onDetail={onTaskClick} getUrgencyColor={getUrgencyColor} />}
+            {isLoading ? (
+              <div className="space-y-6">
+                <div className="flex gap-4">
+                  <div className="h-4 bg-gray-100 rounded-full w-24 animate-pulse" />
+                  <div className="h-4 bg-gray-100 rounded-full w-12 animate-pulse" />
+                </div>
+                <TaskSkeleton />
+                <TaskSkeleton />
+                <TaskSkeleton />
+              </div>
+            ) : tasks.length === 0 ? (
+              <EmptyState 
+                icon={PackageOpen}
+                title="No tasks yet"
+                description="Your task list is empty. Add your first objective to get started!"
+                action={{
+                  label: "Create Task",
+                  onClick: () => navigate('/add/task/1')
+                }}
+              />
+            ) : (
+              <>
+                {activeTab === 'list' && <ListView tasks={todoTasks} completed={completedTasks} onToggle={onToggleTask} onDetail={onTaskClick} getUrgencyColor={getUrgencyColor} getPriorityColor={getPriorityColor} />}
+                {activeTab === 'board' && <BoardView tasks={todoTasks} onToggle={onToggleTask} onDetail={onTaskClick} getPriorityColor={getPriorityColor} />}
+                {activeTab === 'timeline' && <TimelineView tasks={todoTasks} onToggle={onToggleTask} onDetail={onTaskClick} getUrgencyColor={getUrgencyColor} />}
+              </>
+            )}
           </motion.div>
         </AnimatePresence>
       </div>
