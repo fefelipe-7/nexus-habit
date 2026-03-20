@@ -13,9 +13,10 @@ type Props = {
   onToggleTask: (taskId: string) => void;
   onShowStreak: () => void;
   onHabitClick: (id: string) => void;
+  onTaskClick: (id: string) => void;
 };
 
-export default function HabitList({ habits, tasks, completions, selectedDate, onToggleCompletion, onToggleTask, onShowStreak, onHabitClick }: Props) {
+export default function HabitList({ habits, tasks, completions, selectedDate, onToggleCompletion, onToggleTask, onShowStreak, onHabitClick, onTaskClick }: Props) {
   const dateStr = format(selectedDate, 'yyyy-MM-dd');
   
   // Filter habits for the selected day of the week
@@ -88,9 +89,10 @@ export default function HabitList({ habits, tasks, completions, selectedDate, on
                   show: { opacity: 1, y: 0 }
                 }}
                 className={cn(
-                  "bg-white rounded-3xl p-4 shadow-sm flex items-center justify-between border-l-4 transition-all",
+                  "bg-white rounded-3xl p-4 shadow-sm flex items-center justify-between border-l-4 transition-all active:scale-[0.98]",
                   task.completedAt ? "opacity-50 border-green-400" : "border-orange-400"
                 )}
+                onClick={() => onTaskClick(task.id)}
               >
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-2xl bg-gray-50 flex items-center justify-center">
@@ -104,10 +106,10 @@ export default function HabitList({ habits, tasks, completions, selectedDate, on
                   </div>
                 </div>
                 <button 
-                  onClick={() => onToggleTask(task.id)}
+                  onClick={(e) => { e.stopPropagation(); onToggleTask(task.id); }}
                   className={cn(
                     "w-8 h-8 rounded-full flex items-center justify-center transition-all",
-                    task.completedAt ? "bg-green-500 text-white" : "bg-gray-100 text-gray-300"
+                    task.completedAt ? "bg-green-500 text-white shadow-sm" : "bg-gray-100 text-gray-300 active:scale-90"
                   )}
                 >
                   <CheckCircle2 size={20} />

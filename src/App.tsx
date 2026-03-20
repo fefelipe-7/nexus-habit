@@ -9,6 +9,7 @@ import StreakView from './components/views/StreakView';
 import TasksView from './components/views/TasksView';
 import ProfileView from './components/views/ProfileView';
 import HabitDetailView from './components/views/HabitDetailView';
+import TaskDetailView from './components/views/TaskDetailView';
 import BottomNav from './components/layout/BottomNav';
 import { Habit, Completion, Task } from './types';
 
@@ -17,6 +18,14 @@ const pageVariants = {
   animate: { opacity: 1, y: 0, scale: 1 },
   exit: { opacity: 0, y: -10, scale: 0.98 }
 };
+
+function TaskDetailRoute({ tasks, onUpdate, onDelete }: { tasks: Task[], onUpdate: (task: Task) => void, onDelete: (id: string) => void }) {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const task = tasks.find(t => t.id === id);
+  if (!task) return <Navigate to="/tasks" replace />;
+  return <TaskDetailView task={task} onUpdate={onUpdate} onDelete={onDelete} onClose={() => navigate('/tasks')} />;
+}
 
 export default function App() {
   const location = useLocation();
@@ -55,6 +64,14 @@ export default function App() {
       newCompletions = [...completions, { habitId, date: dateStr }];
     }
     setCompletions(newCompletions);
+  };
+
+  const updateTask = (updatedTask: Task) => {
+    setTasks(prev => prev.map(t => t.id === updatedTask.id ? updatedTask : t));
+  };
+
+  const deleteTask = (taskId: string) => {
+    setTasks(prev => prev.filter(t => t.id !== taskId));
   };
 
   const toggleTask = (taskId: string) => {
@@ -97,7 +114,7 @@ export default function App() {
   else if (path === '/streak') currentTab = 'streak';
   else if (path === '/profile') currentTab = 'profile';
 
-  const isModalOpen = !!background || location.pathname === '/add' || location.pathname.startsWith('/habit/') || location.pathname === '/profile';
+  const isModalOpen = !!background || location.pathname === '/add' || location.pathname.startsWith('/habit/') || location.pathname.startsWith('/task/') || location.pathname === '/profile';
 
   return (
     <div className="h-[100dvh] bg-gray-100 text-[#2d2d2d] font-sans flex justify-center lowercase selection:bg-[#f27d26] selection:text-white overflow-hidden">
@@ -118,6 +135,7 @@ export default function App() {
                     toggleCompletion={toggleCompletion}
                     toggleTask={toggleTask}
                     onHabitClick={(id) => navigateToModal(`/habit/${id}`)}
+                    onTaskClick={(id) => navigateToModal(`/task/${id}`)}
                     onShowStreak={() => navigate('/streak')}
                     onProfileClick={() => navigateToModal('/profile')}
                   />
@@ -126,7 +144,7 @@ export default function App() {
               
               <Route path="/tasks" element={
                 <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.2 }} className="absolute inset-0 flex flex-col pb-24 bg-[#f8f6f2]">
-                  <TasksView tasks={tasks} onToggleTask={toggleTask} />
+                  <TasksView tasks={tasks} onToggleTask={toggleTask} onTaskClick={(id) => navigateToModal(`/task/${id}`)} />
                 </motion.div>
               } />
 
@@ -149,6 +167,9 @@ export default function App() {
             <Routes location={location} key={location.pathname}>
               <Route path="/add/*" element={
                 <AddWizardView onSave={addHabit} onAddTask={addTask} onClose={() => navigate('/')} />
+              } />
+              <Route path="/task/:id/*" element={
+                <TaskDetailRoute tasks={tasks} onUpdate={updateTask} onDelete={deleteTask} />
               } />
               <Route path="/profile" element={
                 <motion.div initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} transition={{ type: 'spring', damping: 25, stiffness: 200 }} className="absolute inset-0 z-50 bg-[#f8f6f2] flex flex-col">

@@ -1,171 +1,291 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Task } from '../../types';
+import { useNavigate } from 'react-router-dom';
+import { Task, Priority } from '../../types';
 import { cn } from '../../utils/cn';
-import { Plus, Search, Filter, MoreHorizontal, Calendar, Clock, CheckCircle2, Circle } from 'lucide-react';
-import { format, differenceInDays, isPast, isToday } from 'date-fns';
+import { Plus, Search, Filter, MoreHorizontal, Calendar, Clock, CheckCircle2, Circle, LayoutGrid, List as ListIcon, CalendarDays, ChevronRight } from 'lucide-react';
+import { format, differenceInDays, isPast, isToday, isTomorrow, startOfDay } from 'date-fns';
 
 type Props = {
   tasks: Task[];
   onToggleTask: (id: string) => void;
+  onTaskClick: (id: string) => void;
 };
 
-export default function TasksView({ tasks, onToggleTask }: Props) {
+export default function TasksView({ tasks, onToggleTask, onTaskClick }: Props) {
   const [activeTab, setActiveTab] = useState<'board' | 'list' | 'timeline'>('list');
+  const navigate = useNavigate();
 
   const getUrgencyColor = (deadline: string) => {
     const date = new Date(deadline);
-    const daysLeft = differenceInDays(date, new Date());
+    const today = startOfDay(new Date());
+    const daysLeft = differenceInDays(startOfDay(date), today);
     
     if (isPast(date) && !isToday(date)) return 'border-purple-500 text-purple-600 bg-purple-50';
     if (isToday(date)) return 'border-red-500 text-red-600 bg-red-50';
-    if (daysLeft <= 3) return 'border-orange-500 text-orange-600 bg-orange-50';
-    return 'border-gray-200 text-gray-600 bg-white';
+    if (daysLeft <= 3 && daysLeft >= 0) return 'border-orange-500 text-orange-600 bg-orange-50';
+    return 'border-gray-200 text-gray-400 bg-white';
   };
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
       case 'high': return 'bg-red-100 text-red-600';
-      case 'medium': return 'bg-orange-100 text-orange-600';
+      case 'medium': return 'bg-[#2d2d2d] text-white';
       case 'low': return 'bg-blue-100 text-blue-600';
       default: return 'bg-gray-100 text-gray-600';
     }
   };
 
-  const todoTasks = tasks.filter(t => !t.completedAt);
-  const completedTasks = tasks.filter(t => t.completedAt);
+  const todoTasks = useMemo(() => tasks.filter(t => !t.completedAt), [tasks]);
+  const completedTasks = useMemo(() => tasks.filter(t => t.completedAt), [tasks]);
 
   return (
-    <div className="flex-1 overflow-y-auto bg-[#f8f6f2] flex flex-col h-full">
+    <div className="flex-1 overflow-y-auto bg-[#f8f6f2] flex flex-col h-full scrollbar-hide lowercase">
       {/* Header */}
       <div className="px-6 pt-12 pb-6">
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-3xl font-medium text-[#2d2d2d] tracking-tight">tasks</h1>
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex flex-col">
+            <h1 className="text-3xl font-black text-[#2d2d2d] tracking-tighter">Tasks</h1>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-[#8c8c8c]">{todoTasks.length} pending items</p>
+          </div>
           <div className="flex gap-2">
-            <button className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm text-gray-500">
+            <button className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm text-gray-400 active:scale-90 transition-transform">
               <Search size={18} />
             </button>
-            <button className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm text-gray-500">
-              <Filter size={18} />
+            <button 
+              onClick={() => navigate('/add/task/1')}
+              className="w-10 h-10 bg-[#f27d26] rounded-full flex items-center justify-center shadow-md text-white active:scale-95 transition-transform"
+            >
+              <Plus size={20} />
             </button>
           </div>
         </div>
 
-        {/* Tabs */}
-        <div className="flex bg-gray-200/50 rounded-2xl p-1 mb-8">
-          {['board', 'list', 'timeline'].map((tab) => (
+        {/* Dynamic Tab Switcher */}
+        <div className="flex bg-white/50 backdrop-blur-sm border border-white rounded-[24px] p-1.5 mb-8 shadow-sm">
+          {[
+            { id: 'board', icon: LayoutGrid },
+            { id: 'list', icon: ListIcon },
+            { id: 'timeline', icon: CalendarDays }
+          ].map((tab) => (
             <button
-              key={tab}
-              onClick={() => setActiveTab(tab as any)}
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id as any)}
               className={cn(
-                "flex-1 py-2 text-sm font-medium rounded-xl transition-all capitalize",
-                activeTab === tab ? "bg-white text-[#2d2d2d] shadow-sm" : "text-[#8c8c8c]"
+                "flex-1 py-2.5 rounded-[18px] flex items-center justify-center gap-2 transition-all duration-300",
+                activeTab === tab.id ? "bg-[#2d2d2d] text-white shadow-lg scale-[1.02]" : "text-[#8c8c8c] hover:bg-white/50"
               )}
             >
-              {tab}
+              <tab.icon size={16} />
+              <span className="text-[10px] font-black uppercase tracking-widest">{tab.id}</span>
             </button>
           ))}
         </div>
 
-        {/* Task List Content */}
+        {/* Content Area */}
         <AnimatePresence mode="wait">
           <motion.div
             key={activeTab}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="space-y-8"
+            className="pb-32"
           >
-            {/* To Do Section */}
-            <div>
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2">
-                  <div className="w-1 h-4 bg-orange-500 rounded-full" />
-                  <h2 className="font-medium text-[#2d2d2d]">To Do</h2>
-                  <span className="text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">{todoTasks.length}</span>
-                </div>
-                <div className="flex gap-2">
-                  <Plus size={18} className="text-gray-400" />
-                  <MoreHorizontal size={18} className="text-gray-400" />
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                {todoTasks.map(task => (
-                  <motion.div
-                    key={task.id}
-                    layoutId={task.id}
-                    className={cn(
-                      "bg-white rounded-3xl p-5 shadow-sm border-l-4 transition-all active:scale-[0.98]",
-                      getUrgencyColor(task.deadline).split(' ')[0]
-                    )}
-                    onClick={() => onToggleTask(task.id)}
-                  >
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="flex items-center gap-3">
-                        <div className={cn("w-10 h-10 rounded-2xl flex items-center justify-center bg-gray-50", task.color === 'pink' ? 'bg-pink-50' : '')}>
-                          <img src={task.emojiUrl} alt="" className="w-6 h-6 object-contain" />
-                        </div>
-                        <div>
-                          <h3 className="font-medium text-[#2d2d2d] leading-tight">{task.name}</h3>
-                          {task.description && <p className="text-xs text-gray-400 line-clamp-1">{task.description}</p>}
-                        </div>
-                      </div>
-                      <button className="text-gray-300">
-                        <Circle size={20} />
-                      </button>
-                    </div>
-
-                    <div className="flex items-center justify-between">
-                      <div className="flex gap-2">
-                        <span className={cn("text-[10px] px-2 py-0.5 rounded-full font-medium uppercase", getPriorityColor(task.priority))}>
-                          {task.priority}
-                        </span>
-                        <div className="flex items-center gap-1 text-[10px] text-gray-400">
-                          <Clock size={12} />
-                          <span>{task.estimatedTime}m</span>
-                        </div>
-                      </div>
-                      <div className={cn(
-                        "flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-full",
-                        getUrgencyColor(task.deadline).split(' ').slice(1).join(' ')
-                      )}>
-                        <Calendar size={12} />
-                        <span>
-                          {isToday(new Date(task.deadline)) ? 'Today' : format(new Date(task.deadline), 'MMM d')}
-                        </span>
-                      </div>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-
-            {/* Completed Section (Optional) */}
-            {completedTasks.length > 0 && (
-              <div>
-                <div className="flex items-center gap-2 mb-4">
-                  <div className="w-1 h-4 bg-green-500 rounded-full" />
-                  <h2 className="font-medium text-[#2d2d2d]">Completed</h2>
-                  <span className="text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">{completedTasks.length}</span>
-                </div>
-                <div className="space-y-4 opacity-60">
-                  {completedTasks.map(task => (
-                    <div key={task.id} className="bg-white rounded-3xl p-5 shadow-sm border-l-4 border-green-200">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <CheckCircle2 size={24} className="text-green-500" />
-                          <h3 className="font-medium text-[#2d2d2d] line-through">{task.name}</h3>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
+            {activeTab === 'list' && <ListView tasks={todoTasks} completed={completedTasks} onToggle={onToggleTask} onDetail={onTaskClick} getUrgencyColor={getUrgencyColor} getPriorityColor={getPriorityColor} />}
+            {activeTab === 'board' && <BoardView tasks={todoTasks} onToggle={onToggleTask} onDetail={onTaskClick} getPriorityColor={getPriorityColor} />}
+            {activeTab === 'timeline' && <TimelineView tasks={todoTasks} onToggle={onToggleTask} onDetail={onTaskClick} getUrgencyColor={getUrgencyColor} />}
           </motion.div>
         </AnimatePresence>
       </div>
     </div>
+  );
+}
+
+function ListView({ tasks, completed, onToggle, onDetail, getUrgencyColor, getPriorityColor }: any) {
+  return (
+    <div className="space-y-10">
+      <div>
+        <HeaderSection title="Active Tasks" count={tasks.length} color="bg-orange-500" />
+        <div className="space-y-4">
+          {tasks.map((task: Task) => (
+            <TaskCard key={task.id} task={task} onToggle={onToggle} onDetail={onDetail} getUrgencyColor={getUrgencyColor} getPriorityColor={getPriorityColor} />
+          ))}
+        </div>
+      </div>
+      
+      {completed.length > 0 && (
+        <div className="opacity-50 grayscale transition-all hover:grayscale-0 hover:opacity-100">
+          <HeaderSection title="Completed" count={completed.length} color="bg-green-500" />
+          <div className="space-y-3">
+            {completed.map((task: Task) => (
+              <div key={task.id} className="bg-white rounded-3xl p-5 shadow-sm border-l-4 border-green-500 flex items-center gap-4">
+                <div className="w-10 h-10 bg-green-50 rounded-2xl flex items-center justify-center text-green-500">
+                  <CheckCircle2 size={24} />
+                </div>
+                <h3 className="font-bold text-[#2d2d2d] line-through">{task.name}</h3>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function BoardView({ tasks, onToggle, onDetail, getPriorityColor }: any) {
+  const priorities: Priority[] = ['high', 'medium', 'low'];
+  
+  return (
+    <div className="flex gap-4 overflow-x-auto pb-6 scrollbar-hide -mx-6 px-6">
+      {priorities.map(p => {
+        const pTasks = tasks.filter((t: Task) => t.priority === p);
+        return (
+          <div key={p} className="w-[85%] flex-shrink-0 space-y-4">
+            <HeaderSection title={p} count={pTasks.length} color={p === 'high' ? 'bg-red-500' : p === 'medium' ? 'bg-[#2d2d2d]' : 'bg-blue-500'} />
+            <div className="space-y-4">
+              {pTasks.map((task: Task) => (
+                <div 
+                  key={task.id} 
+                  onClick={() => onDetail(task.id)}
+                  className="bg-white rounded-[32px] p-6 shadow-sm border border-gray-100 hover:shadow-md transition-all active:scale-[0.98]"
+                >
+                  <div className="flex items-center gap-4 mb-4">
+                    <img src={task.emojiUrl} alt="" className="w-10 h-10" />
+                    <h3 className="font-bold text-[#2d2d2d] leading-tight flex-1">{task.name}</h3>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1 text-[8px] font-black uppercase text-gray-300">
+                      <Calendar size={10} />
+                      {format(new Date(task.deadline), 'MMM d')}
+                    </div>
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); onToggle(task.id); }}
+                      className="w-8 h-8 rounded-full border border-gray-100 flex items-center justify-center text-gray-200 hover:text-[#f27d26] hover:border-[#f27d26]"
+                    >
+                      <Circle size={16} />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function TimelineView({ tasks, onToggle, onDetail, getUrgencyColor }: any) {
+  const sortedTasks = [...tasks].sort((a, b) => new Date(a.deadline).getTime() - new Date(b.deadline).getTime());
+  
+  return (
+    <div className="relative pl-8 space-y-12">
+      <div className="absolute left-3 top-0 bottom-0 w-0.5 bg-gradient-to-b from-[#2d2d2d] via-gray-200 to-transparent rounded-full" />
+      
+      {sortedTasks.map((task, i) => {
+        const isNewDay = i === 0 || format(new Date(task.deadline), 'yyyy-MM-dd') !== format(new Date(sortedTasks[i-1].deadline), 'yyyy-MM-dd');
+        return (
+          <div key={task.id} className="relative">
+            {isNewDay && (
+              <div className="absolute -left-[42px] top-0 flex flex-col items-center">
+                <div className="w-6 h-6 rounded-full bg-[#f8f6f2] border-4 border-[#2d2d2d] z-10 shadow-sm" />
+                <span className="text-[8px] font-black uppercase tracking-tighter text-[#2d2d2d] mt-2 whitespace-nowrap bg-white px-2 py-0.5 rounded-full shadow-sm">
+                  {isToday(new Date(task.deadline)) ? 'Today' : isTomorrow(new Date(task.deadline)) ? 'Tomorrow' : format(new Date(task.deadline), 'MMM d')}
+                </span>
+              </div>
+            )}
+            <div 
+              onClick={() => onDetail(task.id)}
+              className={cn(
+                "bg-white rounded-[32px] p-5 shadow-sm border-l-4 transition-all active:scale-[0.98] flex items-center gap-4",
+                getUrgencyColor(task.deadline).split(' ')[0]
+              )}
+            >
+              <div className="w-12 h-12 bg-gray-50 rounded-2xl flex items-center justify-center">
+                <img src={task.emojiUrl} alt="" className="w-8 h-8" />
+              </div>
+              <div className="flex-1">
+                <h3 className="font-bold text-[#2d2d2d] leading-tight">{task.name}</h3>
+                <div className="flex items-center gap-3 mt-1">
+                  <div className="flex items-center gap-1 text-[8px] text-gray-300 font-bold uppercase">
+                    <Clock size={10} />
+                    {task.estimatedTime}m
+                  </div>
+                  <div className={cn("px-2 py-0.5 rounded-md text-[6px] font-black uppercase", task.priority === 'high' ? 'bg-red-50 text-red-500' : 'bg-gray-100 text-gray-400')}>
+                    {task.priority}
+                  </div>
+                </div>
+              </div>
+              <ChevronRight size={16} className="text-gray-200" />
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function HeaderSection({ title, count, color }: any) {
+  return (
+    <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center gap-2">
+        <div className={cn("w-1.5 h-4 rounded-full", color)} />
+        <h2 className="font-black text-[10px] uppercase tracking-widest text-[#2d2d2d]">{title}</h2>
+        <span className="text-[8px] font-black text-gray-300 bg-white border border-gray-50 px-2 py-0.5 rounded-full">{count}</span>
+      </div>
+      <MoreHorizontal size={16} className="text-gray-300" />
+    </div>
+  );
+}
+
+function TaskCard({ task, onToggle, onDetail, getUrgencyColor, getPriorityColor }: any) {
+  return (
+    <motion.div
+      layoutId={task.id}
+      className={cn(
+        "bg-white rounded-[32px] p-5 shadow-sm border-l-4 transition-all active:scale-[0.98]",
+        getUrgencyColor(task.deadline).split(' ')[0]
+      )}
+      onClick={() => onDetail(task.id)}
+    >
+      <div className="flex items-start justify-between mb-4">
+        <div className="flex items-center gap-4">
+          <div className={cn("w-14 h-14 rounded-3xl flex items-center justify-center bg-gray-50 shadow-inner")}>
+            <img src={task.emojiUrl} alt="" className="w-9 h-9 object-contain" />
+          </div>
+          <div>
+            <h3 className="font-bold text-[#2d2d2d] text-lg leading-tight tracking-tight">{task.name}</h3>
+            {task.description && <p className="text-[10px] text-gray-400 font-medium line-clamp-1 mt-0.5">{task.description}</p>}
+          </div>
+        </div>
+        <button 
+          onClick={(e) => { e.stopPropagation(); onToggle(task.id); }}
+          className="w-10 h-10 rounded-full border border-gray-100 flex items-center justify-center text-gray-200 hover:text-[#f27d26] hover:bg-orange-50 transition-colors"
+        >
+          <Circle size={24} />
+        </button>
+      </div>
+
+      <div className="flex items-center justify-between pt-2 border-t border-gray-50">
+        <div className="flex gap-2">
+          <span className={cn("text-[8px] px-2.5 py-1 rounded-full font-black uppercase tracking-wider", getPriorityColor(task.priority))}>
+            {task.priority}
+          </span>
+          <div className="flex items-center gap-1 text-[8px] text-gray-300 font-bold uppercase">
+            <Clock size={12} />
+            <span>{task.estimatedTime}m</span>
+          </div>
+        </div>
+        <div className={cn(
+          "flex items-center gap-1 text-[8px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full",
+          getUrgencyColor(task.deadline).split(' ').slice(1).join(' ')
+        )}>
+          <Calendar size={12} />
+          <span>
+            {isToday(new Date(task.deadline)) ? 'Today' : isTomorrow(new Date(task.deadline)) ? 'Tomorrow' : format(new Date(task.deadline), 'MMM d')}
+          </span>
+        </div>
+      </div>
+    </motion.div>
   );
 }
