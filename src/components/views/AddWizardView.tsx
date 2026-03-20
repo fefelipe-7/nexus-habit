@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { X, Calendar, ArrowRight, ArrowLeft, Clock, AlertTriangle, Layers, Repeat } from 'lucide-react';
+import { useState, useMemo } from 'react';
+import { X, Calendar, ArrowRight, ArrowLeft, Clock, AlertTriangle, Layers, Repeat, CheckCircle2, Target, CalendarDays, Palette } from 'lucide-react';
 import { Routes, Route, useNavigate, useParams, useLocation } from 'react-router-dom';
 import { Habit, Task, Priority } from '../../types';
 import { cn } from '../../utils/cn';
@@ -82,7 +82,8 @@ export default function AddWizardView({ onSave, onAddTask, onClose }: Props) {
   };
 
   const handleBack = () => {
-    if (step > 0) navigate(-1);
+    if (step > 1) navigate(-1);
+    else if (step === 1) navigate('/add');
     else onClose();
   };
 
@@ -105,6 +106,18 @@ export default function AddWizardView({ onSave, onAddTask, onClose }: Props) {
     });
   };
 
+  const canContinue = useMemo(() => {
+    if (typeSelected === 'habit') {
+      if (step === 1) return !!categoryId;
+      if (step === 2) return !!name.trim();
+      if (step === 3) return repeatDays.length > 0;
+    } else if (typeSelected === 'task') {
+      if (step === 1) return !!name.trim();
+      return true; // Subsequent task steps don't have hard requirements
+    }
+    return false;
+  }, [typeSelected, step, categoryId, name, repeatDays]);
+
   return (
     <motion.div 
       initial={{ y: '100%' }}
@@ -116,31 +129,39 @@ export default function AddWizardView({ onSave, onAddTask, onClose }: Props) {
       {/* Header */}
       <div className="flex items-center justify-between px-6 pt-12 pb-4">
         <div className="flex items-center gap-3">
-          <button onClick={handleBack} className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm text-[#2d2d2d]">
+          <button onClick={handleBack} className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm text-[#2d2d2d] active:scale-90 transition-transform">
             <ArrowLeft size={20} />
           </button>
-          <h1 className="text-2xl font-medium text-[#2d2d2d]">
-            {step === 0 ? 'choose type' : `new ${typeSelected}`}
-          </h1>
+          <div className="flex flex-col">
+            <h1 className="text-xl font-medium text-[#2d2d2d] leading-tight">
+              {step === 0 ? 'create new' : `new ${typeSelected}`}
+            </h1>
+            {step > 0 && <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest leading-tight">step 0{step} / 03</span>}
+          </div>
         </div>
-        <button onClick={onClose} className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm text-[#2d2d2d]">
+        <button onClick={onClose} className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm text-[#2d2d2d] active:scale-90 transition-transform">
           <X size={20} />
         </button>
       </div>
 
-      {/* Progress Bar */}
+      {/* Progress Bar (Interactive look) */}
       {step > 0 && (
-        <div className="px-6 mb-6">
+        <div className="px-6 mb-8 mt-2">
           <div className="flex gap-2">
             {[1, 2, 3].map((s) => (
-              <div key={s} className={cn("h-1.5 flex-1 rounded-full transition-colors duration-300", step >= s ? "bg-[#f27d26]" : "bg-gray-200")} />
+              <div key={s} className="flex-1">
+                <div className={cn(
+                  "h-1.5 rounded-full transition-all duration-500", 
+                  step === s ? "bg-[#f27d26] w-full" : step > s ? "bg-[#f27d26] opacity-40 w-full" : "bg-gray-200 w-full"
+                )} />
+              </div>
             ))}
           </div>
         </div>
       )}
 
       {/* Steps Container */}
-      <div className="flex-1 relative overflow-hidden">
+      <div className="flex-1 relative overflow-hidden flex flex-col">
         <AnimatePresence mode="wait">
           <Routes location={location} key={location.pathname}>
             <Route path="/" element={<StepTypeSelect onSelect={(t) => navigate(`/add/${t}/1`)} />} />
@@ -150,23 +171,27 @@ export default function AddWizardView({ onSave, onAddTask, onClose }: Props) {
             <Route path="habit/2" element={<HabitStep2 name={name} setName={setName} emojiUrl={emojiUrl} setEmojiUrl={setEmojiUrl} color={color} setColor={setColor} />} />
             <Route path="habit/3" element={<HabitStep3 repeatDays={repeatDays} toggleDay={toggleDay} duration={duration} setDuration={setDuration} unit={unit} setUnit={setUnit} reminders={reminders} setReminders={setReminders} />} />
             
-            {/* Task Flow */}
-            <Route path="task/1" element={<TaskStep1 name={name} setName={setName} description={description} setDescription={setDescription} deadline={deadline} setDeadline={setDeadline} />} />
-            <Route path="task/2" element={<TaskStep2 emojiUrl={emojiUrl} setEmojiUrl={setEmojiUrl} color={color} setColor={setColor} priority={priority} setPriority={setPriority} />} />
-            <Route path="task/3" element={<TaskStep3 estimatedTime={estimatedTime} setEstimatedTime={setEstimatedTime} name={name} deadline={deadline} priority={priority} />} />
+            {/* Task Flow (Refactored logically) */}
+            <Route path="task/1" element={<TaskStep1 name={name} setName={setName} description={description} setDescription={setDescription} />} />
+            <Route path="task/2" element={<TaskStep2 deadline={deadline} setDeadline={setDeadline} estimatedTime={estimatedTime} setEstimatedTime={setEstimatedTime} />} />
+            <Route path="task/3" element={<TaskStep3 emojiUrl={emojiUrl} setEmojiUrl={setEmojiUrl} color={color} setColor={setColor} priority={priority} setPriority={setPriority} name={name} deadline={deadline} />} />
           </Routes>
         </AnimatePresence>
       </div>
 
-      {/* Next Button */}
+      {/* Action Footer */}
       {step > 0 && (
-        <div className="p-6 bg-gradient-to-t from-[#f8f6f2] via-[#f8f6f2] to-transparent">
+        <div className="p-6 pb-12 bg-white/50 backdrop-blur-sm border-t border-gray-100">
           <button 
             onClick={handleNext}
-            className="w-full bg-[#f27d26] text-white font-medium py-4 rounded-2xl shadow-md flex items-center justify-center gap-2 hover:bg-[#e06d1b] transition-colors"
+            disabled={!canContinue}
+            className={cn(
+              "w-full py-5 rounded-3xl font-bold flex items-center justify-center gap-3 transition-all active:scale-[0.98]",
+              canContinue ? "bg-[#2d2d2d] text-white shadow-lg" : "bg-gray-200 text-gray-400"
+            )}
           >
             <span>{step < 3 ? 'continue' : `save ${typeSelected}`}</span>
-            <ArrowRight size={18} />
+            {step < 3 ? <ArrowRight size={20} /> : <CheckCircle2 size={20} />}
           </button>
         </div>
       )}
@@ -176,49 +201,61 @@ export default function AddWizardView({ onSave, onAddTask, onClose }: Props) {
 
 function StepTypeSelect({ onSelect }: { onSelect: (type: 'habit' | 'task') => void }) {
   return (
-    <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="px-6 flex flex-col items-center justify-center h-full gap-6">
-      <button 
-        onClick={() => onSelect('habit')}
-        className="w-full bg-white p-8 rounded-[40px] shadow-sm flex items-center gap-6 group hover:ring-2 hover:ring-[#f27d26] transition-all"
-      >
-        <div className="w-16 h-16 bg-orange-100 rounded-2xl flex items-center justify-center text-[#f27d26]">
-          <Repeat size={32} />
-        </div>
-        <div className="text-left">
-          <h2 className="text-xl font-bold text-[#2d2d2d]">habit</h2>
-          <p className="text-sm text-[#8c8c8c]">recurring routine to build consistency</p>
-        </div>
-      </button>
+    <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="px-6 flex flex-col items-center justify-center h-full gap-8">
+      <div className="text-center mb-4">
+        <h2 className="text-2xl font-bold text-[#2d2d2d]">how do you want to start?</h2>
+        <p className="text-gray-400">choose the best format for your goal</p>
+      </div>
+      
+      <div className="w-full space-y-4">
+        <button 
+          onClick={() => onSelect('habit')}
+          className="w-full bg-white p-8 rounded-[40px] shadow-sm flex items-center gap-6 group hover:ring-4 hover:ring-orange-100 transition-all text-left"
+        >
+          <div className="w-16 h-16 bg-orange-100 rounded-2xl flex items-center justify-center text-[#f27d26] group-hover:scale-110 transition-transform">
+            <Repeat size={32} />
+          </div>
+          <div>
+            <h2 className="text-xl font-bold text-[#2d2d2d]">Habit</h2>
+            <p className="text-sm text-[#8c8c8c]">Build consistency with a repeating routine every day or week.</p>
+          </div>
+        </button>
 
-      <button 
-        onClick={() => onSelect('task')}
-        className="w-full bg-white p-8 rounded-[40px] shadow-sm flex items-center gap-6 group hover:ring-2 hover:ring-[#f27d26] transition-all"
-      >
-        <div className="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center text-blue-500">
-          <Layers size={32} />
-        </div>
-        <div className="text-left">
-          <h2 className="text-xl font-bold text-[#2d2d2d]">task</h2>
-          <p className="text-sm text-[#8c8c8c]">one-time job with a specific deadline</p>
-        </div>
-      </button>
+        <button 
+          onClick={() => onSelect('task')}
+          className="w-full bg-white p-8 rounded-[40px] shadow-sm flex items-center gap-6 group hover:ring-4 hover:ring-blue-100 transition-all text-left"
+        >
+          <div className="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center text-blue-500 group-hover:scale-110 transition-transform">
+            <Layers size={32} />
+          </div>
+          <div>
+            <h2 className="text-xl font-bold text-[#2d2d2d]">Task</h2>
+            <p className="text-sm text-[#8c8c8c]">A one-time activity with a specific deadline and duration.</p>
+          </div>
+        </button>
+      </div>
     </motion.div>
   );
 }
 
-// HABIT STEPS (Reused from previous implementation)
+// HABIT STEPS
 function HabitStep1({ categoryId, setCategoryId }: any) {
   return (
-    <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="px-6 space-y-6">
+    <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="px-6 space-y-6">
       <div className="text-center mb-8">
-        <h2 className="text-xl font-medium text-[#2d2d2d]">what area?</h2>
-        <p className="text-[#8c8c8c] text-sm">choose a category</p>
+        <div className="w-16 h-16 bg-orange-50 rounded-full flex items-center justify-center mx-auto mb-4 text-[#f27d26]">
+          <Layers size={24} />
+        </div>
+        <h2 className="text-xl font-bold text-[#2d2d2d]">what area?</h2>
+        <p className="text-[#8c8c8c] text-sm leading-relaxed">categorizing helps you track your balance</p>
       </div>
       <div className="grid grid-cols-2 gap-4">
         {CATEGORIES.map(cat => (
-          <button key={cat.id} onClick={() => setCategoryId(cat.id)} className={cn("flex flex-col items-center justify-center p-6 rounded-3xl transition-all bg-white shadow-sm", categoryId === cat.id && "ring-2 ring-[#f27d26]")}>
-            <img src={cat.emojiUrl} alt="" className="w-12 h-12 mb-3" />
-            <span className="text-sm font-medium">{cat.name}</span>
+          <button key={cat.id} onClick={() => setCategoryId(cat.id)} className={cn("flex flex-col items-center justify-center p-6 rounded-3xl transition-all bg-white shadow-sm hover:scale-105 active:scale-95", categoryId === cat.id ? "ring-4 ring-orange-50 bg-orange-50/20" : "")}>
+            <div className={cn("w-16 h-16 rounded-full flex items-center justify-center mb-3 transition-colors", categoryId === cat.id ? "bg-white" : "bg-gray-50")}>
+              <img src={cat.emojiUrl} alt="" className="w-10 h-10 object-contain" />
+            </div>
+            <span className={cn("text-xs font-bold uppercase tracking-wider", categoryId === cat.id ? "text-[#f27d26]" : "text-gray-400")}>{cat.name}</span>
           </button>
         ))}
       </div>
@@ -228,19 +265,50 @@ function HabitStep1({ categoryId, setCategoryId }: any) {
 
 function HabitStep2({ name, setName, emojiUrl, setEmojiUrl, color, setColor }: any) {
   return (
-    <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="px-6 space-y-6 overflow-y-auto max-h-full pb-10 scrollbar-hide">
-      <input type="text" value={name} onChange={e => setName(e.target.value)} placeholder="habit name" className="w-full bg-white rounded-2xl p-4 shadow-sm outline-none" autoFocus />
-      <div className="grid grid-cols-5 gap-3 bg-white p-4 rounded-3xl shadow-sm">
-        {EMOJIS.map(url => (
-          <button key={url} onClick={() => setEmojiUrl(url)} className={cn("aspect-square rounded-xl", emojiUrl === url && "bg-orange-50 ring-2 ring-[#f27d26]")}>
-            <img src={url} alt="" className="w-8 h-8 m-auto" />
-          </button>
-        ))}
+    <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="px-6 space-y-8 overflow-y-auto max-h-full pb-10 scrollbar-hide">
+      <div className="text-center">
+        <h2 className="text-xl font-bold text-[#2d2d2d] mb-1">the basics</h2>
+        <p className="text-[#8c8c8c] text-sm">name your goal and pick a style</p>
       </div>
-      <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
-        {COLORS.map(c => (
-          <button key={c} onClick={() => setColor(c)} className={cn("w-10 h-10 rounded-full flex-shrink-0 border-2 transition-transform", `bg-${c}-400`, color === c ? 'border-[#2d2d2d]' : 'border-transparent')} />
-        ))}
+
+      <div className="space-y-4">
+        <div className="bg-white rounded-3xl p-1 shadow-sm border border-gray-50">
+          <input 
+            type="text" 
+            value={name} 
+            onChange={e => setName(e.target.value)} 
+            placeholder="e.g. Morning Yoga" 
+            className="w-full bg-transparent p-5 outline-none text-lg font-medium text-[#2d2d2d] placeholder:text-gray-200" 
+          />
+        </div>
+
+        <div className="bg-white rounded-[40px] p-6 shadow-sm">
+          <label className="text-[10px] font-black uppercase tracking-widest text-gray-300 block mb-4">choose icon</label>
+          <div className="grid grid-cols-5 gap-3">
+            {EMOJIS.map(url => (
+              <button key={url} onClick={() => setEmojiUrl(url)} className={cn("aspect-square rounded-2xl flex items-center justify-center transition-all active:scale-90", emojiUrl === url ? "bg-orange-50" : "hover:bg-gray-50")}>
+                <img src={url} alt="" className={cn("w-8 h-8 transition-transform", emojiUrl === url ? "scale-125" : "scale-100 opacity-60")} />
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="bg-white rounded-[40px] p-6 shadow-sm">
+          <label className="text-[10px] font-black uppercase tracking-widest text-gray-300 block mb-4">signature color</label>
+          <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
+            {COLORS.map(c => (
+              <button 
+                key={c} 
+                onClick={() => setColor(c)} 
+                className={cn(
+                  "w-12 h-12 rounded-full flex-shrink-0 border-4 border-white shadow-md transition-all active:scale-90", 
+                  `bg-${c}-400`, 
+                  color === c ? "scale-110 ring-2 ring-gray-100" : "opacity-40"
+                )} 
+              />
+            ))}
+          </div>
+        </div>
       </div>
     </motion.div>
   );
@@ -248,103 +316,221 @@ function HabitStep2({ name, setName, emojiUrl, setEmojiUrl, color, setColor }: a
 
 function HabitStep3({ repeatDays, toggleDay, duration, setDuration, unit, setUnit, reminders, setReminders }: any) {
   return (
-    <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="px-6 space-y-6 overflow-y-auto max-h-full pb-10 scrollbar-hide">
-      <div className="flex justify-between bg-white rounded-2xl p-4 shadow-sm">
-        {DAYS.map((day, index) => (
-          <button key={index} onClick={() => toggleDay(index)} className={cn("w-8 h-8 rounded-full text-xs font-medium", repeatDays.includes(index) ? "bg-[#2d2d2d] text-white" : "text-gray-400")}>{day}</button>
-        ))}
+    <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="px-6 space-y-8 overflow-y-auto max-h-full pb-10 scrollbar-hide text-center">
+      <div>
+        <h2 className="text-xl font-bold text-[#2d2d2d] mb-1">frequency</h2>
+        <p className="text-[#8c8c8c] text-sm">how often will you do this?</p>
       </div>
-      <div className="space-y-4">
-        <input type="number" value={duration} onChange={e => setDuration(parseInt(e.target.value))} className="w-full bg-white rounded-2xl p-4 shadow-sm outline-none" placeholder="daily goal amount" />
+
+      <div className="bg-white rounded-[40px] p-6 shadow-sm">
+        <div className="flex justify-between items-center mb-6 px-2">
+          <span className="text-[10px] font-black uppercase tracking-widest text-gray-300">repeat routine</span>
+          <span className="text-[10px] font-black uppercase tracking-widest text-orange-500">{repeatDays.length} days / week</span>
+        </div>
+        <div className="flex justify-between">
+          {DAYS.map((day, index) => (
+            <button key={index} onClick={() => toggleDay(index)} className={cn("w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold transition-all", repeatDays.includes(index) ? "bg-[#2d2d2d] text-white shadow-md scale-110" : "text-gray-300 hover:bg-gray-50")}>{day}</button>
+          ))}
+        </div>
+      </div>
+
+      <div className="bg-white rounded-[40px] p-6 shadow-sm space-y-6">
+        <div className="text-left px-2">
+          <label className="text-[10px] font-black uppercase tracking-widest text-gray-300 block mb-2">set a target</label>
+          <div className="flex gap-4 items-center">
+            <input type="number" value={duration} onChange={e => setDuration(parseInt(e.target.value) || 0)} className="text-4xl font-bold text-[#2d2d2d] w-24 outline-none bg-transparent" />
+            <span className="text-xl font-medium text-orange-500">{unit}</span>
+          </div>
+        </div>
         <div className="flex flex-wrap gap-2">
           {UNITS.map(u => (
-            <button key={u} onClick={() => setUnit(u)} className={cn("px-3 py-1.5 rounded-full text-xs", unit === u ? "bg-[#f27d26] text-white" : "bg-white")}>{u}</button>
+            <button key={u} onClick={() => setUnit(u)} className={cn("px-4 py-2 rounded-2xl text-xs font-bold transition-all", unit === u ? "bg-orange-100 text-[#f27d26]" : "bg-gray-50 text-gray-400 hover:bg-gray-100")}>{u}</button>
           ))}
         </div>
       </div>
-    </motion.div>
-  );
-}
 
-// TASK STEPS
-function TaskStep1({ name, setName, description, setDescription, deadline, setDeadline }: any) {
-  return (
-    <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="px-6 space-y-6">
-      <div className="text-center mb-8">
-        <h2 className="text-xl font-medium text-[#2d2d2d]">what needs to be done?</h2>
-        <p className="text-[#8c8c8c] text-sm">define your one-time task</p>
-      </div>
-      <input type="text" value={name} onChange={e => setName(e.target.value)} placeholder="task name" className="w-full bg-white rounded-2xl p-4 shadow-sm outline-none" autoFocus />
-      <textarea value={description} onChange={e => setDescription(e.target.value)} placeholder="description (optional)" className="w-full bg-white rounded-2xl p-4 shadow-sm outline-none h-24 resize-none" />
-      <div className="bg-white rounded-2xl p-4 shadow-sm flex items-center justify-between">
-        <div className="flex items-center gap-3 text-[#2d2d2d]">
-          <Calendar size={20} className="text-[#f27d26]" />
-          <span className="text-sm font-medium">deadline</span>
-        </div>
-        <input type="date" value={deadline} onChange={e => setDeadline(e.target.value)} className="outline-none text-sm text-[#f27d26] font-medium" />
-      </div>
-    </motion.div>
-  );
-}
-
-function TaskStep2({ emojiUrl, setEmojiUrl, color, setColor, priority, setPriority }: any) {
-  return (
-    <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="px-6 space-y-8 overflow-y-auto max-h-full pb-10 scrollbar-hide">
-      <div>
-        <label className="text-xs text-[#8c8c8c] mb-2 block">priority level</label>
-        <div className="flex bg-white rounded-2xl p-1 shadow-sm gap-1">
-          {(['low', 'medium', 'high'] as Priority[]).map(p => (
-            <button key={p} onClick={() => setPriority(p)} className={cn("flex-1 py-2 text-xs font-medium rounded-xl capitalize", priority === p ? (p === 'high' ? "bg-red-500 text-white" : p === 'medium' ? "bg-orange-500 text-white" : "bg-blue-500 text-white") : "text-gray-400 font-normal")}>{p}</button>
-          ))}
-        </div>
-      </div>
-      <div>
-        <label className="text-xs text-[#8c8c8c] mb-2 block">icon & color</label>
-        <div className="grid grid-cols-5 gap-3 bg-white p-4 rounded-3xl shadow-sm mb-4">
-          {EMOJIS.map(url => (
-            <button key={url} onClick={() => setEmojiUrl(url)} className={cn("aspect-square rounded-xl", emojiUrl === url && "bg-orange-50 ring-2 ring-[#f27d26]")}>
-              <img src={url} alt="" className="w-8 h-8 m-auto" />
-            </button>
-          ))}
-        </div>
-        <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
-          {COLORS.map(c => (
-            <button key={c} onClick={() => setColor(c)} className={cn("w-10 h-10 rounded-full flex-shrink-0 border-2 transition-transform", `bg-${c}-400`, color === c ? 'border-[#2d2d2d]' : 'border-transparent')} />
-          ))}
-        </div>
-      </div>
-    </motion.div>
-  );
-}
-
-function TaskStep3({ estimatedTime, setEstimatedTime, name, deadline, priority }: any) {
-  return (
-    <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="px-6 space-y-8">
-      <div className="text-center mb-8">
-        <h2 className="text-xl font-medium text-[#2d2d2d]">almost done!</h2>
-        <p className="text-[#8c8c8c] text-sm">last details for your task</p>
-      </div>
-      <div>
-        <label className="text-xs text-[#8c8c8c] mb-2 block">estimated time (mins)</label>
-        <div className="bg-white rounded-2xl p-4 shadow-sm flex items-center justify-between">
-          <input type="number" value={estimatedTime} onChange={e => setEstimatedTime(parseInt(e.target.value) || 0)} className="outline-none w-20" />
-          <Clock size={20} className="text-gray-400" />
-        </div>
-      </div>
-      <div className="bg-white rounded-[32px] p-6 shadow-sm border border-gray-100 flex flex-col gap-4">
-        <h3 className="font-bold text-center text-[#2d2d2d]">Preview</h3>
-        <div className="flex items-center gap-4 border-b border-gray-50 pb-4">
-          <div className="w-12 h-12 bg-gray-50 rounded-2xl flex items-center justify-center">
-            <AlertTriangle className="text-orange-500" />
+      <button onClick={() => setReminders(!reminders)} className="w-full bg-white p-6 rounded-[40px] shadow-sm flex items-center justify-between group active:scale-[0.98] transition-all">
+        <div className="flex items-center gap-4">
+          <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center transition-colors", reminders ? "bg-orange-50 text-orange-500" : "bg-gray-50 text-gray-300")}>
+            <Clock size={24} />
           </div>
-          <div>
-            <p className="text-sm font-bold text-[#2d2d2d]">{name || 'Task Name'}</p>
-            <p className="text-xs text-gray-400">Due {format(new Date(deadline), 'MMMM d, yyyy')}</p>
+          <div className="text-left">
+            <p className="font-bold text-[#2d2d2d]">Daily Reminders</p>
+            <p className="text-xs text-gray-400">Get notified at optimal times</p>
           </div>
         </div>
-        <div className="flex justify-between items-center text-xs font-medium">
-          <span className="text-gray-400">Priority: <span className="text-[#2d2d2d] capitalize">{priority}</span></span>
-          <span className="text-gray-400">Duration: <span className="text-[#2d2d2d]">{estimatedTime}m</span></span>
+        <div className={cn("w-12 h-6 rounded-full relative transition-colors", reminders ? "bg-[#f27d26]" : "bg-gray-200")}>
+          <motion.div animate={{ x: reminders ? 24 : 2 }} className="absolute top-1 w-4 h-4 rounded-full bg-white shadow-sm" />
+        </div>
+      </button>
+    </motion.div>
+  );
+}
+
+// TASK STEPS - REFACTORED FOR BETTER LOGIC
+function TaskStep1({ name, setName, description, setDescription }: any) {
+  return (
+    <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="px-6 space-y-8">
+      <div className="text-center">
+        <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4 text-blue-500">
+          <Target size={24} />
+        </div>
+        <h2 className="text-xl font-bold text-[#2d2d2d]">what's the goal?</h2>
+        <p className="text-[#8c8c8c] text-sm leading-relaxed">define your one-time task and its purpose</p>
+      </div>
+
+      <div className="space-y-4">
+        <div className="bg-white rounded-[32px] p-2 shadow-sm border border-gray-50 group focus-within:ring-4 focus-within:ring-blue-50 transition-all">
+          <input 
+            type="text" 
+            value={name} 
+            onChange={e => setName(e.target.value)} 
+            placeholder="Task name" 
+            className="w-full bg-transparent p-6 outline-none text-xl font-bold text-[#2d2d2d] placeholder:text-gray-200" 
+          />
+        </div>
+        
+        <div className="bg-white rounded-[32px] p-2 shadow-sm border border-gray-50 group focus-within:ring-4 focus-within:ring-blue-50 transition-all">
+          <textarea 
+            value={description} 
+            onChange={e => setDescription(e.target.value)} 
+            placeholder="Detailed description (optional)" 
+            className="w-full bg-transparent p-6 outline-none text-base font-medium text-[#2d2d2d] h-40 resize-none placeholder:text-gray-200 scrollbar-hide" 
+          />
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+function TaskStep2({ deadline, setDeadline, estimatedTime, setEstimatedTime }: any) {
+  return (
+    <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="px-6 space-y-10">
+      <div className="text-center">
+        <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4 text-blue-500">
+          <CalendarDays size={24} />
+        </div>
+        <h2 className="text-xl font-bold text-[#2d2d2d]">when & for how long?</h2>
+        <p className="text-[#8c8c8c] text-sm leading-relaxed">set your timeline and estimated duration</p>
+      </div>
+
+      <div className="space-y-6">
+        <div className="bg-white rounded-[40px] p-8 shadow-sm group active:scale-[0.98] transition-all">
+          <div className="flex items-center justify-between mb-4">
+            <span className="text-[10px] font-black uppercase tracking-widest text-gray-300">completion date</span>
+            <AlertTriangle size={14} className="text-blue-500" />
+          </div>
+          <div className="flex items-center gap-4">
+            <Calendar className="text-blue-500" size={32} />
+            <input 
+              type="date" 
+              value={deadline} 
+              onChange={e => setDeadline(e.target.value)} 
+              className="text-2xl font-bold text-[#2d2d2d] bg-transparent outline-none w-full" 
+            />
+          </div>
+        </div>
+
+        <div className="bg-white rounded-[40px] p-8 shadow-sm group active:scale-[0.98] transition-all">
+          <div className="flex items-center justify-between mb-4">
+            <span className="text-[10px] font-black uppercase tracking-widest text-gray-300">estimated time</span>
+            <Clock size={14} className="text-blue-500" />
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="flex gap-2 items-end">
+              <input 
+                type="number" 
+                value={estimatedTime} 
+                onChange={e => setEstimatedTime(parseInt(e.target.value) || 0)} 
+                className="text-4xl font-bold text-[#2d2d2d] bg-transparent outline-none w-24" 
+              />
+              <span className="text-xl font-medium text-blue-500 mb-1">mins</span>
+            </div>
+            <div className="flex-1 flex justify-end gap-1">
+              {[30, 60, 120].map(m => (
+                <button 
+                  key={m} 
+                  onClick={() => setEstimatedTime(m)}
+                  className={cn("px-3 py-1.5 rounded-xl text-[10px] font-bold transition-all", estimatedTime === m ? "bg-blue-500 text-white" : "bg-gray-50 text-gray-400")}
+                >
+                  {m === 120 ? '2h' : `${m}m`}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+function TaskStep3({ emojiUrl, setEmojiUrl, color, setColor, priority, setPriority, name, deadline }: any) {
+  return (
+    <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="px-6 space-y-8 overflow-y-auto max-h-full pb-10 scrollbar-hide">
+      <div className="text-center">
+        <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4 text-blue-500">
+          <Palette size={24} />
+        </div>
+        <h2 className="text-xl font-bold text-[#2d2d2d]">priority & style</h2>
+        <p className="text-[#8c8c8c] text-sm leading-relaxed">make it yours and define importance</p>
+      </div>
+
+      <div className="space-y-6">
+        <div>
+          <label className="text-[10px] font-black uppercase tracking-widest text-gray-300 block mb-3 px-4">priority level</label>
+          <div className="flex bg-white rounded-3xl p-1.5 shadow-sm gap-1">
+            {(['low', 'medium', 'high'] as Priority[]).map(p => (
+              <button 
+                key={p} 
+                onClick={() => setPriority(p)} 
+                className={cn(
+                  "flex-1 py-3 text-xs font-bold rounded-2xl capitalize transition-all", 
+                  priority === p ? (
+                    p === 'high' ? "bg-red-500 text-white shadow-md shadow-red-200" : 
+                    p === 'medium' ? "bg-[#2d2d2d] text-white shadow-md" : 
+                    "bg-blue-500 text-white shadow-md shadow-blue-200"
+                  ) : "text-gray-400 bg-transparent"
+                )}
+              >
+                {p}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="bg-white rounded-[40px] p-6 shadow-sm">
+          <label className="text-[10px] font-black uppercase tracking-widest text-gray-300 block mb-4">visual identity</label>
+          <div className="grid grid-cols-5 gap-3 mb-6">
+            {EMOJIS.slice(0, 10).map(url => (
+              <button key={url} onClick={() => setEmojiUrl(url)} className={cn("aspect-square rounded-2xl flex items-center justify-center transition-all", emojiUrl === url ? "bg-blue-50 ring-2 ring-blue-500/20" : "hover:bg-gray-50")}>
+                <img src={url} alt="" className={cn("w-8 h-8 transition-all", emojiUrl === url ? "scale-110" : "opacity-40 grayscale")} />
+              </button>
+            ))}
+          </div>
+          <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+            {COLORS.map(c => (
+              <button key={c} onClick={() => setColor(c)} className={cn("w-10 h-10 rounded-full flex-shrink-0 border-4 border-white shadow-sm transition-all", `bg-${c}-400`, color === c ? "scale-110 opacity-100" : "opacity-30")} />
+            ))}
+          </div>
+        </div>
+
+        {/* Dynamic Summary Preview */}
+        <div className="bg-[#2d2d2d] rounded-[32px] p-6 shadow-xl text-white">
+          <div className="flex items-center justify-between mb-4">
+            <span className="text-[10px] font-black uppercase tracking-widest opacity-50">task preview</span>
+            <div className={cn("px-2 py-1 rounded-lg text-[8px] font-black uppercase", priority === 'high' ? 'bg-red-500' : 'bg-gray-700')}>
+              {priority} priority
+            </div>
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center">
+              <img src={emojiUrl} alt="" className="w-8 h-8" />
+            </div>
+            <div>
+              <p className="font-bold leading-tight">{name || 'Unnamed Task'}</p>
+              <p className="text-[10px] opacity-60">Complete by {format(new Date(deadline), 'MMM d, yyyy')}</p>
+            </div>
+          </div>
         </div>
       </div>
     </motion.div>
