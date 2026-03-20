@@ -3,10 +3,18 @@ import { motion } from 'framer-motion';
 
 type Props = {
   date: Date;
+  username: string;
   onProfileClick: () => void;
 };
 
-export default function Header({ date, onProfileClick }: Props) {
+export default function Header({ date, username, onProfileClick }: Props) {
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'morning';
+    if (hour < 18) return 'afternoon';
+    return 'evening';
+  };
+
   return (
     <div className="flex items-center justify-between px-6 pt-12 pb-4">
       <div>
@@ -16,7 +24,7 @@ export default function Header({ date, onProfileClick }: Props) {
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5, type: "spring" }}
         >
-          morning, budi
+          {getGreeting()}, {username}
         </motion.h1>
         <motion.p 
           className="text-[#8c8c8c] text-sm mt-1"
@@ -35,7 +43,7 @@ export default function Header({ date, onProfileClick }: Props) {
         transition={{ duration: 0.5, type: "spring", delay: 0.2 }}
         whileTap={{ scale: 0.9 }}
       >
-        <img src="https://api.dicebear.com/7.x/adventurer/svg?seed=budi&backgroundColor=ffdfbf" alt="avatar" className="w-full h-full object-cover" />
+        <img src={`https://api.dicebear.com/7.x/adventurer/svg?seed=${username}&backgroundColor=ffdfbf`} alt="avatar" className="w-full h-full object-cover" />
       </motion.button>
     </div>
   );

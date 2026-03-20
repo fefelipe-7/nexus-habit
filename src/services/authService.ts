@@ -1,12 +1,26 @@
+```typescript
 import { supabase } from '../lib/supabase';
 
 export const authService = {
-  async signUp(email: string) {
-    const { data, error } = await supabase.auth.signInWithOtp({
+  async signIn(username: string, password: string) {
+    const email = `${username}@nexus.com.br`;
+    const { data, error } = await supabase.auth.signInWithPassword({
       email,
+      password,
+    });
+    return { data, error };
+  },
+
+  async signUp(username: string, password: string) {
+    const email = `${username}@nexus.com.br`;
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
       options: {
-        emailRedirectTo: window.location.origin,
-      },
+        data: {
+          display_name: username,
+        }
+      }
     });
     return { data, error };
   },

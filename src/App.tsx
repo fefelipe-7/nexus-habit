@@ -37,7 +37,7 @@ export default function App() {
   const navigate = useNavigate();
   const [selectedDate, setSelectedDate] = useState(new Date());
   
-  const { user, loading: authLoading } = useAuth();
+  const { user, username, loading: authLoading } = useAuth();
   const { habits, completions, toggleCompletion, createHabit, updateHabit, deleteHabit, isLoading: habitsLoading } = useHabits();
   const { tasks, toggleTask, createTask, updateTask, deleteTask, isLoading: tasksLoading } = useTasks();
 
@@ -91,6 +91,7 @@ export default function App() {
                     onShowStreak={() => navigate('/streak')}
                     onProfileClick={() => navigateToModal('/profile')}
                     isLoading={habitsLoading || tasksLoading}
+                    username={username}
                   />
                 </motion.div>
               } />
@@ -130,7 +131,7 @@ export default function App() {
               } />
               <Route path="/profile" element={
                 <motion.div initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} transition={{ type: 'spring', damping: 25, stiffness: 200 }} className="absolute inset-0 z-50 bg-[#f8f6f2] flex flex-col">
-                  <ProfileView onBack={() => navigate(-1)} />
+                  <ProfileView onBack={() => navigate(-1)} username={username} />
                 </motion.div>
               } />
               <Route path="/habit/:id/*" element={

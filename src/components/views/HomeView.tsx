@@ -22,6 +22,7 @@ type Props = {
   onHabitClick: (id: string) => void;
   onTaskClick: (id: string) => void;
   isLoading?: boolean;
+  username: string;
 };
 
 const containerVariants = {
@@ -39,7 +40,7 @@ const itemVariants = {
   show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 24 } }
 };
 
-export default function HomeView({ habits, tasks, completions, selectedDate, setSelectedDate, toggleCompletion, toggleTask, onShowStreak, onProfileClick, onHabitClick, onTaskClick, isLoading }: Props) {
+export default function HomeView({ habits, tasks, completions, selectedDate, setSelectedDate, toggleCompletion, toggleTask, onShowStreak, onProfileClick, onHabitClick, onTaskClick, isLoading, username }: Props) {
   const navigate = useNavigate();
   const filteredHabits = habits.filter(habit => 
     habit.repeatDays.includes(selectedDate.getDay())
@@ -53,7 +54,7 @@ export default function HomeView({ habits, tasks, completions, selectedDate, set
       animate="show"
     >
       <motion.div variants={itemVariants}>
-        <Header date={selectedDate} onProfileClick={onProfileClick} />
+        <Header date={selectedDate} username={username} onProfileClick={onProfileClick} />
       </motion.div>
       <motion.div variants={itemVariants}>
         <CalendarStrip selectedDate={selectedDate} onSelectDate={setSelectedDate} />

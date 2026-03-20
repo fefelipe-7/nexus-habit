@@ -5,6 +5,8 @@ export function useAuth() {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
+  const username = user?.email?.split('@')[0] || user?.user_metadata?.display_name || 'user';
+
   useEffect(() => {
     // Check current session
     authService.getCurrentUser().then(user => {
@@ -23,5 +25,5 @@ export function useAuth() {
     };
   }, []);
 
-  return { user, loading, signOut: authService.signOut, signIn: authService.signUp };
+  return { user, username, loading, signOut: authService.signOut, signIn: authService.signUp };
 }

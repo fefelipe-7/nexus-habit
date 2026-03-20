@@ -3,9 +3,10 @@ import { ArrowLeft } from 'lucide-react';
 
 type Props = {
   onBack: () => void;
+  username: string;
 };
 
-export default function ProfileView({ onBack }: Props) {
+export default function ProfileView({ onBack, username }: Props) {
   return (
     <div className="flex-1 overflow-y-auto pb-32 flex flex-col relative">
       <div className="px-6 pt-12 pb-4 flex items-center">
@@ -33,7 +34,7 @@ export default function ProfileView({ onBack }: Props) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
         >
-          budi
+          {username}
         </motion.h2>
         <motion.p 
           className="text-[#8c8c8c]"
