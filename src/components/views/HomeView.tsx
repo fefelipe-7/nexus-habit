@@ -1,4 +1,4 @@
-import { Habit, Completion } from '../../types';
+import { Habit, Completion, Task } from '../../types';
 import Header from '../layout/Header';
 import CalendarStrip from '../home/CalendarStrip';
 import ReminderCard from '../home/ReminderCard';
@@ -7,10 +7,12 @@ import { motion } from 'framer-motion';
 
 type Props = {
   habits: Habit[];
+  tasks: Task[];
   completions: Completion[];
   selectedDate: Date;
   setSelectedDate: (date: Date) => void;
   toggleCompletion: (habitId: string, date: Date) => void;
+  toggleTask: (taskId: string) => void;
   onShowStreak: () => void;
   onProfileClick: () => void;
   onHabitClick: (id: string) => void;
@@ -31,7 +33,7 @@ const itemVariants = {
   show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 24 } }
 };
 
-export default function HomeView({ habits, completions, selectedDate, setSelectedDate, toggleCompletion, onShowStreak, onProfileClick, onHabitClick }: Props) {
+export default function HomeView({ habits, tasks, completions, selectedDate, setSelectedDate, toggleCompletion, toggleTask, onShowStreak, onProfileClick, onHabitClick }: Props) {
   const filteredHabits = habits.filter(habit => 
     habit.repeatDays.includes(selectedDate.getDay())
   );
@@ -55,9 +57,11 @@ export default function HomeView({ habits, completions, selectedDate, setSelecte
       <motion.div variants={itemVariants}>
         <HabitList 
           habits={filteredHabits} 
+          tasks={tasks}
           completions={completions} 
           selectedDate={selectedDate} 
           onToggleCompletion={toggleCompletion} 
+          onToggleTask={toggleTask}
           onShowStreak={onShowStreak}
           onHabitClick={onHabitClick}
         />

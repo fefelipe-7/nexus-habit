@@ -1,3 +1,5 @@
+export type Priority = 'low' | 'medium' | 'high';
+
 export type Habit = {
   id: string;
   name: string;
@@ -10,6 +12,19 @@ export type Habit = {
   unit?: string; // unit labels like 'kg', 'l', 'mins', etc.
   streak?: number;
   categoryId?: string;
+};
+
+export type Task = {
+  id: string;
+  name: string;
+  description?: string;
+  deadline: string; // ISO date
+  estimatedTime: number; // minutes
+  emojiUrl: string;
+  color: string;
+  priority: Priority;
+  createdAt: string;
+  completedAt?: string; // ISO date when completed
 };
 
 export type Completion = {

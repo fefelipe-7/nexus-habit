@@ -11,7 +11,7 @@ type Props = {
 export default function BottomNav({ currentView, onChangeView, onAddClick }: Props) {
   const tabs: TabItem[] = [
     { title: "Home", icon: Home },
-    { title: "Explore", icon: Compass },
+    { title: "Tasks", icon: Compass },
     { type: "separator" },
     { title: "Add", icon: Plus },
     { type: "separator" },
@@ -21,15 +21,15 @@ export default function BottomNav({ currentView, onChangeView, onAddClick }: Pro
 
   const viewToIndex: Record<string, number> = {
     'home': 0,
-    'explore': 1,
+    'tasks': 1,
     'add': 3,
     'stats': 5,
     'streak': 6,
   };
 
-  const indexToView: Record<number, 'home' | 'explore' | 'stats' | 'streak' | 'add'> = {
+  const indexToView: Record<number, 'home' | 'tasks' | 'stats' | 'streak' | 'add'> = {
     0: 'home',
-    1: 'explore',
+    1: 'tasks',
     3: 'add',
     5: 'stats',
     6: 'streak',

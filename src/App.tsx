@@ -3,14 +3,14 @@ import { format } from 'date-fns';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Routes, Route, useLocation, useNavigate, Navigate, useParams } from 'react-router-dom';
 import HomeView from './components/views/HomeView';
-import AddHabitView from './components/views/AddHabitView';
+import AddWizardView from './components/views/AddWizardView';
 import StatisticsView from './components/views/StatisticsView';
 import StreakView from './components/views/StreakView';
-import ExploreView from './components/views/ExploreView';
+import TasksView from './components/views/TasksView';
 import ProfileView from './components/views/ProfileView';
 import HabitDetailView from './components/views/HabitDetailView';
 import BottomNav from './components/layout/BottomNav';
-import { Habit, Completion } from './types';
+import { Habit, Completion, Task } from './types';
 
 const pageVariants = {
   initial: { opacity: 0, y: 10, scale: 0.98 },
@@ -33,6 +33,11 @@ export default function App() {
     { id: '3', name: 'stretch for 10 minutes', emojiUrl: '/newhabitwizard/body.png', color: 'pink', repeatDays: [1,2,3,4,5], reminders: true, createdAt: new Date().toISOString(), duration: 10, unit: 'mins', streak: 16 },
     { id: '4', name: 'go for a short walk', emojiUrl: '/newhabitwizard/running.png', color: 'orange', repeatDays: [0,1,2,3,4,5,6], reminders: true, createdAt: new Date().toISOString(), duration: 2, unit: 'km', streak: 16 },
   ]);
+
+  const [tasks, setTasks] = useState<Task[]>([
+    { id: 't1', name: 'Finish UI Design', deadline: format(new Date(), 'yyyy-MM-dd'), estimatedTime: 120, emojiUrl: '/newhabitwizard/heart.png', color: 'pink', priority: 'high', createdAt: new Date().toISOString() },
+    { id: 't2', name: 'Buy groceries', deadline: format(addDays(new Date(), 2), 'yyyy-MM-dd'), estimatedTime: 45, emojiUrl: '/newhabitwizard/food.png', color: 'orange', priority: 'medium', createdAt: new Date().toISOString() },
+  ]);
   
   const [completions, setCompletions] = useState<Completion[]>([
     { habitId: '1', date: format(new Date(), 'yyyy-MM-dd') },
@@ -52,9 +57,23 @@ export default function App() {
     setCompletions(newCompletions);
   };
 
+  const toggleTask = (taskId: string) => {
+    setTasks(tasks.map(t => {
+      if (t.id === taskId) {
+        return { ...t, completedAt: t.completedAt ? undefined : new Date().toISOString() };
+      }
+      return t;
+    }));
+  };
+
   const addHabit = (habit: Habit) => {
     setHabits([...habits, habit]);
     navigate('/');
+  };
+
+  const addTask = (task: Task) => {
+    setTasks([...tasks, task]);
+    navigate('/tasks');
   };
 
   const updateHabit = (updatedHabit: Habit) => {
@@ -72,8 +91,8 @@ export default function App() {
 
   // Determine current tab for BottomNav
   const path = background?.pathname || location.pathname;
-  let currentTab: 'home' | 'explore' | 'stats' | 'streak' | 'profile' | 'add' = 'home';
-  if (path === '/explore') currentTab = 'explore';
+  let currentTab: 'home' | 'tasks' | 'stats' | 'streak' | 'profile' | 'add' = 'home';
+  if (path === '/tasks') currentTab = 'tasks';
   else if (path === '/journey') currentTab = 'stats';
   else if (path === '/streak') currentTab = 'streak';
   else if (path === '/profile') currentTab = 'profile';
@@ -92,10 +111,12 @@ export default function App() {
                 <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.2 }} className="absolute inset-0 flex flex-col pb-24 bg-[#f8f6f2]">
                   <HomeView 
                     habits={habits} 
+                    tasks={tasks}
                     completions={completions} 
                     selectedDate={selectedDate} 
                     setSelectedDate={setSelectedDate}
                     toggleCompletion={toggleCompletion}
+                    toggleTask={toggleTask}
                     onHabitClick={(id) => navigateToModal(`/habit/${id}`)}
                     onShowStreak={() => navigate('/streak')}
                     onProfileClick={() => navigateToModal('/profile')}
@@ -103,9 +124,9 @@ export default function App() {
                 </motion.div>
               } />
               
-              <Route path="/explore" element={
+              <Route path="/tasks" element={
                 <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.2 }} className="absolute inset-0 flex flex-col pb-24 bg-[#f8f6f2]">
-                  <ExploreView />
+                  <TasksView tasks={tasks} onToggleTask={toggleTask} />
                 </motion.div>
               } />
 
@@ -127,7 +148,7 @@ export default function App() {
           <AnimatePresence>
             <Routes location={location} key={location.pathname}>
               <Route path="/add/*" element={
-                <AddHabitView onSave={addHabit} onClose={() => navigate('/')} />
+                <AddWizardView onSave={addHabit} onAddTask={addTask} onClose={() => navigate('/')} />
               } />
               <Route path="/profile" element={
                 <motion.div initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} transition={{ type: 'spring', damping: 25, stiffness: 200 }} className="absolute inset-0 z-50 bg-[#f8f6f2] flex flex-col">
@@ -159,7 +180,7 @@ export default function App() {
               <BottomNav currentView={currentTab} onChangeView={(v) => {
                 const viewToPath = {
                   'home': '/',
-                  'explore': '/explore',
+                  'tasks': '/tasks',
                   'stats': '/journey',
                   'streak': '/streak',
                   'profile': '/profile',
