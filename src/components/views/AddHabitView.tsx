@@ -33,7 +33,8 @@ const EMOJIS = [
 export default function AddHabitView({ onSave, onClose }: Props) {
   const navigate = useNavigate();
   const location = useLocation();
-  const { step: stepParam } = useParams();
+  const params = useParams();
+  const stepParam = params['*'];
   const step = parseInt(stepParam || '1');
   
   // Habit state (preserved while navigating steps as long as component doesn't unmount)
@@ -105,7 +106,7 @@ export default function AddHabitView({ onSave, onClose }: Props) {
 
       <div className="flex-1 relative overflow-hidden">
         <AnimatePresence mode="wait">
-          <Routes location={location} key={location.pathname}>
+          <Routes>
             <Route path="/" element={<Step1 categoryId={categoryId} setCategoryId={setCategoryId} />} />
             <Route path="/1" element={<Step1 categoryId={categoryId} setCategoryId={setCategoryId} />} />
             <Route path="/2" element={<Step2 name={name} setName={setName} emojiUrl={emojiUrl} setEmojiUrl={setEmojiUrl} color={color} setColor={setColor} />} />

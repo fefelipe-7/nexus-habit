@@ -86,10 +86,10 @@ export default function App() {
         
         <div className="flex-1 relative overflow-hidden">
           {/* Main Background Views */}
-          <AnimatePresence mode="wait">
+          <AnimatePresence>
             <Routes location={background || location} key={background?.pathname || location.pathname}>
               <Route path="/" element={
-                <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.2 }} className="absolute inset-0 flex flex-col pb-24 px-6 overflow-y-auto scrollbar-hide">
+                <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.2 }} className="absolute inset-0 flex flex-col pb-24 bg-[#f8f6f2]">
                   <HomeView 
                     habits={habits} 
                     completions={completions} 
@@ -104,19 +104,19 @@ export default function App() {
               } />
               
               <Route path="/explore" element={
-                <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.2 }} className="absolute inset-0 flex flex-col pb-24 px-6 overflow-y-auto scrollbar-hide">
+                <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.2 }} className="absolute inset-0 flex flex-col pb-24 bg-[#f8f6f2]">
                   <ExploreView />
                 </motion.div>
               } />
 
               <Route path="/journey" element={
-                <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.2 }} className="absolute inset-0 flex flex-col pb-24 px-6 overflow-y-auto scrollbar-hide">
+                <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.2 }} className="absolute inset-0 flex flex-col pb-24 bg-[#f8f6f2]">
                   <StatisticsView habits={habits} completions={completions} onHabitClick={(id) => navigateToModal(`/habit/${id}`)} />
                 </motion.div>
               } />
 
               <Route path="/streak" element={
-                <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.2 }} className="absolute inset-0 flex flex-col pb-24 px-6 overflow-y-auto scrollbar-hide">
+                <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.2 }} className="absolute inset-0 flex flex-col pb-24 bg-[#f8f6f2]">
                   <StreakView streak={16} />
                 </motion.div>
               } />
@@ -126,26 +126,15 @@ export default function App() {
           {/* Modal / Overlay Routes */}
           <AnimatePresence>
             <Routes location={location} key={location.pathname}>
-              <Route path="/add" element={
-                <AddHabitView onSave={addHabit} onClose={() => navigate(-1)} />
-              } />
-              <Route path="/add/:step" element={
-                <AddHabitView onSave={addHabit} onClose={() => navigate(-1)} />
+              <Route path="/add/*" element={
+                <AddHabitView onSave={addHabit} onClose={() => navigate('/')} />
               } />
               <Route path="/profile" element={
                 <motion.div initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} transition={{ type: 'spring', damping: 25, stiffness: 200 }} className="absolute inset-0 z-50 bg-[#f8f6f2] flex flex-col">
                   <ProfileView onBack={() => navigate(-1)} />
                 </motion.div>
               } />
-              <Route path="/habit/:id" element={
-                <HabitDetailRoute 
-                  habits={habits} 
-                  onUpdate={updateHabit} 
-                  onDelete={deleteHabit} 
-                  onClose={() => navigate(-1)} 
-                />
-              } />
-              <Route path="/habit/:id/edit" element={
+              <Route path="/habit/:id/*" element={
                 <HabitDetailRoute 
                   habits={habits} 
                   onUpdate={updateHabit} 
