@@ -1,0 +1,99 @@
+import { supabase } from '../lib/supabase';
+import { Habit, Completion } from '../types';
+
+export const habitService = {
+  async getHabits() {
+    const { data, error } = await supabase
+      .from('habits')
+      .select('id, name, emojiUrl:emoji_url, color, repeatDays:repeat_days, reminders, categoryId:category_id, duration, unit, createdAt:created_at, streak')
+      .order('created_at', { ascending: true });
+    return { data, error };
+  },
+
+  async createHabit(habit: Omit<Habit, 'id' | 'streak'>) {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('User not authenticated');
+
+    const dbHabit = {
+      name: habit.name,
+      emoji_url: habit.emojiUrl,
+      color: habit.color,
+      repeat_days: habit.repeatDays,
+      reminders: habit.reminders,
+      category_id: habit.categoryId || 'default',
+      duration: habit.duration,
+      unit: habit.unit,
+      user_id: user.id
+    };
+
+    const { data, error } = await supabase
+      .from('habits')
+      .insert([dbHabit])
+      .select('id, name, emojiUrl:emoji_url, color, repeatDays:repeat_days, reminders, categoryId:category_id, duration, unit, createdAt:created_at, streak')
+      .single();
+    return { data, error };
+  },
+
+  async updateHabit(id: string, updates: Partial<Habit>) {
+    const dbUpdates: any = {};
+    if (updates.name) dbUpdates.name = updates.name;
+    if (updates.emojiUrl) dbUpdates.emoji_url = updates.emojiUrl;
+    if (updates.color) dbUpdates.color = updates.color;
+    if (updates.repeatDays) dbUpdates.repeat_days = updates.repeatDays;
+    if (updates.reminders !== undefined) dbUpdates.reminders = updates.reminders;
+    if (updates.categoryId) dbUpdates.category_id = updates.categoryId;
+    if (updates.duration) dbUpdates.duration = updates.duration;
+    if (updates.unit) dbUpdates.unit = updates.unit;
+
+    const { data, error } = await supabase
+      .from('habits')
+      .update(dbUpdates)
+      .eq('id', id)
+      .select('id, name, emojiUrl:emoji_url, color, repeatDays:repeat_days, reminders, categoryId:category_id, duration, unit, createdAt:created_at, streak')
+      .single();
+    return { data, error };
+  },
+
+  async deleteHabit(id: string) {
+    const { error } = await supabase
+      .from('habits')
+      .delete()
+      .eq('id', id);
+    return { error };
+  },
+
+  async getCompletions() {
+    const { data, error } = await supabase
+      .from('completions')
+      .select('habitId:habit_id, date');
+    return { data, error };
+  },
+
+  async toggleCompletion(habitId: string, date: string) {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('User not authenticated');
+
+    // Check if completion exists
+    const { data: existing } = await supabase
+      .from('completions')
+      .select('id')
+      .eq('habit_id', habitId)
+      .eq('date', date)
+      .single();
+
+    if (existing) {
+      const { error } = await supabase
+        .from('completions')
+        .delete()
+        .eq('id', existing.id);
+      return { action: 'deleted', error };
+    } else {
+      const { data, error } = await supabase
+        .from('completions')
+        .insert([{ habit_id: habitId, date, user_id: user.id }])
+        .select()
+        .single();
+      return { action: 'created', data, error };
+    }
+  }
+};

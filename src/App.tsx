@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { format, addDays } from 'date-fns';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Routes, Route, useLocation, useNavigate, Navigate, useParams } from 'react-router-dom';
@@ -10,8 +10,13 @@ import TasksView from './components/views/TasksView';
 import ProfileView from './components/views/ProfileView';
 import HabitDetailView from './components/views/HabitDetailView';
 import TaskDetailView from './components/views/TaskDetailView';
+import LoginView from './components/views/LoginView';
 import BottomNav from './components/layout/BottomNav';
-import { Habit, Completion, Task } from './types';
+import { Habit, Task } from './types';
+import { useAuth } from './hooks/useAuth';
+import { useHabits } from './hooks/useHabits';
+import { useTasks } from './hooks/useTasks';
+import { Loader2 } from 'lucide-react';
 
 const pageVariants = {
   initial: { opacity: 0, y: 10, scale: 0.98 },
@@ -19,12 +24,12 @@ const pageVariants = {
   exit: { opacity: 0, y: -10, scale: 0.98 }
 };
 
-function TaskDetailRoute({ tasks, onUpdate, onDelete }: { tasks: Task[], onUpdate: (task: Task) => void, onDelete: (id: string) => void }) {
+function TaskDetailRoute({ tasks, onUpdate, onDelete }: { tasks: Task[], onUpdate: (task: any) => void, onDelete: (id: string) => void }) {
   const { id } = useParams();
   const navigate = useNavigate();
   const task = tasks.find(t => t.id === id);
-  if (!task) return <Navigate to="/tasks" replace />;
-  return <TaskDetailView task={task} onUpdate={onUpdate} onDelete={onDelete} onClose={() => navigate('/tasks')} />;
+  if (!task) return null;
+  return <TaskDetailView task={task} onUpdate={(updates) => onUpdate({ id, updates })} onDelete={onDelete} onClose={() => navigate('/tasks')} />;
 }
 
 export default function App() {
@@ -32,81 +37,16 @@ export default function App() {
   const navigate = useNavigate();
   const [selectedDate, setSelectedDate] = useState(new Date());
   
-  // This state allows us to keep the "background" route rendered under our modals
+  const { user, loading: authLoading } = useAuth();
+  const { habits, completions, toggleCompletion, createHabit, updateHabit, deleteHabit, isLoading: habitsLoading } = useHabits();
+  const { tasks, toggleTask, createTask, updateTask, deleteTask, isLoading: tasksLoading } = useTasks();
+
   const background = location.state?.background;
-
-  // Mock initial data
-  const [habits, setHabits] = useState<Habit[]>([
-    { id: '1', name: 'drink a glass of water', emojiUrl: '/newhabitwizard/water.png', color: 'blue', repeatDays: [0,1,2,3,4,5,6], reminders: true, createdAt: new Date().toISOString(), duration: 8, unit: 'cups', streak: 16 },
-    { id: '2', name: 'meditate to relax', emojiUrl: '/newhabitwizard/pray.png', color: 'green', repeatDays: [1,3,5], reminders: true, createdAt: new Date().toISOString(), duration: 15, unit: 'mins', streak: 16 },
-    { id: '3', name: 'stretch for 10 minutes', emojiUrl: '/newhabitwizard/body.png', color: 'pink', repeatDays: [1,2,3,4,5], reminders: true, createdAt: new Date().toISOString(), duration: 10, unit: 'mins', streak: 16 },
-    { id: '4', name: 'go for a short walk', emojiUrl: '/newhabitwizard/running.png', color: 'orange', repeatDays: [0,1,2,3,4,5,6], reminders: true, createdAt: new Date().toISOString(), duration: 2, unit: 'km', streak: 16 },
-  ]);
-
-  const [tasks, setTasks] = useState<Task[]>([
-    { id: 't1', name: 'Finish UI Design', deadline: format(new Date(), 'yyyy-MM-dd'), estimatedTime: 120, emojiUrl: '/newhabitwizard/heart.png', color: 'pink', priority: 'high', createdAt: new Date().toISOString() },
-    { id: 't2', name: 'Buy groceries', deadline: format(addDays(new Date(), 2), 'yyyy-MM-dd'), estimatedTime: 45, emojiUrl: '/newhabitwizard/food.png', color: 'orange', priority: 'medium', createdAt: new Date().toISOString() },
-  ]);
-  
-  const [completions, setCompletions] = useState<Completion[]>([
-    { habitId: '1', date: format(new Date(), 'yyyy-MM-dd') },
-    { habitId: '2', date: format(new Date(), 'yyyy-MM-dd') },
-  ]);
-
-  const toggleCompletion = (habitId: string, date: Date) => {
-    const dateStr = format(date, 'yyyy-MM-dd');
-    const existing = completions.find(c => c.habitId === habitId && c.date === dateStr);
-    
-    let newCompletions;
-    if (existing) {
-      newCompletions = completions.filter(c => c !== existing);
-    } else {
-      newCompletions = [...completions, { habitId, date: dateStr }];
-    }
-    setCompletions(newCompletions);
-  };
-
-  const updateTask = (updatedTask: Task) => {
-    setTasks(prev => prev.map(t => t.id === updatedTask.id ? updatedTask : t));
-  };
-
-  const deleteTask = (taskId: string) => {
-    setTasks(prev => prev.filter(t => t.id !== taskId));
-  };
-
-  const toggleTask = (taskId: string) => {
-    setTasks(tasks.map(t => {
-      if (t.id === taskId) {
-        return { ...t, completedAt: t.completedAt ? undefined : new Date().toISOString() };
-      }
-      return t;
-    }));
-  };
-
-  const addHabit = (habit: Habit) => {
-    setHabits([...habits, habit]);
-    navigate('/');
-  };
-
-  const addTask = (task: Task) => {
-    setTasks([...tasks, task]);
-    navigate('/tasks');
-  };
-
-  const updateHabit = (updatedHabit: Habit) => {
-    setHabits(habits.map(h => h.id === updatedHabit.id ? updatedHabit : h));
-  };
-
-  const deleteHabit = (habitId: string) => {
-    setHabits(habits.filter(h => h.id !== habitId));
-    navigate(-1);
-  };
 
   const navigateToModal = (path: string) => {
     navigate(path, { state: { background: location } });
   };
 
-  // Determine current tab for BottomNav
   const path = background?.pathname || location.pathname;
   let currentTab: 'home' | 'tasks' | 'stats' | 'streak' | 'profile' | 'add' = 'home';
   if (path === '/tasks') currentTab = 'tasks';
@@ -115,6 +55,18 @@ export default function App() {
   else if (path === '/profile') currentTab = 'profile';
 
   const isModalOpen = !!background || location.pathname === '/add' || location.pathname.startsWith('/habit/') || location.pathname.startsWith('/task/') || location.pathname === '/profile';
+
+  if (authLoading) {
+    return (
+      <div className="h-[100dvh] bg-[#f8f6f2] flex items-center justify-center">
+        <Loader2 className="animate-spin text-[#f27d26]" size={32} />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <LoginView onLogin={() => {}} />;
+  }
 
   return (
     <div className="h-[100dvh] bg-gray-100 text-[#2d2d2d] font-sans flex justify-center lowercase selection:bg-[#f27d26] selection:text-white overflow-hidden">
@@ -132,7 +84,7 @@ export default function App() {
                     completions={completions} 
                     selectedDate={selectedDate} 
                     setSelectedDate={setSelectedDate}
-                    toggleCompletion={toggleCompletion}
+                    toggleCompletion={(id, date) => toggleCompletion({ habitId: id, date: format(date, 'yyyy-MM-dd') })}
                     toggleTask={toggleTask}
                     onHabitClick={(id) => navigateToModal(`/habit/${id}`)}
                     onTaskClick={(id) => navigateToModal(`/task/${id}`)}
@@ -166,10 +118,14 @@ export default function App() {
           <AnimatePresence>
             <Routes location={location} key={location.pathname}>
               <Route path="/add/*" element={
-                <AddWizardView onSave={addHabit} onAddTask={addTask} onClose={() => navigate('/')} />
+                <AddWizardView 
+                  onSave={(h) => createHabit(h).then(() => navigate('/'))} 
+                  onAddTask={(t) => createTask(t).then(() => navigate('/tasks'))} 
+                  onClose={() => navigate('/')} 
+                />
               } />
               <Route path="/task/:id/*" element={
-                <TaskDetailRoute tasks={tasks} onUpdate={updateTask} onDelete={deleteTask} />
+                <TaskDetailRoute tasks={tasks} onUpdate={updateTask} onDelete={(id) => deleteTask(id).then(() => navigate('/tasks'))} />
               } />
               <Route path="/profile" element={
                 <motion.div initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} transition={{ type: 'spring', damping: 25, stiffness: 200 }} className="absolute inset-0 z-50 bg-[#f8f6f2] flex flex-col">
@@ -179,8 +135,8 @@ export default function App() {
               <Route path="/habit/:id/*" element={
                 <HabitDetailRoute 
                   habits={habits} 
-                  onUpdate={updateHabit} 
-                  onDelete={deleteHabit} 
+                  onUpdate={(h) => updateHabit({ id: h.id, updates: h })} 
+                  onDelete={(id) => deleteHabit(id).then(() => navigate('/'))} 
                   onClose={() => navigate(-1)} 
                 />
               } />
