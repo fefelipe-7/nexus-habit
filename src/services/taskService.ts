@@ -5,7 +5,7 @@ export const taskService = {
   async getTasks() {
     const { data, error } = await supabase
       .from('tasks')
-      .select('id, name, description, deadline, priority, estimatedTime:estimated_time, emojiUrl:emoji_url, color, createdAt:created_at, completedAt:completed_at')
+      .select('id, name, description, deadline, priority, estimatedTime:estimated_time, emojiUrl:emoji_url, color, createdAt:created_at, completedAt:completed_at, projectId:project_id')
       .order('created_at', { ascending: false });
     return { data, error };
   },
@@ -22,13 +22,14 @@ export const taskService = {
       estimated_time: task.estimatedTime,
       emoji_url: task.emojiUrl,
       color: task.color,
-      user_id: user.id
+      user_id: user.id,
+      project_id: task.projectId
     };
 
     const { data, error } = await supabase
       .from('tasks')
       .insert([dbTask])
-      .select('id, name, description, deadline, priority, estimatedTime:estimated_time, emojiUrl:emoji_url, color, createdAt:created_at, completedAt:completed_at')
+      .select('id, name, description, deadline, priority, estimatedTime:estimated_time, emojiUrl:emoji_url, color, createdAt:created_at, completedAt:completed_at, projectId:project_id')
       .single();
     return { data, error };
   },
@@ -43,12 +44,13 @@ export const taskService = {
     if (updates.emojiUrl) dbUpdates.emoji_url = updates.emojiUrl;
     if (updates.color) dbUpdates.color = updates.color;
     if (updates.completedAt !== undefined) dbUpdates.completed_at = updates.completedAt;
+    if (updates.projectId !== undefined) dbUpdates.project_id = updates.projectId;
 
     const { data, error } = await supabase
       .from('tasks')
       .update(dbUpdates)
       .eq('id', id)
-      .select('id, name, description, deadline, priority, estimatedTime:estimated_time, emojiUrl:emoji_url, color, createdAt:created_at, completedAt:completed_at')
+      .select('id, name, description, deadline, priority, estimatedTime:estimated_time, emojiUrl:emoji_url, color, createdAt:created_at, completedAt:completed_at, projectId:project_id')
       .single();
     return { data, error };
   },

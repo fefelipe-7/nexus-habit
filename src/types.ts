@@ -25,6 +25,18 @@ export type Task = {
   priority: Priority;
   createdAt: string;
   completedAt?: string; // ISO date when completed
+  projectId?: string;
+};
+
+export type Project = {
+  id: string;
+  name: string;
+  description?: string;
+  emojiUrl: string;
+  color: string;
+  status: 'active' | 'completed' | 'archived';
+  createdAt: string;
+  updatedAt: string;
 };
 
 export type Completion = {

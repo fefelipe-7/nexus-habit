@@ -3,8 +3,8 @@ import { cn } from '../../utils/cn';
 import { ExpandableTabs, TabItem } from '../ui/expandable-tabs';
 
 type Props = {
-  currentView: 'home' | 'tasks' | 'stats' | 'streak' | 'collections';
-  onChangeView: (view: 'home' | 'tasks' | 'stats' | 'streak' | 'collections') => void;
+  currentView: 'home' | 'tasks' | 'stats' | 'streak' | 'projects';
+  onChangeView: (view: 'home' | 'tasks' | 'stats' | 'streak' | 'projects') => void;
 };
 
 export default function BottomNav({ currentView, onChangeView }: Props) {
@@ -12,7 +12,7 @@ export default function BottomNav({ currentView, onChangeView }: Props) {
     { title: "Tasks", icon: ClipboardList },
     { title: "Journey", icon: Compass },
     { title: "Home", icon: Home },
-    { title: "Collections", icon: Folder },
+    { title: "Projects", icon: Folder },
     { title: "Streak", icon: Flame },
   ];
 
@@ -20,15 +20,15 @@ export default function BottomNav({ currentView, onChangeView }: Props) {
     'tasks': 0,
     'stats': 1,
     'home': 2,
-    'collections': 3,
+    'projects': 3,
     'streak': 4,
   };
 
-  const indexToView: Record<number, 'home' | 'tasks' | 'stats' | 'streak' | 'collections'> = {
+  const indexToView: Record<number, 'home' | 'tasks' | 'stats' | 'streak' | 'projects'> = {
     0: 'tasks',
     1: 'stats',
     2: 'home',
-    3: 'collections',
+    3: 'projects',
     4: 'streak',
   };
 

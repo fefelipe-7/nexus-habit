@@ -11,6 +11,8 @@ import TasksView from './components/views/TasksView';
 import ProfileView from './components/views/ProfileView';
 import HabitDetailView from './components/views/HabitDetailView';
 import TaskDetailView from './components/views/TaskDetailView';
+import ProjectsView from './components/views/ProjectsView';
+import ProjectDetailView from './components/views/ProjectDetailView';
 import LoginView from './components/views/LoginView';
 import BottomNav from './components/layout/BottomNav';
 import FloatingActionButton from './components/layout/FloatingActionButton';
@@ -50,11 +52,11 @@ export default function App() {
   };
 
   const path = background?.pathname || location.pathname;
-  let currentTab: 'home' | 'tasks' | 'stats' | 'streak' | 'collections' = 'home';
+  let currentTab: 'home' | 'tasks' | 'stats' | 'streak' | 'projects' = 'home';
   if (path === '/tasks') currentTab = 'tasks';
   else if (path === '/journey') currentTab = 'stats';
   else if (path === '/streak') currentTab = 'streak';
-  else if (path === '/collections') currentTab = 'collections';
+  else if (path === '/projects') currentTab = 'projects';
 
   const isModalOpen = !!background || location.pathname === '/add' || location.pathname.startsWith('/habit/') || location.pathname.startsWith('/task/') || location.pathname === '/profile';
 
@@ -118,10 +120,9 @@ export default function App() {
                 </motion.div>
               } />
 
-              <Route path="/collections" element={
-                <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.2 }} className="absolute inset-0 flex flex-col pb-24 bg-[#f8f6f2] items-center justify-center text-gray-400">
-                  <Folder size={48} className="mb-4 opacity-20" />
-                  <p>Collections view coming soon</p>
+              <Route path="/projects" element={
+                <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.2 }} className="absolute inset-0 flex flex-col pb-24 bg-[#f8f6f2]">
+                  <ProjectsView />
                 </motion.div>
               } />
             </Routes>
@@ -136,6 +137,7 @@ export default function App() {
                 <AddWizardView 
                   onSave={(h) => createHabit(h).then(() => navigate('/'))} 
                   onAddTask={(t) => createTask(t).then(() => navigate('/tasks'))} 
+                  onAddProject={(p) => createProject(p).then(() => navigate('/projects'))}
                   onClose={() => navigate('/')} 
                 />
               } />
@@ -155,6 +157,9 @@ export default function App() {
                   onDelete={(id) => deleteHabit(id).then(() => navigate('/'))} 
                   onClose={() => navigate(-1)} 
                 />
+              } />
+              <Route path="/project/:id/*" element={
+                <ProjectDetailView />
               } />
               <Route path="*" element={null} />
             </Routes>
@@ -179,7 +184,7 @@ export default function App() {
                     'tasks': '/tasks',
                     'stats': '/journey',
                     'streak': '/streak',
-                    'collections': '/collections'
+                    'projects': '/projects'
                   } as any;
                   navigate(viewToPath[v]);
                 }} />

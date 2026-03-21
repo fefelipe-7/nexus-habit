@@ -1,7 +1,5 @@
-import { useState, useMemo } from 'react';
-import { X, Calendar, ArrowRight, ArrowLeft, Clock, AlertTriangle, Layers, Repeat, CheckCircle2, Target, CalendarDays, Palette } from 'lucide-react';
-import { Routes, Route, useNavigate, useParams, useLocation } from 'react-router-dom';
-import { Habit, Task, Priority } from '../../types';
+import { Habit, Task, Project, Priority } from '../../types';
+import { useProjects } from '../../hooks/useProjects';
 import { cn } from '../../utils/cn';
 import { motion, AnimatePresence } from 'framer-motion';
 import { format } from 'date-fns';
@@ -11,6 +9,7 @@ import { HABIT_CATEGORIES } from '../../constants/categories';
 type Props = {
   onSave: (habit: any) => void;
   onAddTask: (task: any) => void;
+  onAddProject: (project: any) => void;
   onClose: () => void;
 };
 
@@ -27,9 +26,15 @@ const EMOJIS = [
   '/newhabitwizard/sugar.png', '/newhabitwizard/test.png', '/newhabitwizard/water.png',
 ];
 
-export default function AddWizardView({ onSave, onAddTask, onClose }: Props) {
-  const [typeSelected, setTypeSelected] = useState<'habit' | 'task' | null>(null);
+export default function AddWizardView({ onSave, onAddTask, onAddProject, onClose }: Props) {
+  const location = useLocation();
+  const { projects } = useProjects();
+  const [typeSelected, setTypeSelected] = useState<'habit' | 'task' | 'project' | null>(null);
   const [step, setStep] = useState(0);
+  
+  // Set initial projectId if passed in location state
+  const initialProjectId = location.state?.projectId || '';
+  const [projectId, setProjectId] = useState<string>(initialProjectId);
   
   // Shared state
   const [name, setName] = useState('');
@@ -61,7 +66,20 @@ export default function AddWizardView({ onSave, onAddTask, onClose }: Props) {
       if (step === 1 && !name.trim()) return;
       if (step < 3) setStep(prev => prev + 1);
       else handleSaveTask();
+    } else if (typeSelected === 'project') {
+      if (step === 1 && !name.trim()) return;
+      if (step < 2) setStep(prev => prev + 1);
+      else handleSaveProject();
     }
+  };
+
+  const handleSaveProject = () => {
+    onAddProject({
+      name: name.toLowerCase(),
+      description,
+      emojiUrl,
+      color
+    });
   };
 
   const handleBack = () => {
@@ -84,7 +102,7 @@ export default function AddWizardView({ onSave, onAddTask, onClose }: Props) {
   const handleSaveTask = () => {
     onAddTask({
       name: name.toLowerCase(),
-      description, deadline, priority, estimatedTime, emojiUrl, color,
+      description, deadline, priority, estimatedTime, emojiUrl, color, projectId
     });
   };
 
@@ -95,7 +113,10 @@ export default function AddWizardView({ onSave, onAddTask, onClose }: Props) {
       if (step === 3) return repeatDays.length > 0;
     } else if (typeSelected === 'task') {
       if (step === 1) return !!name.trim();
-      return true; // Subsequent task steps don't have hard requirements
+      return true;
+    } else if (typeSelected === 'project') {
+      if (step === 1) return !!name.trim();
+      return true;
     }
     return false;
   }, [typeSelected, step, categoryId, name, repeatDays]);
@@ -118,7 +139,11 @@ export default function AddWizardView({ onSave, onAddTask, onClose }: Props) {
             <h1 className="text-xl font-medium text-[#2d2d2d] leading-tight">
               {step === 0 ? 'create new' : `new ${typeSelected}`}
             </h1>
-            {step > 0 && <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest leading-tight">step 0{step} / 03</span>}
+            {step > 0 && (
+              <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest leading-tight">
+                step 0{step} / 0{typeSelected === 'project' ? '2' : '3'}
+              </span>
+            )}
           </div>
         </div>
         <button onClick={onClose} className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm text-[#2d2d2d] active:scale-90 transition-transform">
@@ -130,7 +155,7 @@ export default function AddWizardView({ onSave, onAddTask, onClose }: Props) {
       {step > 0 && (
         <div className="px-6 mb-8 mt-2">
           <div className="flex gap-2">
-            {[1, 2, 3].map((s) => (
+            {[1, 2, 3].slice(0, typeSelected === 'project' ? 2 : 3).map((s) => (
               <div key={s} className="flex-1">
                 <div className={cn(
                   "h-1.5 rounded-full transition-all duration-500", 
@@ -153,11 +178,16 @@ export default function AddWizardView({ onSave, onAddTask, onClose }: Props) {
               {step === 2 && <HabitStep2 name={name} setName={setName} emojiUrl={emojiUrl} setEmojiUrl={setEmojiUrl} color={color} setColor={setColor} />}
               {step === 3 && <HabitStep3 repeatDays={repeatDays} toggleDay={(i: number) => setRepeatDays(prev => prev.includes(i) ? prev.filter(d => d !== i) : [...prev, i].sort())} duration={duration} setDuration={setDuration} unit={unit} setUnit={setUnit} reminders={reminders} setReminders={setReminders} />}
             </div>
-          ) : (
+          ) : typeSelected === 'task' ? (
             <div key={`task-${step}`} className="h-full">
-              {step === 1 && <TaskStep1 name={name} setName={setName} description={description} setDescription={setDescription} />}
+              {step === 1 && <TaskStep1 name={name} setName={setName} description={description} setDescription={setDescription} projects={projects} projectId={projectId} setProjectId={setProjectId} />}
               {step === 2 && <TaskStep2 deadline={deadline} setDeadline={setDeadline} estimatedTime={estimatedTime} setEstimatedTime={setEstimatedTime} />}
               {step === 3 && <TaskStep3 emojiUrl={emojiUrl} setEmojiUrl={setEmojiUrl} color={color} setColor={setColor} priority={priority} setPriority={setPriority} name={name} deadline={deadline} />}
+            </div>
+          ) : (
+            <div key={`project-${step}`} className="h-full">
+              {step === 1 && <ProjectStep1 name={name} setName={setName} description={description} setDescription={setDescription} />}
+              {step === 2 && <ProjectStep2 emojiUrl={emojiUrl} setEmojiUrl={setEmojiUrl} color={color} setColor={setColor} />}
             </div>
           )}
         </AnimatePresence>
@@ -174,8 +204,8 @@ export default function AddWizardView({ onSave, onAddTask, onClose }: Props) {
               canContinue ? "bg-[#2d2d2d] text-white shadow-lg" : "bg-gray-200 text-gray-400"
             )}
           >
-            <span>{step < 3 ? 'continue' : `save ${typeSelected}`}</span>
-            {step < 3 ? <ArrowRight size={20} /> : <CheckCircle2 size={20} />}
+            <span>{step < (typeSelected === 'project' ? 2 : 3) ? 'continue' : `save ${typeSelected}`}</span>
+            {step < (typeSelected === 'project' ? 2 : 3) ? <ArrowRight size={20} /> : <CheckCircle2 size={20} />}
           </button>
         </div>
       )}
@@ -183,7 +213,7 @@ export default function AddWizardView({ onSave, onAddTask, onClose }: Props) {
   );
 }
 
-function StepTypeSelect({ onSelect }: { onSelect: (type: 'habit' | 'task') => void }) {
+function StepTypeSelect({ onSelect }: { onSelect: (type: 'habit' | 'task' | 'project') => void }) {
   return (
     <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="px-6 flex flex-col items-center justify-center h-full gap-8">
       <div className="text-center mb-4">
@@ -215,6 +245,19 @@ function StepTypeSelect({ onSelect }: { onSelect: (type: 'habit' | 'task') => vo
           <div>
             <h2 className="text-xl font-bold text-[#2d2d2d]">Task</h2>
             <p className="text-sm text-[#8c8c8c]">A one-time activity with a specific deadline and duration.</p>
+          </div>
+        </button>
+
+        <button 
+          onClick={() => onSelect('project')}
+          className="w-full bg-white p-8 rounded-[40px] shadow-sm flex items-center gap-6 group hover:ring-4 hover:ring-orange-100 transition-all text-left"
+        >
+          <div className="w-16 h-16 bg-purple-100 rounded-2xl flex items-center justify-center text-purple-500 group-hover:scale-110 transition-transform">
+            <Folder size={32} />
+          </div>
+          <div>
+            <h2 className="text-xl font-bold text-[#2d2d2d]">Project</h2>
+            <p className="text-sm text-[#8c8c8c]">Group related tasks into a bigger goal.</p>
           </div>
         </button>
       </div>
@@ -352,9 +395,9 @@ function HabitStep3({ repeatDays, toggleDay, duration, setDuration, unit, setUni
 }
 
 // TASK STEPS - REFACTORED FOR BETTER LOGIC
-function TaskStep1({ name, setName, description, setDescription }: any) {
+function TaskStep1({ name, setName, description, setDescription, projects, projectId, setProjectId }: any) {
   return (
-    <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="px-6 space-y-8">
+    <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="px-6 space-y-8 overflow-y-auto max-h-full pb-10 scrollbar-hide">
       <div className="text-center">
         <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4 text-blue-500">
           <Target size={24} />
@@ -379,8 +422,113 @@ function TaskStep1({ name, setName, description, setDescription }: any) {
             value={description} 
             onChange={e => setDescription(e.target.value)} 
             placeholder="Detailed description (optional)" 
+            className="w-full bg-transparent p-6 outline-none text-base font-medium text-[#2d2d2d] h-32 resize-none placeholder:text-gray-200 scrollbar-hide" 
+          />
+        </div>
+
+        <div>
+          <label className="text-[10px] font-black uppercase tracking-widest text-gray-300 block mb-3 px-4">Link to Project (Optional)</label>
+          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+            <button 
+              onClick={() => setProjectId('')}
+              className={cn(
+                "px-4 py-3 rounded-2xl text-xs font-bold transition-all whitespace-nowrap",
+                projectId === '' ? "bg-[#2d2d2d] text-white shadow-md" : "bg-white text-gray-400 border border-gray-50 shadow-sm"
+              )}
+            >
+              No Project
+            </button>
+            {projects.map((p: Project) => (
+              <button 
+                key={p.id}
+                onClick={() => setProjectId(p.id)}
+                className={cn(
+                  "px-4 py-3 rounded-2xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-2",
+                  projectId === p.id ? "bg-[#2d2d2d] text-white shadow-md" : "bg-white text-gray-400 border border-gray-50 shadow-sm"
+                )}
+              >
+                <img src={p.emojiUrl} alt="" className="w-4 h-4" />
+                {p.name}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+// PROJECT STEPS
+function ProjectStep1({ name, setName, description, setDescription }: any) {
+  return (
+    <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="px-6 space-y-8">
+      <div className="text-center">
+        <div className="w-16 h-16 bg-purple-50 rounded-full flex items-center justify-center mx-auto mb-4 text-purple-500">
+          <Folder size={24} />
+        </div>
+        <h2 className="text-xl font-bold text-[#2d2d2d]">new project</h2>
+        <p className="text-[#8c8c8c] text-sm leading-relaxed">group related tasks under a bigger goal</p>
+      </div>
+
+      <div className="space-y-4">
+        <div className="bg-white rounded-[32px] p-2 shadow-sm border border-gray-50 group focus-within:ring-4 focus-within:ring-purple-50 transition-all">
+          <input 
+            type="text" 
+            value={name} 
+            onChange={e => setName(e.target.value)} 
+            placeholder="Project name" 
+            className="w-full bg-transparent p-6 outline-none text-xl font-bold text-[#2d2d2d] placeholder:text-gray-200" 
+          />
+        </div>
+        
+        <div className="bg-white rounded-[32px] p-2 shadow-sm border border-gray-50 group focus-within:ring-4 focus-within:ring-purple-50 transition-all">
+          <textarea 
+            value={description} 
+            onChange={e => setDescription(e.target.value)} 
+            placeholder="What is this project about? (optional)" 
             className="w-full bg-transparent p-6 outline-none text-base font-medium text-[#2d2d2d] h-40 resize-none placeholder:text-gray-200 scrollbar-hide" 
           />
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+function ProjectStep2({ emojiUrl, setEmojiUrl, color, setColor }: any) {
+  return (
+    <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="px-6 space-y-8 overflow-y-auto max-h-full pb-10 scrollbar-hide">
+      <div className="text-center">
+        <h2 className="text-xl font-bold text-[#2d2d2d] mb-1">style it</h2>
+        <p className="text-[#8c8c8c] text-sm">make this project stand out</p>
+      </div>
+
+      <div className="space-y-6">
+        <div className="bg-white rounded-[40px] p-6 shadow-sm">
+          <label className="text-[10px] font-black uppercase tracking-widest text-gray-300 block mb-4">choose icon</label>
+          <div className="grid grid-cols-5 gap-3">
+            {EMOJIS.map(url => (
+              <button key={url} onClick={() => setEmojiUrl(url)} className={cn("aspect-square rounded-2xl flex items-center justify-center transition-all active:scale-90", emojiUrl === url ? "bg-purple-50 ring-2 ring-purple-500/20" : "hover:bg-gray-50")}>
+                <img src={url} alt="" className={cn("w-8 h-8 transition-transform", emojiUrl === url ? "scale-125" : "scale-100 opacity-60")} />
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="bg-white rounded-[40px] p-6 shadow-sm">
+          <label className="text-[10px] font-black uppercase tracking-widest text-gray-300 block mb-4">signature color</label>
+          <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
+            {COLORS.map(c => (
+              <button 
+                key={c.id} 
+                onClick={() => setColor(c.id)} 
+                className={cn(
+                  "w-12 h-12 rounded-full flex-shrink-0 border-4 border-white shadow-md transition-all active:scale-90", 
+                  color === c.id ? "scale-110 ring-2 ring-gray-100 opacity-100" : "opacity-40"
+                )} 
+                style={{ backgroundColor: c.primary }}
+              />
+            ))}
+          </div>
         </div>
       </div>
     </motion.div>
