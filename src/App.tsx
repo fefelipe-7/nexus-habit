@@ -118,7 +118,7 @@ export default function App() {
 
           {/* Modal / Overlay Routes */}
           <AnimatePresence>
-            <Routes location={location} key={location.pathname}>
+            <Routes location={location} key={location.pathname.split('/')[1] || 'root'}>
               <Route path="/add/*" element={
                 <AddWizardView 
                   onSave={(h) => createHabit(h).then(() => navigate('/'))} 

@@ -28,18 +28,8 @@ const EMOJIS = [
 ];
 
 export default function AddWizardView({ onSave, onAddTask, onClose }: Props) {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const params = useParams();
-  const wildcard = params['*'] || '';
-  
-  // Logic to determine step and type from wildcard
-  const isTask = wildcard.startsWith('task');
-  const isHabit = wildcard.startsWith('habit');
-  const typeSelected = isTask ? 'task' : isHabit ? 'habit' : null;
-  
-  const stepMatch = wildcard.match(/(\d+)$/);
-  const step = stepMatch ? parseInt(stepMatch[1]) : 0;
+  const [typeSelected, setTypeSelected] = useState<'habit' | 'task' | null>(null);
+  const [step, setStep] = useState(0);
   
   // Shared state
   const [name, setName] = useState('');
@@ -59,26 +49,27 @@ export default function AddWizardView({ onSave, onAddTask, onClose }: Props) {
   const [priority, setPriority] = useState<Priority>('medium');
   const [estimatedTime, setEstimatedTime] = useState(30);
 
-  const toggleDay = (index: number) => {
-    setRepeatDays(prev => prev.includes(index) ? prev.filter(d => d !== index) : [...prev, index].sort());
-  };
-
   const handleNext = () => {
+    if (!typeSelected) return;
+    
     if (typeSelected === 'habit') {
       if (step === 1 && !categoryId) return;
       if (step === 2 && !name.trim()) return;
-      if (step < 3) navigate(`/add/habit/${step + 1}`);
+      if (step < 3) setStep(prev => prev + 1);
       else handleSaveHabit();
     } else if (typeSelected === 'task') {
       if (step === 1 && !name.trim()) return;
-      if (step < 3) navigate(`/add/task/${step + 1}`);
+      if (step < 3) setStep(prev => prev + 1);
       else handleSaveTask();
     }
   };
 
   const handleBack = () => {
-    if (step > 1) navigate(-1);
-    else if (step === 1) navigate('/add');
+    if (step > 1) setStep(prev => prev - 1);
+    else if (step === 1) {
+      setStep(0);
+      setTypeSelected(null);
+    }
     else onClose();
   };
 
@@ -154,19 +145,21 @@ export default function AddWizardView({ onSave, onAddTask, onClose }: Props) {
       {/* Steps Container */}
       <div className="flex-1 relative overflow-hidden flex flex-col">
         <AnimatePresence mode="wait">
-          <Routes location={location} key={location.pathname}>
-            <Route path="/" element={<StepTypeSelect onSelect={(t) => navigate(`/add/${t}/1`)} />} />
-            
-            {/* Habit Flow */}
-            <Route path="habit/1" element={<HabitStep1 categoryId={categoryId} setCategoryId={setCategoryId} />} />
-            <Route path="habit/2" element={<HabitStep2 name={name} setName={setName} emojiUrl={emojiUrl} setEmojiUrl={setEmojiUrl} color={color} setColor={setColor} />} />
-            <Route path="habit/3" element={<HabitStep3 repeatDays={repeatDays} toggleDay={toggleDay} duration={duration} setDuration={setDuration} unit={unit} setUnit={setUnit} reminders={reminders} setReminders={setReminders} />} />
-            
-            {/* Task Flow (Refactored logically) */}
-            <Route path="task/1" element={<TaskStep1 name={name} setName={setName} description={description} setDescription={setDescription} />} />
-            <Route path="task/2" element={<TaskStep2 deadline={deadline} setDeadline={setDeadline} estimatedTime={estimatedTime} setEstimatedTime={setEstimatedTime} />} />
-            <Route path="task/3" element={<TaskStep3 emojiUrl={emojiUrl} setEmojiUrl={setEmojiUrl} color={color} setColor={setColor} priority={priority} setPriority={setPriority} name={name} deadline={deadline} />} />
-          </Routes>
+          {step === 0 ? (
+            <StepTypeSelect onSelect={(t) => { setTypeSelected(t); setStep(1); }} />
+          ) : typeSelected === 'habit' ? (
+            <div key={`habit-${step}`} className="h-full">
+              {step === 1 && <HabitStep1 categoryId={categoryId} setCategoryId={setCategoryId} />}
+              {step === 2 && <HabitStep2 name={name} setName={setName} emojiUrl={emojiUrl} setEmojiUrl={setEmojiUrl} color={color} setColor={setColor} />}
+              {step === 3 && <HabitStep3 repeatDays={repeatDays} toggleDay={(i: number) => setRepeatDays(prev => prev.includes(i) ? prev.filter(d => d !== i) : [...prev, i].sort())} duration={duration} setDuration={setDuration} unit={unit} setUnit={setUnit} reminders={reminders} setReminders={setReminders} />}
+            </div>
+          ) : (
+            <div key={`task-${step}`} className="h-full">
+              {step === 1 && <TaskStep1 name={name} setName={setName} description={description} setDescription={setDescription} />}
+              {step === 2 && <TaskStep2 deadline={deadline} setDeadline={setDeadline} estimatedTime={estimatedTime} setEstimatedTime={setEstimatedTime} />}
+              {step === 3 && <TaskStep3 emojiUrl={emojiUrl} setEmojiUrl={setEmojiUrl} color={color} setColor={setColor} priority={priority} setPriority={setPriority} name={name} deadline={deadline} />}
+            </div>
+          )}
         </AnimatePresence>
       </div>
 
