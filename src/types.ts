@@ -31,3 +31,12 @@ export type Completion = {
   habitId: string;
   date: string; // YYYY-MM-DD
 };
+
+export type Profile = {
+  id: string;
+  displayName: string;
+  bio?: string;
+  avatarUrl?: string;
+  settings: Record<string, any>;
+  updatedAt: string;
+};

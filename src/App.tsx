@@ -37,7 +37,7 @@ export default function App() {
   const navigate = useNavigate();
   const [selectedDate, setSelectedDate] = useState(new Date());
   
-  const { user, username, loading: authLoading } = useAuth();
+  const { user, username, loading: authLoading, signOut } = useAuth();
   const { habits, completions, stats, isLoading: habitsLoading, createHabit, updateHabit, deleteHabit, toggleCompletion } = useHabits();
   const { tasks, toggleTask, createTask, updateTask, deleteTask, isLoading: tasksLoading } = useTasks();
 
@@ -132,7 +132,7 @@ export default function App() {
               } />
               <Route path="/profile" element={
                 <motion.div initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} transition={{ type: 'spring', damping: 25, stiffness: 200 }} className="absolute inset-0 z-50 bg-[#f8f6f2] flex flex-col">
-                  <ProfileView onBack={() => navigate(-1)} username={username} />
+                  <ProfileView onBack={() => navigate(-1)} onLogout={() => signOut().then(() => navigate('/login'))} />
                 </motion.div>
               } />
               <Route path="/habit/:id/*" element={
