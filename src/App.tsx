@@ -138,6 +138,7 @@ export default function App() {
               <Route path="/habit/:id/*" element={
                 <HabitDetailRoute 
                   habits={habits} 
+                  completions={completions}
                   onUpdate={(h) => updateHabit({ id: h.id, updates: h })} 
                   onDelete={(id) => deleteHabit(id).then(() => navigate('/'))} 
                   onClose={() => navigate(-1)} 
@@ -178,8 +179,9 @@ export default function App() {
 }
 
 // Helper component for Habit Details
-function HabitDetailRoute({ habits, onUpdate, onDelete, onClose }: { 
+function HabitDetailRoute({ habits, completions, onUpdate, onDelete, onClose }: { 
   habits: Habit[], 
+  completions: Completion[],
   onUpdate: (h: Habit) => void, 
   onDelete: (id: string) => void,
   onClose: () => void 
@@ -187,5 +189,5 @@ function HabitDetailRoute({ habits, onUpdate, onDelete, onClose }: {
   const { id } = useParams();
   const habit = habits.find(h => h.id === id);
   if (!habit) return null;
-  return <HabitDetailView habit={habit} onUpdate={onUpdate} onDelete={onDelete} onClose={onClose} />;
+  return <HabitDetailView habit={habit} completions={completions} onUpdate={onUpdate} onDelete={onDelete} onClose={onClose} />;
 }
