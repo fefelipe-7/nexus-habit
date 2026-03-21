@@ -5,6 +5,8 @@ import { Habit, Task, Priority } from '../../types';
 import { cn } from '../../utils/cn';
 import { motion, AnimatePresence } from 'framer-motion';
 import { format } from 'date-fns';
+import { NEXUS_COLORS, getColorById } from '../../constants/colors';
+import { HABIT_CATEGORIES } from '../../constants/categories';
 
 type Props = {
   onSave: (habit: any) => void;
@@ -13,15 +15,8 @@ type Props = {
 };
 
 const DAYS = ['s', 'm', 't', 'w', 't', 'f', 's'];
-const COLORS = ['blue', 'green', 'pink', 'orange', 'yellow', 'purple'];
-const CATEGORIES = [
-  { id: 'health', name: 'health & fitness', emojiUrl: '/health.png' },
-  { id: 'productivity', name: 'productivity', emojiUrl: '/productivity.png' },
-  { id: 'mind', name: 'mind', emojiUrl: '/mind.png' },
-  { id: 'learning', name: 'learning', emojiUrl: '/learning.png' },
-  { id: 'finance', name: 'finance', emojiUrl: '/finance.png' },
-  { id: 'relation', name: 'relation', emojiUrl: '/relation.png' },
-];
+const COLORS = NEXUS_COLORS;
+const CATEGORIES = HABIT_CATEGORIES;
 const UNITS = ['mins', 'hours', 'kg', 'l', 'km', 'cups', 'units'];
 const EMOJIS = [
   '/newhabitwizard/body.png', '/newhabitwizard/book.png', '/newhabitwizard/diamond.png',
@@ -49,7 +44,7 @@ export default function AddWizardView({ onSave, onAddTask, onClose }: Props) {
   // Shared state
   const [name, setName] = useState('');
   const [emojiUrl, setEmojiUrl] = useState(EMOJIS[0]);
-  const [color, setColor] = useState(COLORS[0]);
+  const [color, setColor] = useState(COLORS[0].id);
 
   // Habit specific
   const [categoryId, setCategoryId] = useState<string>('');
@@ -294,13 +289,13 @@ function HabitStep2({ name, setName, emojiUrl, setEmojiUrl, color, setColor }: a
           <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
             {COLORS.map(c => (
               <button 
-                key={c} 
-                onClick={() => setColor(c)} 
+                key={c.id} 
+                onClick={() => setColor(c.id)} 
                 className={cn(
                   "w-12 h-12 rounded-full flex-shrink-0 border-4 border-white shadow-md transition-all active:scale-90", 
-                  `bg-${c}-400`, 
-                  color === c ? "scale-110 ring-2 ring-gray-100" : "opacity-40"
+                  color === c.id ? "scale-110 ring-2 ring-gray-100" : "opacity-40"
                 )} 
+                style={{ backgroundColor: c.primary }}
               />
             ))}
           </div>
@@ -505,7 +500,12 @@ function TaskStep3({ emojiUrl, setEmojiUrl, color, setColor, priority, setPriori
           </div>
           <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
             {COLORS.map(c => (
-              <button key={c} onClick={() => setColor(c)} className={cn("w-10 h-10 rounded-full flex-shrink-0 border-4 border-white shadow-sm transition-all", `bg-${c}-400`, color === c ? "scale-110 opacity-100" : "opacity-30")} />
+              <button 
+                key={c.id} 
+                onClick={() => setColor(c.id)} 
+                className={cn("w-10 h-10 rounded-full flex-shrink-0 border-4 border-white shadow-sm transition-all", color === c.id ? "scale-110 opacity-100" : "opacity-30")} 
+                style={{ backgroundColor: c.primary }}
+              />
             ))}
           </div>
         </div>

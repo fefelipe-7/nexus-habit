@@ -5,6 +5,7 @@ import { Task, Priority } from '../../types';
 import { cn } from '../../utils/cn';
 import { motion, AnimatePresence } from 'framer-motion';
 import { format } from 'date-fns';
+import { NEXUS_COLORS, getColorById } from '../../constants/colors';
 
 type Props = {
   task: Task;
@@ -13,7 +14,7 @@ type Props = {
   onDelete: (taskId: string) => void;
 };
 
-const COLORS = ['blue', 'green', 'pink', 'orange', 'yellow', 'purple'];
+const COLORS = NEXUS_COLORS;
 const EMOJIS = [
   '/newhabitwizard/body.png', '/newhabitwizard/book.png', '/newhabitwizard/diamond.png',
   '/newhabitwizard/dislike.png', '/newhabitwizard/idea.png', '/newhabitwizard/job.png',
@@ -81,10 +82,8 @@ export default function TaskDetailView({ task, onUpdate, onClose, onDelete }: Pr
         <div className="flex flex-col items-center mt-8">
           <motion.div 
             layoutId={`task-icon-${task.id}`}
-            className={cn(
-              "w-24 h-24 rounded-[32px] flex items-center justify-center mb-6 shadow-sm transition-colors duration-500",
-              `bg-${editedTask.color}-50`
-            )}
+            className="w-24 h-24 rounded-[32px] flex items-center justify-center mb-6 shadow-sm transition-colors duration-500"
+            style={{ backgroundColor: getColorById(editedTask.color).bg, color: getColorById(editedTask.color).text }}
           >
             <img src={editedTask.emojiUrl} alt="" className="w-14 h-14 object-contain" />
           </motion.div>
@@ -210,7 +209,12 @@ export default function TaskDetailView({ task, onUpdate, onClose, onDelete }: Pr
                   </div>
                   <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
                     {COLORS.map(c => (
-                      <button key={c} onClick={() => setEditedTask({...editedTask, color: c})} className={cn("w-10 h-10 rounded-full flex-shrink-0 border-4 border-white shadow-sm transition-transform", `bg-${c}-400`, editedTask.color === c ? "scale-110 shadow-md" : "opacity-30")} />
+                      <button 
+                        key={c.id} 
+                        onClick={() => setEditedTask({...editedTask, color: c.id})} 
+                        className={cn("w-10 h-10 rounded-full flex-shrink-0 border-4 border-white shadow-sm transition-transform", editedTask.color === c.id ? "scale-110 shadow-md" : "opacity-30")} 
+                        style={{ backgroundColor: c.primary }}
+                      />
                     ))}
                   </div>
                 </div>

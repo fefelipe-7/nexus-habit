@@ -7,6 +7,7 @@ import { Plus, Search, Filter, MoreHorizontal, Calendar, Clock, CheckCircle2, Ci
 import { format, differenceInDays, isPast, isToday, isTomorrow, startOfDay } from 'date-fns';
 import { HabitSkeleton, TaskSkeleton } from '../ui/Skeleton';
 import { EmptyState } from '../ui/EmptyState';
+import { getColorById } from '../../constants/colors';
 
 type Props = {
   tasks: Task[];
@@ -174,10 +175,13 @@ function BoardView({ tasks, onToggle, onDetail, getPriorityColor }: any) {
                 <div 
                   key={task.id} 
                   onClick={() => onDetail(task.id)}
-                  className="bg-white rounded-[32px] p-6 shadow-sm border border-gray-100 hover:shadow-md transition-all active:scale-[0.98]"
+                  className="bg-white rounded-[32px] p-6 shadow-sm border border-gray-100 hover:shadow-md transition-all active:scale-[0.98] border-l-4"
+                  style={{ borderLeftColor: getColorById(task.color).primary }}
                 >
                   <div className="flex items-center gap-4 mb-4">
-                    <img src={task.emojiUrl} alt="" className="w-10 h-10" />
+                    <div className="w-10 h-10 rounded-2xl flex items-center justify-center shadow-inner" style={{ backgroundColor: getColorById(task.color).bg }}>
+                      <img src={task.emojiUrl} alt="" className="w-6 h-6 object-contain" />
+                    </div>
                     <h3 className="font-bold text-[#2d2d2d] leading-tight flex-1">{task.name}</h3>
                   </div>
                   <div className="flex items-center justify-between">
@@ -224,15 +228,15 @@ function TimelineView({ tasks, onToggle, onDetail, getUrgencyColor }: any) {
             <div 
               onClick={() => onDetail(task.id)}
               className={cn(
-                "bg-white rounded-[32px] p-5 shadow-sm border-l-4 transition-all active:scale-[0.98] flex items-center gap-4",
-                getUrgencyColor(task.deadline).split(' ')[0]
+                "bg-white rounded-[32px] p-5 shadow-sm border-l-4 transition-all active:scale-[0.98] flex items-center gap-4"
               )}
+              style={{ borderLeftColor: getColorById(task.color).primary }}
             >
-              <div className="w-12 h-12 bg-gray-50 rounded-2xl flex items-center justify-center">
-                <img src={task.emojiUrl} alt="" className="w-8 h-8" />
+              <div className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-inner" style={{ backgroundColor: getColorById(task.color).bg }}>
+                <img src={task.emojiUrl} alt="" className="w-8 h-8 object-contain" />
               </div>
               <div className="flex-1">
-                <h3 className="font-bold text-[#2d2d2d] leading-tight">{task.name}</h3>
+                <h3 className="font-bold text-[#2d2d2d] leading-tight tracking-tight">{task.name}</h3>
                 <div className="flex items-center gap-3 mt-1">
                   <div className="flex items-center gap-1 text-[8px] text-gray-300 font-bold uppercase">
                     <Clock size={10} />
@@ -270,14 +274,17 @@ function TaskCard({ task, onToggle, onDetail, getUrgencyColor, getPriorityColor 
     <motion.div
       layoutId={task.id}
       className={cn(
-        "bg-white rounded-[32px] p-5 shadow-sm border-l-4 transition-all active:scale-[0.98]",
-        getUrgencyColor(task.deadline).split(' ')[0]
+        "bg-white rounded-[32px] p-5 shadow-sm border-l-4 transition-all active:scale-[0.98]"
       )}
+      style={{ borderLeftColor: getColorById(task.color).primary }}
       onClick={() => onDetail(task.id)}
     >
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-4">
-          <div className={cn("w-14 h-14 rounded-3xl flex items-center justify-center bg-gray-50 shadow-inner")}>
+          <div 
+            className="w-14 h-14 rounded-3xl flex items-center justify-center shadow-inner"
+            style={{ backgroundColor: getColorById(task.color).bg }}
+          >
             <img src={task.emojiUrl} alt="" className="w-9 h-9 object-contain" />
           </div>
           <div>

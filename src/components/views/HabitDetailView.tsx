@@ -4,6 +4,8 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { Habit } from '../../types';
 import { cn } from '../../utils/cn';
 import { motion, AnimatePresence } from 'framer-motion';
+import { NEXUS_COLORS, getColorById } from '../../constants/colors';
+import { HABIT_CATEGORIES, getCategoryById } from '../../constants/categories';
 
 type Props = {
   habit: Habit;
@@ -12,14 +14,7 @@ type Props = {
   onDelete: (habitId: string) => void;
 };
 
-const CATEGORIES = [
-  { id: 'health', name: 'health & fitness', emojiUrl: '/health.png' },
-  { id: 'productivity', name: 'productivity', emojiUrl: '/productivity.png' },
-  { id: 'mind', name: 'mind', emojiUrl: '/mind.png' },
-  { id: 'learning', name: 'learning', emojiUrl: '/learning.png' },
-  { id: 'finance', name: 'finance', emojiUrl: '/finance.png' },
-  { id: 'relation', name: 'relation', emojiUrl: '/relation.png' },
-];
+const CATEGORIES = HABIT_CATEGORIES;
 
 const EMOJIS = [
   '/newhabitwizard/body.png', '/newhabitwizard/book.png', '/newhabitwizard/diamond.png',
@@ -30,18 +25,10 @@ const EMOJIS = [
   '/newhabitwizard/sugar.png', '/newhabitwizard/test.png', '/newhabitwizard/water.png',
 ];
 
-const COLORS = ['blue', 'green', 'pink', 'orange', 'yellow', 'purple'];
+const COLORS = NEXUS_COLORS;
 const DAYS = ['s', 'm', 't', 'w', 't', 'f', 's'];
 const UNITS = ['mins', 'hours', 'kg', 'l', 'km', 'cups', 'units'];
 
-const colorMap: Record<string, string> = {
-  blue: 'text-blue-500 bg-blue-100',
-  green: 'text-green-500 bg-green-100',
-  pink: 'text-pink-500 bg-pink-100',
-  orange: 'text-orange-500 bg-orange-100',
-  yellow: 'text-yellow-500 bg-yellow-100',
-  purple: 'text-purple-500 bg-purple-100',
-};
 
 export default function HabitDetailView({ habit, onUpdate, onClose, onDelete }: Props) {
   const navigate = useNavigate();
@@ -109,7 +96,10 @@ export default function HabitDetailView({ habit, onUpdate, onClose, onDelete }: 
       <div className="flex-1 overflow-y-auto px-6 pb-24">
         {/* Top Info */}
         <div className="flex flex-col items-center mt-4">
-          <div className={cn("w-20 h-20 rounded-3xl flex items-center justify-center mb-4 transition-all duration-500", colorMap[editedHabit.color])}>
+          <div 
+            className="w-20 h-20 rounded-3xl flex items-center justify-center mb-4 transition-all duration-500 shadow-sm"
+            style={{ backgroundColor: getColorById(editedHabit.color).bg, color: getColorById(editedHabit.color).text }}
+          >
             <img src={editedHabit.emojiUrl} alt="" className="w-12 h-12 object-contain drop-shadow-sm" />
           </div>
           <h2 className={cn("text-2xl font-bold text-[#2d2d2d] text-center px-10 transition-all", isEditing && "bg-white rounded-xl py-1")}>
@@ -256,12 +246,12 @@ export default function HabitDetailView({ habit, onUpdate, onClose, onDelete }: 
                 <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
                   {COLORS.map(c => (
                     <button 
-                      key={c} 
-                      onClick={() => setEditedHabit({...editedHabit, color: c})}
-                      className={cn("w-10 h-10 rounded-full flex-shrink-0 border-2 transition-transform", 
-                        `bg-${c}-100`, 
-                        editedHabit.color === c ? `border-${c}-500 scale-110` : 'border-transparent'
+                      key={c.id} 
+                      onClick={() => setEditedHabit({...editedHabit, color: c.id})}
+                      className={cn("w-10 h-10 rounded-full flex-shrink-0 border-4 border-white shadow-sm transition-transform", 
+                        editedHabit.color === c.id ? `scale-110 shadow-md` : 'opacity-40'
                       )}
+                      style={{ backgroundColor: c.primary }}
                     />
                   ))}
                 </div>

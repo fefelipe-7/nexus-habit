@@ -2,6 +2,8 @@ import { Check, Clock } from 'lucide-react';
 import { Habit } from '../../types';
 import { cn } from '../../utils/cn';
 import { motion } from 'framer-motion';
+import { getColorById } from '../../constants/colors';
+import { getCategoryById } from '../../constants/categories';
 
 type Props = {
   key?: string | number;
@@ -12,17 +14,10 @@ type Props = {
   isLast?: boolean;
 };
 
-const colorMap: Record<string, string> = {
-  blue: 'bg-blue-100 text-blue-500',
-  green: 'bg-green-100 text-green-500',
-  pink: 'bg-pink-100 text-pink-500',
-  orange: 'bg-orange-100 text-orange-500',
-  yellow: 'bg-yellow-100 text-yellow-500',
-  purple: 'bg-purple-100 text-purple-500',
-};
 
-export default function HabitItem({ habit, isCompleted, onToggle, isLast }: Props) {
-  const colorClass = colorMap[habit.color] || colorMap.blue;
+export default function HabitItem({ habit, isCompleted, onToggle, onHabitClick, isLast }: Props) {
+  const nexusColor = getColorById(habit.color);
+  const category = getCategoryById(habit.categoryId || '');
 
   return (
     <motion.div 
@@ -65,12 +60,19 @@ export default function HabitItem({ habit, isCompleted, onToggle, isLast }: Prop
         className="flex-1 bg-white rounded-2xl p-4 shadow-sm flex items-center justify-between cursor-pointer active:scale-95 transition-transform"
       >
         <div className="flex items-center gap-4">
-          <div className={cn("w-12 h-12 rounded-xl flex items-center justify-center", colorClass)}>
+          <div 
+            className="w-12 h-12 rounded-xl flex items-center justify-center shadow-sm"
+            style={{ backgroundColor: nexusColor.bg, color: nexusColor.text }}
+          >
             <img src={habit.emojiUrl} alt={habit.name} className="w-8 h-8 object-contain drop-shadow-sm" />
           </div>
           <div>
-            <h3 className={cn("text-[#2d2d2d] font-medium text-sm transition-all duration-300", isCompleted && "line-through text-[#8c8c8c]")}>{habit.name}</h3>
-            <p className="text-[#8c8c8c] text-xs mt-1">streak {habit.streak || 0} days</p>
+            <h3 className={cn("text-[#2d2d2d] font-bold text-sm transition-all duration-300 tracking-tight", isCompleted && "line-through text-[#8c8c8c]")}>{habit.name}</h3>
+            <div className="flex items-center gap-2 mt-0.5">
+              <span className="text-[8px] font-black uppercase tracking-widest text-[#8c8c8c]">{category.name}</span>
+              <span className="w-1 h-1 rounded-full bg-gray-200" />
+              <p className="text-[#8c8c8c] text-[8px] font-black uppercase tracking-widest">streak {habit.streak || 0} days</p>
+            </div>
           </div>
         </div>
         
