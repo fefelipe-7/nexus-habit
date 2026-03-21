@@ -23,6 +23,7 @@ type Props = {
   onTaskClick: (id: string) => void;
   isLoading?: boolean;
   username: string;
+  stats: any;
 };
 
 const containerVariants = {

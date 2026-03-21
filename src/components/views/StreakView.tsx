@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 
 type Props = {
   streak: number;
+  stats: any;
 };
 
 const containerVariants = {
@@ -22,18 +23,9 @@ const itemVariants = {
   show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 24 } }
 };
 
-export default function StreakView({ streak }: Props) {
-  // Generate the last 7 days ending today
-  const today = new Date();
-  const days = Array.from({ length: 7 }).map((_, i) => {
-    const d = subDays(today, 6 - i);
-    return {
-      date: d,
-      dayName: format(d, 'EEE'), // e.g., Wed
-      completed: i < 7, // mock all as completed for the streak view
-      isToday: i === 6
-    };
-  });
+export default function StreakView({ streak, stats }: Props) {
+  // Use real last 7 days from stats
+  const days = stats.last7Days || [];
 
   return (
     <motion.div 
@@ -90,14 +82,14 @@ export default function StreakView({ streak }: Props) {
                 <Trophy size={20} />
               </div>
               <p className="text-sm font-medium text-[#8c8c8c] mb-1">longest streak</p>
-              <p className="text-2xl font-bold text-[#2d2d2d]">24</p>
+              <p className="text-2xl font-bold text-[#2d2d2d]">{stats.longestStreak || 0}</p>
             </div>
             <div className="bg-white rounded-3xl p-5 shadow-sm border border-black/5 flex flex-col items-center text-center">
               <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-500 flex items-center justify-center mb-3">
                 <Zap size={20} />
               </div>
               <p className="text-sm font-medium text-[#8c8c8c] mb-1">total days</p>
-              <p className="text-2xl font-bold text-[#2d2d2d]">142</p>
+              <p className="text-2xl font-bold text-[#2d2d2d]">{stats.totalCompletions || 0}</p>
             </div>
           </motion.div>
 
@@ -120,13 +112,13 @@ export default function StreakView({ streak }: Props) {
                   className="flex flex-col items-center gap-2"
                 >
                   <span className="text-xs font-medium text-[#8c8c8c]">
-                    {day.dayName}
+                    {format(day.date, 'EEE')}
                   </span>
                   <div className={cn(
                     "w-8 h-8 rounded-full flex items-center justify-center text-white shadow-sm",
-                    day.isToday ? "bg-blue-400" : "bg-[#f22659]"
+                    day.completed ? (i === 6 ? "bg-blue-400" : "bg-[#f22659]") : "bg-gray-100"
                   )}>
-                    <Check size={16} strokeWidth={3} />
+                    {day.completed ? <Check size={16} strokeWidth={3} /> : <div className="w-1.5 h-1.5 rounded-full bg-gray-300" />}
                   </div>
                 </motion.div>
               ))}

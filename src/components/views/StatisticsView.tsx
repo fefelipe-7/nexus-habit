@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 type Props = {
   habits: Habit[];
   completions: Completion[];
+  stats: any;
   onHabitClick: (id: string) => void;
 };
 
@@ -42,7 +43,7 @@ const itemVariants = {
   show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 24 } }
 };
 
-export default function StatisticsView({ habits, completions, onHabitClick }: Props) {
+export default function StatisticsView({ habits, completions, stats, onHabitClick }: Props) {
   const [tab, setTab] = useState<'today' | 'weekly' | 'overall'>('weekly');
   const today = new Date();
   const startOfCurrentWeek = startOfWeek(today, { weekStartsOn: 1 });
@@ -100,19 +101,19 @@ export default function StatisticsView({ habits, completions, onHabitClick }: Pr
                 <div className="grid grid-cols-2 gap-3">
                   <div className="bg-white p-4 rounded-2xl shadow-sm">
                     <p className="text-xs text-[#8c8c8c] mb-1">current streak</p>
-                    <p className="text-lg font-medium text-[#2d2d2d]">53 days</p>
+                    <p className="text-lg font-medium text-[#2d2d2d]">{stats.currentStreak} days</p>
                   </div>
                   <div className="bg-white p-4 rounded-2xl shadow-sm">
                     <p className="text-xs text-[#8c8c8c] mb-1">success rate</p>
-                    <p className="text-lg font-medium text-[#2d2d2d]">92%</p>
+                    <p className="text-lg font-medium text-[#2d2d2d]">{stats.successRate}%</p>
                   </div>
                   <div className="bg-white p-4 rounded-2xl shadow-sm">
-                    <p className="text-xs text-[#8c8c8c] mb-1">best streak day</p>
-                    <p className="text-lg font-medium text-[#2d2d2d]">86 days</p>
+                    <p className="text-xs text-[#8c8c8c] mb-1">best streak</p>
+                    <p className="text-lg font-medium text-[#2d2d2d]">{stats.longestStreak} days</p>
                   </div>
                   <div className="bg-white p-4 rounded-2xl shadow-sm">
                     <p className="text-xs text-[#8c8c8c] mb-1">completed habits</p>
-                    <p className="text-lg font-medium text-[#2d2d2d]">758</p>
+                    <p className="text-lg font-medium text-[#2d2d2d]">{stats.totalCompletions}</p>
                   </div>
                 </div>
               </motion.div>
@@ -178,15 +179,16 @@ export default function StatisticsView({ habits, completions, onHabitClick }: Pr
                             <span>m</span><span>w</span><span>f</span><span>s</span>
                           </div>
                           <div className="flex-1 grid grid-rows-7 grid-flow-col gap-1 overflow-x-auto scrollbar-hide">
-                            {Array.from({ length: 7 * 15 }).map((_, i) => {
-                              const isFilled = Math.random() > 0.3;
+                            {stats.heatmap.map((day: any, i: number) => {
+                              const opacity = day.value === 0 ? 0 : Math.min(0.3 + (day.value * 0.2), 1);
                               return (
                                 <div 
                                   key={i} 
                                   className={cn(
                                     "w-3 h-3 rounded-sm transition-colors",
-                                    isFilled ? heatColor : "bg-[#f8f6f2]"
+                                    day.value > 0 ? heatColor : "bg-[#f8f6f2]"
                                   )} 
+                                  style={day.value > 0 ? { opacity } : {}}
                                 />
                               );
                             })}

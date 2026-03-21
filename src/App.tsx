@@ -38,7 +38,7 @@ export default function App() {
   const [selectedDate, setSelectedDate] = useState(new Date());
   
   const { user, username, loading: authLoading } = useAuth();
-  const { habits, completions, toggleCompletion, createHabit, updateHabit, deleteHabit, isLoading: habitsLoading } = useHabits();
+  const { habits, completions, stats, isLoading: habitsLoading, createHabit, updateHabit, deleteHabit, toggleCompletion } = useHabits();
   const { tasks, toggleTask, createTask, updateTask, deleteTask, isLoading: tasksLoading } = useTasks();
 
   const background = location.state?.background;
@@ -92,6 +92,7 @@ export default function App() {
                     onProfileClick={() => navigateToModal('/profile')}
                     isLoading={habitsLoading || tasksLoading}
                     username={username}
+                    stats={stats}
                   />
                 </motion.div>
               } />
@@ -104,13 +105,13 @@ export default function App() {
 
               <Route path="/journey" element={
                 <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.2 }} className="absolute inset-0 flex flex-col pb-24 bg-[#f8f6f2]">
-                  <StatisticsView habits={habits} completions={completions} onHabitClick={(id) => navigateToModal(`/habit/${id}`)} />
+                  <StatisticsView habits={habits} completions={completions} stats={stats} onHabitClick={(id) => navigateToModal(`/habit/${id}`)} />
                 </motion.div>
               } />
 
               <Route path="/streak" element={
                 <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.2 }} className="absolute inset-0 flex flex-col pb-24 bg-[#f8f6f2]">
-                  <StreakView streak={16} />
+                  <StreakView streak={stats.currentStreak} stats={stats} />
                 </motion.div>
               } />
             </Routes>

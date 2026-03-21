@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { habitService } from '../services/habitService';
 import { Habit } from '../types';
+import { calculateGlobalStats } from '../utils/stats';
 
 export function useHabits() {
   const queryClient = useQueryClient();
@@ -73,9 +74,12 @@ export function useHabits() {
     },
   });
 
+  const stats = calculateGlobalStats(habitsQuery.data ?? [], completionsQuery.data ?? []);
+
   return {
     habits: habitsQuery.data ?? [],
     completions: completionsQuery.data ?? [],
+    stats,
     isLoading: habitsQuery.isLoading || completionsQuery.isLoading,
     createHabit: createHabitMutation.mutateAsync,
     updateHabit: updateHabitMutation.mutateAsync,

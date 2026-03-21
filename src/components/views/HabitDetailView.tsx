@@ -6,6 +6,7 @@ import { cn } from '../../utils/cn';
 import { motion, AnimatePresence } from 'framer-motion';
 import { NEXUS_COLORS, getColorById } from '../../constants/colors';
 import { HABIT_CATEGORIES, getCategoryById } from '../../constants/categories';
+import { calculateHabitStats } from '../../utils/stats';
 
 type Props = {
   habit: Habit;
@@ -30,12 +31,14 @@ const DAYS = ['s', 'm', 't', 'w', 't', 'f', 's'];
 const UNITS = ['mins', 'hours', 'kg', 'l', 'km', 'cups', 'units'];
 
 
-export default function HabitDetailView({ habit, onUpdate, onClose, onDelete }: Props) {
+export default function HabitDetailView({ habit, completions, onUpdate, onClose, onDelete }: Props) {
   const navigate = useNavigate();
   const location = useLocation();
   const isEditing = location.pathname.endsWith('/edit');
   const [editedHabit, setEditedHabit] = useState<Habit>(habit);
   
+  const stats = useMemo(() => calculateHabitStats(habit, completions), [habit, completions]);
+
   // Update local state if the prop habit changes
   useEffect(() => {
     setEditedHabit(habit);
@@ -153,11 +156,11 @@ export default function HabitDetailView({ habit, onUpdate, onClose, onDelete }: 
           
           {/* Side Info in Arcs */}
           <div className="absolute top-4 left-4 text-center">
-            <span className="block text-sm font-bold text-[#202020]">11</span>
-            <span className="text-[8px] text-[#8c8c8c] uppercase font-bold">Left</span>
+            <span className="block text-sm font-bold text-[#202020]">{stats.successRate}%</span>
+            <span className="text-[8px] text-[#8c8c8c] uppercase font-bold">Rate</span>
           </div>
           <div className="absolute top-4 right-4 text-center">
-            <span className="block text-sm font-bold text-[#202020]">15</span>
+            <span className="block text-sm font-bold text-[#202020]">{stats.totalCompletions}</span>
             <span className="text-[8px] text-[#8c8c8c] uppercase font-bold">Logs</span>
           </div>
         </div>
@@ -165,9 +168,9 @@ export default function HabitDetailView({ habit, onUpdate, onClose, onDelete }: 
         {/* Small Progress Circles (Macro-like) */}
         <div className="flex justify-center gap-10 mt-8">
           {[
-            { label: 'Today', value: '100%', color: 'border-green-500' },
-            { label: 'Week', value: '85%', color: 'border-orange-500' },
-            { label: 'Month', value: '92%', color: 'border-purple-500' },
+            { label: 'Longest', value: stats.longestStreak, color: 'border-green-500' },
+            { label: 'Total', value: stats.totalCompletions, color: 'border-orange-500' },
+            { label: 'Rate', value: `${stats.successRate}%`, color: 'border-purple-500' },
           ].map((stat, i) => (
             <div key={i} className="flex flex-col items-center gap-2">
               <div className={cn("w-14 h-14 rounded-full border-4 flex items-center justify-center text-xs font-bold", stat.color)}>
