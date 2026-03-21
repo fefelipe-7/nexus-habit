@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import { format, addDays } from 'date-fns';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Routes, Route, useLocation, useNavigate, Navigate, useParams } from 'react-router-dom';
+import { Folder } from 'lucide-react';
 import HomeView from './components/views/HomeView';
 import AddWizardView from './components/views/AddWizardView';
 import StatisticsView from './components/views/StatisticsView';
@@ -12,7 +13,8 @@ import HabitDetailView from './components/views/HabitDetailView';
 import TaskDetailView from './components/views/TaskDetailView';
 import LoginView from './components/views/LoginView';
 import BottomNav from './components/layout/BottomNav';
-import { Habit, Task } from './types';
+import FloatingActionButton from './components/layout/FloatingActionButton';
+import { Habit, Task, Completion } from './types';
 import { useAuth } from './hooks/useAuth';
 import { useHabits } from './hooks/useHabits';
 import { useTasks } from './hooks/useTasks';
@@ -48,11 +50,11 @@ export default function App() {
   };
 
   const path = background?.pathname || location.pathname;
-  let currentTab: 'home' | 'tasks' | 'stats' | 'streak' | 'profile' | 'add' = 'home';
+  let currentTab: 'home' | 'tasks' | 'stats' | 'streak' | 'collections' = 'home';
   if (path === '/tasks') currentTab = 'tasks';
   else if (path === '/journey') currentTab = 'stats';
   else if (path === '/streak') currentTab = 'streak';
-  else if (path === '/profile') currentTab = 'profile';
+  else if (path === '/collections') currentTab = 'collections';
 
   const isModalOpen = !!background || location.pathname === '/add' || location.pathname.startsWith('/habit/') || location.pathname.startsWith('/task/') || location.pathname === '/profile';
 
@@ -75,7 +77,8 @@ export default function App() {
         <div className="flex-1 relative overflow-hidden">
           {/* Main Background Views */}
           <AnimatePresence>
-            <Routes location={background || location} key={background?.pathname || location.pathname}>
+            <div key={background?.pathname || location.pathname} className="absolute inset-0">
+              <Routes location={background || location}>
               <Route path="/" element={
                 <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.2 }} className="absolute inset-0 flex flex-col pb-24 bg-[#f8f6f2]">
                   <HomeView 
@@ -114,12 +117,21 @@ export default function App() {
                   <StreakView streak={stats.currentStreak} stats={stats} />
                 </motion.div>
               } />
+
+              <Route path="/collections" element={
+                <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.2 }} className="absolute inset-0 flex flex-col pb-24 bg-[#f8f6f2] items-center justify-center text-gray-400">
+                  <Folder size={48} className="mb-4 opacity-20" />
+                  <p>Collections view coming soon</p>
+                </motion.div>
+              } />
             </Routes>
-          </AnimatePresence>
+          </div>
+        </AnimatePresence>
 
           {/* Modal / Overlay Routes */}
           <AnimatePresence>
-            <Routes location={location} key={location.pathname.split('/')[1] || 'root'}>
+            <div key={location.pathname.split('/')[1] || 'root'} className="absolute inset-0 pointer-events-none">
+              <Routes location={location}>
               <Route path="/add/*" element={
                 <AddWizardView 
                   onSave={(h) => createHabit(h).then(() => navigate('/'))} 
@@ -146,31 +158,33 @@ export default function App() {
               } />
               <Route path="*" element={null} />
             </Routes>
-          </AnimatePresence>
+          </div>
+        </AnimatePresence>
         </div>
 
         <AnimatePresence>
           {!isModalOpen && (
-            <motion.div 
-              initial={{ y: 100 }} 
-              animate={{ y: 0 }} 
-              exit={{ y: 100 }} 
-              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="absolute bottom-0 left-0 right-0 z-40"
-            >
-              <BottomNav currentView={currentTab} onChangeView={(v) => {
-                const viewToPath = {
-                  'home': '/',
-                  'tasks': '/tasks',
-                  'stats': '/journey',
-                  'streak': '/streak',
-                  'profile': '/profile',
-                  'add': '/add'
-                } as any;
-                if (v === 'add') navigateToModal('/add');
-                else navigate(viewToPath[v]);
-              }} onAddClick={() => navigateToModal('/add')} />
-            </motion.div>
+            <>
+              <FloatingActionButton onClick={() => navigateToModal('/add')} />
+              <motion.div 
+                initial={{ y: 100 }} 
+                animate={{ y: 0 }} 
+                exit={{ y: 100 }} 
+                transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+                className="absolute bottom-0 left-0 right-0 z-40"
+              >
+                <BottomNav currentView={currentTab} onChangeView={(v) => {
+                  const viewToPath = {
+                    'home': '/',
+                    'tasks': '/tasks',
+                    'stats': '/journey',
+                    'streak': '/streak',
+                    'collections': '/collections'
+                  } as any;
+                  navigate(viewToPath[v]);
+                }} />
+              </motion.div>
+            </>
           )}
         </AnimatePresence>
       </div>

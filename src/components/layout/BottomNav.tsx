@@ -1,47 +1,40 @@
-import { Home, Compass, ClipboardList, Flame, Plus } from 'lucide-react';
+import { Home, Compass, ClipboardList, Flame, Folder } from 'lucide-react';
 import { cn } from '../../utils/cn';
 import { ExpandableTabs, TabItem } from '../ui/expandable-tabs';
 
 type Props = {
-  currentView: 'home' | 'explore' | 'stats' | 'streak' | 'profile' | 'add';
-  onChangeView: (view: 'home' | 'explore' | 'stats' | 'streak' | 'profile' | 'add') => void;
-  onAddClick: () => void;
+  currentView: 'home' | 'tasks' | 'stats' | 'streak' | 'collections';
+  onChangeView: (view: 'home' | 'tasks' | 'stats' | 'streak' | 'collections') => void;
 };
 
-export default function BottomNav({ currentView, onChangeView, onAddClick }: Props) {
+export default function BottomNav({ currentView, onChangeView }: Props) {
   const tabs: TabItem[] = [
+    { title: "Tasks", icon: ClipboardList },
+    { title: "Journey", icon: Compass },
     { title: "Home", icon: Home },
-    { title: "Tasks", icon: Compass },
-    { type: "separator" },
-    { title: "Add", icon: Plus },
-    { type: "separator" },
-    { title: "Journey", icon: ClipboardList },
+    { title: "Collections", icon: Folder },
     { title: "Streak", icon: Flame },
   ];
 
   const viewToIndex: Record<string, number> = {
-    'home': 0,
-    'tasks': 1,
-    'add': 3,
-    'stats': 5,
-    'streak': 6,
+    'tasks': 0,
+    'stats': 1,
+    'home': 2,
+    'collections': 3,
+    'streak': 4,
   };
 
-  const indexToView: Record<number, 'home' | 'tasks' | 'stats' | 'streak' | 'add'> = {
-    0: 'home',
-    1: 'tasks',
-    3: 'add',
-    5: 'stats',
-    6: 'streak',
+  const indexToView: Record<number, 'home' | 'tasks' | 'stats' | 'streak' | 'collections'> = {
+    0: 'tasks',
+    1: 'stats',
+    2: 'home',
+    3: 'collections',
+    4: 'streak',
   };
 
   const handleTabChange = (index: number | null) => {
-    if (index !== null && indexToView[index]) {
-      if (indexToView[index] === 'add') {
-        onAddClick();
-      } else {
-        onChangeView(indexToView[index]);
-      }
+    if (index !== null && indexToView[index] !== undefined) {
+      onChangeView(indexToView[index]);
     }
   };
 

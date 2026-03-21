@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { X, ArrowLeft, MoreHorizontal, Calendar, Clock, RotateCcw, Trash2, CheckCircle2 } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Habit } from '../../types';
+import { Habit, Completion } from '../../types';
 import { cn } from '../../utils/cn';
 import { motion, AnimatePresence } from 'framer-motion';
 import { NEXUS_COLORS, getColorById } from '../../constants/colors';
@@ -10,6 +10,7 @@ import { calculateHabitStats } from '../../utils/stats';
 
 type Props = {
   habit: Habit;
+  completions: Completion[];
   onUpdate: (habit: Habit) => void;
   onClose: () => void;
   onDelete: (habitId: string) => void;
