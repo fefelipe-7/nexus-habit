@@ -1,9 +1,8 @@
-import { ArrowLeft, Edit2, Trash2, Plus, CheckCircle2, Circle, Clock } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { Folder, Edit2, Trash2, Plus, CheckCircle2, Circle, Sparkles } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useProjects } from '../../hooks/useProjects';
 import { useTasks } from '../../hooks/useTasks';
-import { Project, Task } from '../../types';
 import { cn } from '../../utils/cn';
 import { getColorById } from '../../constants/colors';
 import { format } from 'date-fns';
@@ -11,7 +10,7 @@ import { format } from 'date-fns';
 export default function ProjectDetailView() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { projects, updateProject, deleteProject } = useProjects();
+  const { projects, deleteProject } = useProjects();
   const { tasks, toggleTask } = useTasks();
 
   const project = projects.find(p => p.id === id);
@@ -21,7 +20,14 @@ export default function ProjectDetailView() {
 
   const color = getColorById(project.color);
   const completedCount = projectTasks.filter(t => !!t.completedAt).length;
-  const progress = projectTasks.length > 0 ? (completedCount / projectTasks.length) * 100 : 0;
+
+  // Find latest deadline among tasks as "due on"
+  const latestDeadline = projectTasks.length > 0
+    ? projectTasks.reduce((latest, t) => {
+        const d = new Date(t.deadline);
+        return d > latest ? d : latest;
+      }, new Date(projectTasks[0].deadline))
+    : null;
 
   const handleDelete = async () => {
     if (window.confirm('Are you sure you want to delete this project? Tasks will be unlinked but not deleted.')) {
@@ -39,103 +45,124 @@ export default function ProjectDetailView() {
     >
       {/* Header */}
       <div className="flex items-center justify-between px-6 pt-12 pb-4">
-        <button onClick={() => navigate('/projects')} className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm text-[#2d2d2d]">
-          <ArrowLeft size={20} />
-        </button>
-        <h1 className="text-lg font-medium text-[#2d2d2d]">Project Details</h1>
-        <div className="flex gap-2">
-          <button onClick={() => navigate(`/project/${project.id}/edit`)} className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm text-[#2d2d2d]">
-            <Edit2 size={18} />
+        <div className="flex items-center gap-3">
+          <button onClick={() => navigate('/projects')} className="w-10 h-10 bg-white rounded-2xl flex items-center justify-center shadow-sm border border-gray-100">
+            <img src={project.emojiUrl} alt="" className="w-6 h-6 object-contain" />
           </button>
-          <button onClick={handleDelete} className="w-10 h-10 bg-red-50 rounded-full flex items-center justify-center shadow-sm text-red-500">
-            <Trash2 size={18} />
+          <h1 className="text-xl font-bold text-[#2d2d2d]">{project.name}</h1>
+        </div>
+        <div className="flex gap-2">
+          <button 
+            onClick={() => navigate(`/project/${project.id}/edit`)} 
+            className="w-10 h-10 bg-white rounded-2xl flex items-center justify-center shadow-sm border border-gray-100 text-[#2d2d2d] hover:text-[#f27d26] transition-colors"
+          >
+            <Edit2 size={16} />
+          </button>
+          <button 
+            onClick={handleDelete} 
+            className="w-10 h-10 bg-red-50 rounded-2xl flex items-center justify-center shadow-sm border border-red-100 text-red-400 hover:text-red-600 transition-colors"
+          >
+            <Trash2 size={16} />
           </button>
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto px-6 pb-32">
-        {/* Project Card */}
-        <div className="bg-white p-8 rounded-[3rem] shadow-sm mb-8 border border-gray-100 flex flex-col items-center text-center">
-          <div 
-            className="w-24 h-24 rounded-[2rem] flex items-center justify-center text-4xl mb-6 shadow-md"
-            style={{ backgroundColor: color.bg, color: color.text }}
-          >
-            <img src={project.emojiUrl} alt="" className="w-14 h-14 object-contain" />
+      {/* Date Badges */}
+      <div className="px-6 pb-4">
+        <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex items-center justify-between">
+          <div className="flex flex-col items-center flex-1">
+            <span className="text-[10px] font-bold text-[#b0b0b0] uppercase tracking-wider mb-1">created on</span>
+            <span className="text-sm font-bold text-[#2d2d2d]">{format(new Date(project.createdAt), 'd MMM').toLowerCase()}</span>
           </div>
-          <h2 className="text-2xl font-bold text-[#2d2d2d] mb-2">{project.name}</h2>
-          {project.description && (
-            <p className="text-[#8c8c8c] text-sm mb-6 max-w-xs">{project.description}</p>
-          )}
-
-          <div className="w-full space-y-3">
-             <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest text-[#8c8c8c]">
-                <span>Progress</span>
-                <span>{completedCount} / {projectTasks.length} tasks</span>
-             </div>
-             <div className="w-full h-4 bg-gray-50 rounded-full overflow-hidden p-[3px]">
-                <motion.div 
-                  initial={{ width: 0 }}
-                  animate={{ width: `${progress}%` }}
-                  className="h-full rounded-full"
-                  style={{ backgroundColor: color.primary }}
-                />
-             </div>
+          <div className="w-px h-8 bg-gray-100" />
+          <div className="flex flex-col items-center flex-1">
+            <span className="text-[10px] font-bold text-[#b0b0b0] uppercase tracking-wider mb-1">due on</span>
+            <span className="text-sm font-bold text-[#2d2d2d]">
+              {latestDeadline ? format(latestDeadline, 'd MMM').toLowerCase() : '—'}
+            </span>
           </div>
         </div>
+      </div>
 
-        {/* Tasks Section */}
-        <div className="space-y-6">
-          <div className="flex items-center justify-between">
-            <h3 className="text-sm font-bold uppercase tracking-wider text-[#2d2d2d]">Tasks in Project</h3>
-            <button 
-              onClick={() => navigate('/add/task', { state: { projectId: project.id } })}
-              className="text-xs font-bold text-[#f27d26] flex items-center gap-1"
-            >
-              <Plus size={14} /> Add Task
-            </button>
+      {/* Completion Indicator */}
+      <div className="px-6 pb-4 flex items-center gap-2">
+        <Sparkles size={14} className="text-[#f27d26]" />
+        <span className="text-sm font-bold text-[#2d2d2d]">{completedCount}/{projectTasks.length} completed</span>
+      </div>
+
+      {/* Task Table */}
+      <div className="flex-1 overflow-y-auto px-6 pb-32">
+        {/* Column Headers */}
+        <div className="flex items-center px-4 py-3 border-b border-gray-100 mb-1">
+          <span className="text-[10px] font-bold text-[#b0b0b0] uppercase tracking-wider w-10">task</span>
+          <span className="text-[10px] font-bold text-[#b0b0b0] uppercase tracking-wider flex-1">description</span>
+          <span className="text-[10px] font-bold text-[#b0b0b0] uppercase tracking-wider text-right w-16">status</span>
+        </div>
+
+        {/* Add Task Button */}
+        <button 
+          onClick={() => navigate('/add/task', { state: { projectId: project.id } })}
+          className="w-full flex items-center gap-2 px-4 py-3 text-[#f27d26] text-xs font-bold hover:bg-orange-50/50 rounded-xl transition-colors mb-1"
+        >
+          <Plus size={14} /> add task
+        </button>
+
+        {projectTasks.length === 0 ? (
+          <div className="bg-white p-10 rounded-[2rem] border-2 border-dashed border-gray-100 text-center mt-4">
+            <p className="text-[#8c8c8c] text-sm">no tasks found for this project</p>
           </div>
+        ) : (
+          <div className="space-y-1">
+            {projectTasks.map((task, index) => (
+              <motion.div
+                key={task.id}
+                layout
+                className={cn(
+                  "flex items-start px-4 py-4 rounded-xl transition-colors hover:bg-white/80",
+                  index % 2 === 0 ? "bg-white/40" : ""
+                )}
+              >
+                {/* Row Number */}
+                <div className="w-10 flex-shrink-0">
+                  <span className={cn(
+                    "w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold",
+                    task.completedAt ? "bg-[#f27d26]/10 text-[#f27d26]" : "bg-gray-100 text-[#8c8c8c]"
+                  )}>
+                    {index + 1}
+                  </span>
+                </div>
 
-          {projectTasks.length === 0 ? (
-             <div className="bg-white p-10 rounded-[2rem] border-2 border-dashed border-gray-100 text-center">
-                <p className="text-[#8c8c8c] text-sm lowercase">No tasks found for this project</p>
-             </div>
-          ) : (
-            <div className="grid gap-3">
-              {projectTasks.map((task) => (
-                <motion.div
-                  key={task.id}
-                  layout
-                  className={cn(
-                    "p-4 rounded-2xl bg-white border border-gray-100 shadow-sm flex items-center gap-4 group",
-                    task.completedAt && "opacity-60"
+                {/* Task Info */}
+                <div className="flex-1 min-w-0">
+                  <h4 className={cn("text-sm font-bold text-[#2d2d2d] leading-tight", task.completedAt && "line-through opacity-50")}>
+                    {task.name}
+                  </h4>
+                  {task.description && (
+                    <p className={cn("text-[11px] text-[#8c8c8c] mt-0.5 truncate", task.completedAt && "opacity-50")}>
+                      {task.description}
+                    </p>
                   )}
-                >
-                  <button 
-                    onClick={() => toggleTask(task.id)}
-                    className="flex-shrink-0"
-                  >
+                </div>
+
+                {/* Status */}
+                <div className="w-16 flex flex-col items-end flex-shrink-0">
+                  <button onClick={() => toggleTask(task.id)} className="group">
                     {task.completedAt ? (
-                      <CheckCircle2 size={24} className="text-[#f27d26]" />
+                      <CheckCircle2 size={22} className="text-[#f27d26]" />
                     ) : (
-                      <Circle size={24} className="text-gray-300 group-hover:text-[#f27d26] transition-colors" />
+                      <Circle size={22} className="text-[#d0d0d0] group-hover:text-[#f27d26] transition-colors" />
                     )}
                   </button>
-                  <div className="flex-1 min-w-0">
-                    <h4 className={cn("text-sm font-bold text-[#2d2d2d] truncate", task.completedAt && "line-through")}>
-                      {task.name}
-                    </h4>
-                    <div className="flex items-center gap-2 mt-1">
-                       <Clock size={12} className="text-[#8c8c8c]" />
-                       <span className="text-[10px] text-[#8c8c8c] font-medium">
-                          due {format(new Date(task.deadline), 'MMM d')}
-                       </span>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          )}
-        </div>
+                  {task.completedAt && (
+                    <span className="text-[9px] text-[#8c8c8c] font-medium mt-1">
+                      {format(new Date(task.completedAt), 'd MMM').toLowerCase()}
+                    </span>
+                  )}
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        )}
       </div>
     </motion.div>
   );
