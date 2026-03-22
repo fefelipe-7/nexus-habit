@@ -1,7 +1,7 @@
+import React, { useRef } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowLeft, ChevronRight, User, Shield, Zap, MessageSquare, LogOut, Camera, Loader2 } from 'lucide-react';
 import { useProfile } from '../../hooks/useProfile';
-import { useRef } from 'react';
 import { cn } from '../../utils/cn';
 
 type Props = {

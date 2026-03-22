@@ -20,6 +20,7 @@ import { Habit, Task, Completion } from './types';
 import { useAuth } from './hooks/useAuth';
 import { useHabits } from './hooks/useHabits';
 import { useTasks } from './hooks/useTasks';
+import { useProjects } from './hooks/useProjects';
 import { Loader2 } from 'lucide-react';
 
 const pageVariants = {
@@ -44,6 +45,7 @@ export default function App() {
   const { user, username, loading: authLoading, signOut } = useAuth();
   const { habits, completions, stats, isLoading: habitsLoading, createHabit, updateHabit, deleteHabit, toggleCompletion } = useHabits();
   const { tasks, toggleTask, createTask, updateTask, deleteTask, isLoading: tasksLoading } = useTasks();
+  const { createProject } = useProjects();
 
   const background = location.state?.background;
 

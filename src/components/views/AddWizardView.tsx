@@ -5,6 +5,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { format } from 'date-fns';
 import { NEXUS_COLORS, getColorById } from '../../constants/colors';
 import { HABIT_CATEGORIES } from '../../constants/categories';
+import { useState, useMemo } from 'react';
+import { useLocation } from 'react-router-dom';
+import { ArrowLeft, X, ArrowRight, CheckCircle2, Repeat, Layers, Folder, Clock, Target, CalendarDays, AlertTriangle, Calendar, Palette } from 'lucide-react';
 
 type Props = {
   onSave: (habit: any) => void;

@@ -6,7 +6,7 @@ import { useTasks } from '../../hooks/useTasks';
 import { Project } from '../../types';
 import { cn } from '../../utils/cn';
 import { getColorById } from '../../constants/colors';
-import EmptyState from '../ui/EmptyState';
+import { EmptyState } from '../ui/EmptyState';
 
 export default function ProjectsView() {
   const navigate = useNavigate();
