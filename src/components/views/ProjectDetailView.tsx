@@ -41,7 +41,7 @@ export default function ProjectDetailView() {
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: -20 }}
-      className="fixed inset-0 z-50 bg-[#f8f6f2] flex flex-col overflow-hidden lowercase"
+      className="fixed inset-0 z-50 bg-[#f8f6f2] flex flex-col overflow-hidden lowercase pointer-events-auto"
     >
       {/* Header */}
       <div className="flex items-center justify-between px-6 pt-12 pb-4">

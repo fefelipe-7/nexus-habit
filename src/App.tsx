@@ -156,7 +156,7 @@ export default function App() {
                 <TaskDetailRoute tasks={tasks} projects={projects} onUpdate={updateTask} onDelete={(id) => deleteTask(id).then(() => navigate('/tasks'))} />
               } />
               <Route path="/profile" element={
-                <motion.div initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} transition={{ type: 'spring', damping: 25, stiffness: 200 }} className="absolute inset-0 z-50 bg-[#f8f6f2] flex flex-col">
+                <motion.div initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} transition={{ type: 'spring', damping: 25, stiffness: 200 }} className="absolute inset-0 z-50 bg-[#f8f6f2] flex flex-col pointer-events-auto">
                   <ProfileView onBack={() => navigate(-1)} onLogout={() => signOut().then(() => navigate('/login'))} />
                 </motion.div>
               } />

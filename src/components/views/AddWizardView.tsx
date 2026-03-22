@@ -138,7 +138,7 @@ export default function AddWizardView({ onSave, onAddTask, onAddProject, onClose
       animate={{ y: 0 }}
       exit={{ y: '100%' }}
       transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-      className="flex-1 bg-[#f8f6f2] flex flex-col h-full absolute inset-0 z-50 overflow-hidden"
+      className="flex-1 bg-[#f8f6f2] flex flex-col h-full absolute inset-0 z-50 overflow-hidden pointer-events-auto"
     >
       {/* Header */}
       <div className="flex items-center justify-between px-6 pt-12 pb-4">

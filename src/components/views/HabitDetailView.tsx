@@ -79,7 +79,7 @@ export default function HabitDetailView({ habit, completions, onUpdate, onClose,
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.95 }}
-      className="fixed inset-0 z-50 bg-[#f8f6f2] flex flex-col overflow-hidden lowercase"
+      className="fixed inset-0 z-50 bg-[#f8f6f2] flex flex-col overflow-hidden lowercase pointer-events-auto"
     >
       {/* Header */}
       <div className="flex items-center justify-between px-6 pt-12 pb-4">
