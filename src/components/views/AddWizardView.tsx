@@ -1,5 +1,6 @@
 import { Habit, Task, Project, Priority } from '../../types';
 import { useProjects } from '../../hooks/useProjects';
+import { useTasks } from '../../hooks/useTasks';
 import { cn } from '../../utils/cn';
 import { motion, AnimatePresence } from 'framer-motion';
 import { format } from 'date-fns';
@@ -7,7 +8,7 @@ import { NEXUS_COLORS, getColorById } from '../../constants/colors';
 import { HABIT_CATEGORIES } from '../../constants/categories';
 import { useState, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
-import { ArrowLeft, X, ArrowRight, CheckCircle2, Repeat, Layers, Folder, Clock, Target, CalendarDays, AlertTriangle, Calendar, Palette } from 'lucide-react';
+import { ArrowLeft, X, ArrowRight, CheckCircle2, Repeat, Layers, Folder, Clock, Target, CalendarDays, AlertTriangle, Calendar, Palette, Link2 } from 'lucide-react';
 
 type Props = {
   onSave: (habit: any) => void;
@@ -32,12 +33,16 @@ const EMOJIS = [
 export default function AddWizardView({ onSave, onAddTask, onAddProject, onClose }: Props) {
   const location = useLocation();
   const { projects } = useProjects();
+  const { tasks } = useTasks();
   const [typeSelected, setTypeSelected] = useState<'habit' | 'task' | 'project' | null>(null);
   const [step, setStep] = useState(0);
   
   // Set initial projectId if passed in location state
   const initialProjectId = location.state?.projectId || '';
   const [projectId, setProjectId] = useState<string>(initialProjectId);
+  
+  // Project wizard: selected task IDs to link
+  const [selectedTaskIds, setSelectedTaskIds] = useState<string[]>([]);
   
   // Shared state
   const [name, setName] = useState('');
@@ -71,17 +76,20 @@ export default function AddWizardView({ onSave, onAddTask, onAddProject, onClose
       else handleSaveTask();
     } else if (typeSelected === 'project') {
       if (step === 1 && !name.trim()) return;
-      if (step < 2) setStep(prev => prev + 1);
+      if (step < 3) setStep(prev => prev + 1);
       else handleSaveProject();
     }
   };
 
   const handleSaveProject = () => {
     onAddProject({
-      name: name.toLowerCase(),
-      description,
-      emojiUrl,
-      color
+      project: {
+        name: name.toLowerCase(),
+        description,
+        emojiUrl,
+        color
+      },
+      taskIds: selectedTaskIds
     });
   };
 
@@ -144,7 +152,7 @@ export default function AddWizardView({ onSave, onAddTask, onAddProject, onClose
             </h1>
             {step > 0 && (
               <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest leading-tight">
-                step 0{step} / 0{typeSelected === 'project' ? '2' : '3'}
+                step 0{step} / 0{typeSelected === 'project' ? '3' : '3'}
               </span>
             )}
           </div>
@@ -158,7 +166,7 @@ export default function AddWizardView({ onSave, onAddTask, onAddProject, onClose
       {step > 0 && (
         <div className="px-6 mb-8 mt-2">
           <div className="flex gap-2">
-            {[1, 2, 3].slice(0, typeSelected === 'project' ? 2 : 3).map((s) => (
+            {[1, 2, 3].map((s) => (
               <div key={s} className="flex-1">
                 <div className={cn(
                   "h-1.5 rounded-full transition-all duration-500", 
@@ -191,6 +199,7 @@ export default function AddWizardView({ onSave, onAddTask, onAddProject, onClose
             <div key={`project-${step}`} className="h-full">
               {step === 1 && <ProjectStep1 name={name} setName={setName} description={description} setDescription={setDescription} />}
               {step === 2 && <ProjectStep2 emojiUrl={emojiUrl} setEmojiUrl={setEmojiUrl} color={color} setColor={setColor} />}
+              {step === 3 && <ProjectStep3 tasks={tasks} selectedTaskIds={selectedTaskIds} setSelectedTaskIds={setSelectedTaskIds} />}
             </div>
           )}
         </AnimatePresence>
@@ -207,8 +216,8 @@ export default function AddWizardView({ onSave, onAddTask, onAddProject, onClose
               canContinue ? "bg-[#2d2d2d] text-white shadow-lg" : "bg-gray-200 text-gray-400"
             )}
           >
-            <span>{step < (typeSelected === 'project' ? 2 : 3) ? 'continue' : `save ${typeSelected}`}</span>
-            {step < (typeSelected === 'project' ? 2 : 3) ? <ArrowRight size={20} /> : <CheckCircle2 size={20} />}
+            <span>{step < 3 ? 'continue' : `save ${typeSelected}`}</span>
+            {step < 3 ? <ArrowRight size={20} /> : <CheckCircle2 size={20} />}
           </button>
         </div>
       )}
@@ -673,6 +682,70 @@ function TaskStep3({ emojiUrl, setEmojiUrl, color, setColor, priority, setPriori
           </div>
         </div>
       </div>
+    </motion.div>
+  );
+}
+
+function ProjectStep3({ tasks, selectedTaskIds, setSelectedTaskIds }: { tasks: Task[], selectedTaskIds: string[], setSelectedTaskIds: (ids: string[]) => void }) {
+  // Show tasks that are NOT already linked to a project
+  const unlinkedTasks = tasks.filter(t => !t.projectId && !t.completedAt);
+
+  const toggleTask = (taskId: string) => {
+    if (selectedTaskIds.includes(taskId)) {
+      setSelectedTaskIds(selectedTaskIds.filter(id => id !== taskId));
+    } else {
+      setSelectedTaskIds([...selectedTaskIds, taskId]);
+    }
+  };
+
+  return (
+    <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="px-6 space-y-6 overflow-y-auto max-h-full pb-10 scrollbar-hide">
+      <div className="text-center">
+        <div className="w-16 h-16 bg-purple-50 rounded-full flex items-center justify-center mx-auto mb-4 text-purple-500">
+          <Link2 size={24} />
+        </div>
+        <h2 className="text-xl font-bold text-[#2d2d2d]">link tasks</h2>
+        <p className="text-[#8c8c8c] text-sm leading-relaxed">optionally attach existing tasks to this project</p>
+      </div>
+
+      {unlinkedTasks.length === 0 ? (
+        <div className="bg-white p-10 rounded-[2rem] border-2 border-dashed border-gray-100 text-center">
+          <p className="text-[#8c8c8c] text-sm">no unlinked tasks available</p>
+          <p className="text-[10px] text-[#b0b0b0] mt-2">you can link tasks later from the task detail view</p>
+        </div>
+      ) : (
+        <div className="space-y-2">
+          <div className="flex items-center justify-between px-2 mb-2">
+            <span className="text-[10px] font-black uppercase tracking-widest text-[#b0b0b0]">available tasks</span>
+            <span className="text-[10px] font-bold text-[#f27d26]">{selectedTaskIds.length} selected</span>
+          </div>
+          {unlinkedTasks.map(task => {
+            const isSelected = selectedTaskIds.includes(task.id);
+            return (
+              <button
+                key={task.id}
+                onClick={() => toggleTask(task.id)}
+                className={cn(
+                  "w-full flex items-center gap-3 p-4 rounded-2xl transition-all text-left",
+                  isSelected ? "bg-purple-50 ring-2 ring-purple-200" : "bg-white shadow-sm border border-gray-100"
+                )}
+              >
+                <div className={cn(
+                  "w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0 transition-all",
+                  isSelected ? "bg-purple-500 text-white" : "bg-gray-100"
+                )}>
+                  {isSelected && <CheckCircle2 size={14} />}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-bold text-[#2d2d2d] truncate">{task.name}</p>
+                  <p className="text-[10px] text-[#8c8c8c]">due {format(new Date(task.deadline), 'MMM d').toLowerCase()}</p>
+                </div>
+                <img src={task.emojiUrl} alt="" className="w-6 h-6 object-contain opacity-40" />
+              </button>
+            );
+          })}
+        </div>
+      )}
     </motion.div>
   );
 }

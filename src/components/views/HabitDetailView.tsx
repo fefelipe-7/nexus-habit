@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { NEXUS_COLORS, getColorById } from '../../constants/colors';
 import { HABIT_CATEGORIES, getCategoryById } from '../../constants/categories';
 import { calculateHabitStats } from '../../utils/stats';
+import { format, subDays } from 'date-fns';
 
 type Props = {
   habit: Habit;
@@ -45,8 +46,8 @@ export default function HabitDetailView({ habit, completions, onUpdate, onClose,
     setEditedHabit(habit);
   }, [habit]);
   
-  // Progress Arc Logic (Static for now, but UI-ready)
-  const progress = 75; // 75% progress
+  // Progress Arc Logic — uses real successRate from stats
+  const progress = stats.successRate;
   const radius = 80;
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference * (1 - progress / 200); // Only half-circle arc
@@ -277,29 +278,35 @@ export default function HabitDetailView({ habit, completions, onUpdate, onClose,
             </div>
           )}
 
-          {/* Activity Log (Like the reference image) */}
+          {/* Activity Log — Real data from last 7 days */}
           {!isEditing && (
             <div className="bg-white rounded-3xl p-6 shadow-sm">
                 <div className="flex items-center justify-between mb-6">
                   <h3 className="text-sm font-bold uppercase tracking-wider text-[#2d2d2d]">activity log</h3>
-                  <button className="text-xs font-bold text-[#8c8c8c]">See All</button>
+                  <span className="text-[10px] font-bold text-[#8c8c8c] uppercase tracking-wider">last 7 days</span>
                 </div>
                 <div className="space-y-4">
-                   {[
-                    { date: 'Today', status: 'Completed', detail: '8/8 units completed' },
-                    { date: 'Yesterday', status: 'Completed', detail: '8/8 units completed' },
-                    { date: 'March 17', status: 'Missed', detail: '0/8 units completed' },
-                   ].map((log, i) => (
-                    <div key={i} className="flex items-center justify-between py-2 border-b border-gray-50 last:border-0">
-                      <div>
-                        <p className="text-sm font-bold text-[#2d2d2d]">{log.date}</p>
-                        <p className="text-[10px] text-[#8c8c8c]">{log.detail}</p>
+                   {stats.last7Days.slice().reverse().map((day, i) => {
+                    const isScheduled = editedHabit.repeatDays.includes(day.date.getDay());
+                    const dayLabel = format(day.date, 'EEE, MMM d').toLowerCase();
+                    return (
+                      <div key={i} className="flex items-center justify-between py-2 border-b border-gray-50 last:border-0">
+                        <div>
+                          <p className="text-sm font-bold text-[#2d2d2d]">{dayLabel}</p>
+                          <p className="text-[10px] text-[#8c8c8c]">
+                            {!isScheduled ? 'rest day' : day.completed ? `${editedHabit.duration || 0}/${editedHabit.duration || 0} ${editedHabit.unit || 'units'} completed` : `0/${editedHabit.duration || 0} ${editedHabit.unit || 'units'} completed`}
+                          </p>
+                        </div>
+                        <div className={cn(
+                          "px-3 py-1 rounded-full text-[10px] font-bold",
+                          !isScheduled ? "bg-gray-100 text-gray-400" :
+                          day.completed ? "bg-green-100 text-green-600" : "bg-red-100 text-red-600"
+                        )}>
+                          {!isScheduled ? 'off' : day.completed ? 'completed' : 'missed'}
+                        </div>
                       </div>
-                      <div className={cn("px-3 py-1 rounded-full text-[10px] font-bold", log.status === 'Completed' ? "bg-green-100 text-green-600" : "bg-red-100 text-red-600")}>
-                        {log.status}
-                      </div>
-                    </div>
-                   ))}
+                    );
+                   })}
                 </div>
             </div>
           )}

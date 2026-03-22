@@ -16,7 +16,7 @@ import ProjectDetailView from './components/views/ProjectDetailView';
 import LoginView from './components/views/LoginView';
 import BottomNav from './components/layout/BottomNav';
 import FloatingActionButton from './components/layout/FloatingActionButton';
-import { Habit, Task, Completion } from './types';
+import { Habit, Task, Completion, Project } from './types';
 import { useAuth } from './hooks/useAuth';
 import { useHabits } from './hooks/useHabits';
 import { useTasks } from './hooks/useTasks';
@@ -29,12 +29,12 @@ const pageVariants = {
   exit: { opacity: 0, y: -10, scale: 0.98 }
 };
 
-function TaskDetailRoute({ tasks, onUpdate, onDelete }: { tasks: Task[], onUpdate: (task: any) => void, onDelete: (id: string) => void }) {
+function TaskDetailRoute({ tasks, projects, onUpdate, onDelete }: { tasks: Task[], projects: Project[], onUpdate: (params: { id: string, updates: Partial<Task> }) => void, onDelete: (id: string) => void }) {
   const { id } = useParams();
   const navigate = useNavigate();
   const task = tasks.find(t => t.id === id);
   if (!task) return null;
-  return <TaskDetailView task={task} onUpdate={(updates) => onUpdate({ id, updates })} onDelete={onDelete} onClose={() => navigate('/tasks')} />;
+  return <TaskDetailView task={task} projects={projects} onUpdate={(updates) => onUpdate({ id: id!, updates })} onDelete={onDelete} onClose={() => navigate('/tasks')} />;
 }
 
 export default function App() {
@@ -45,7 +45,7 @@ export default function App() {
   const { user, username, loading: authLoading, signOut } = useAuth();
   const { habits, completions, stats, isLoading: habitsLoading, createHabit, updateHabit, deleteHabit, toggleCompletion } = useHabits();
   const { tasks, toggleTask, createTask, updateTask, deleteTask, isLoading: tasksLoading } = useTasks();
-  const { createProject } = useProjects();
+  const { createProject, projects } = useProjects();
 
   const background = location.state?.background;
 
@@ -139,12 +139,21 @@ export default function App() {
                 <AddWizardView 
                   onSave={(h) => createHabit(h).then(() => navigate('/'))} 
                   onAddTask={(t) => createTask(t).then(() => navigate('/tasks'))} 
-                  onAddProject={(p) => createProject(p).then(() => navigate('/projects'))}
+                  onAddProject={async ({ project, taskIds }: { project: any, taskIds: string[] }) => {
+                    const result = await createProject(project);
+                    if (result && taskIds.length > 0) {
+                      const projectId = (result as any).id;
+                      if (projectId) {
+                        await Promise.all(taskIds.map(tid => updateTask({ id: tid, updates: { projectId } })));
+                      }
+                    }
+                    navigate('/projects');
+                  }}
                   onClose={() => navigate('/')} 
                 />
               } />
               <Route path="/task/:id/*" element={
-                <TaskDetailRoute tasks={tasks} onUpdate={updateTask} onDelete={(id) => deleteTask(id).then(() => navigate('/tasks'))} />
+                <TaskDetailRoute tasks={tasks} projects={projects} onUpdate={updateTask} onDelete={(id) => deleteTask(id).then(() => navigate('/tasks'))} />
               } />
               <Route path="/profile" element={
                 <motion.div initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} transition={{ type: 'spring', damping: 25, stiffness: 200 }} className="absolute inset-0 z-50 bg-[#f8f6f2] flex flex-col">
