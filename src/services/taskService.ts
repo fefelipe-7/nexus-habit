@@ -23,7 +23,7 @@ export const taskService = {
       emoji_url: task.emojiUrl,
       color: task.color,
       user_id: user.id,
-      project_id: task.projectId
+      project_id: task.projectId || null
     };
 
     const { data, error } = await supabase
@@ -44,7 +44,7 @@ export const taskService = {
     if (updates.emojiUrl) dbUpdates.emoji_url = updates.emojiUrl;
     if (updates.color) dbUpdates.color = updates.color;
     if (updates.completedAt !== undefined) dbUpdates.completed_at = updates.completedAt;
-    if (updates.projectId !== undefined) dbUpdates.project_id = updates.projectId;
+    if (updates.projectId !== undefined) dbUpdates.project_id = updates.projectId || null;
 
     const { data, error } = await supabase
       .from('tasks')
