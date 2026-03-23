@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Folder, Edit2, Trash2, Plus, CheckCircle2, Circle, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -6,12 +7,14 @@ import { useTasks } from '../../hooks/useTasks';
 import { cn } from '../../utils/cn';
 import { getColorById } from '../../constants/colors';
 import { format } from 'date-fns';
+import ConfirmDialog from '../ui/ConfirmDialog';
 
 export default function ProjectDetailView() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { projects, deleteProject } = useProjects();
   const { tasks, toggleTask } = useTasks();
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const project = projects.find(p => p.id === id);
   const projectTasks = tasks.filter(t => t.projectId === id);
@@ -30,10 +33,8 @@ export default function ProjectDetailView() {
     : null;
 
   const handleDelete = async () => {
-    if (window.confirm('Are you sure you want to delete this project? Tasks will be unlinked but not deleted.')) {
-      await deleteProject(project.id);
-      navigate('/projects');
-    }
+    await deleteProject(project.id);
+    navigate('/projects');
   };
 
   return (
@@ -59,7 +60,7 @@ export default function ProjectDetailView() {
             <Edit2 size={16} />
           </button>
           <button 
-            onClick={handleDelete} 
+            onClick={() => setShowDeleteConfirm(true)} 
             className="w-10 h-10 bg-red-50 rounded-2xl flex items-center justify-center shadow-sm border border-red-100 text-red-400 hover:text-red-600 transition-colors"
           >
             <Trash2 size={16} />
@@ -164,6 +165,15 @@ export default function ProjectDetailView() {
           </div>
         )}
       </div>
+
+      <ConfirmDialog
+        isOpen={showDeleteConfirm}
+        title="delete project?"
+        message="are you sure? tasks will be unlinked but not deleted."
+        confirmText="delete project"
+        onCancel={() => setShowDeleteConfirm(false)}
+        onConfirm={handleDelete}
+      />
     </motion.div>
   );
 }

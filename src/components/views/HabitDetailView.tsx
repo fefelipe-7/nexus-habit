@@ -8,6 +8,7 @@ import { NEXUS_COLORS, getColorById } from '../../constants/colors';
 import { HABIT_CATEGORIES, getCategoryById } from '../../constants/categories';
 import { calculateHabitStats } from '../../utils/stats';
 import { format, subDays } from 'date-fns';
+import ConfirmDialog from '../ui/ConfirmDialog';
 
 type Props = {
   habit: Habit;
@@ -38,6 +39,7 @@ export default function HabitDetailView({ habit, completions, onUpdate, onClose,
   const location = useLocation();
   const isEditing = location.pathname.endsWith('/edit');
   const [editedHabit, setEditedHabit] = useState<Habit>(habit);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   
   const stats = useMemo(() => calculateHabitStats(habit, completions), [habit, completions]);
 
@@ -324,11 +326,7 @@ export default function HabitDetailView({ habit, completions, onUpdate, onClose,
             </button>
           ) : (
             <button 
-              onClick={() => {
-                if (window.confirm('Are you sure you want to delete this habit?')) {
-                  onDelete(editedHabit.id);
-                }
-              }}
+              onClick={() => setShowDeleteConfirm(true)}
               className="w-full bg-red-50 text-red-500 font-bold py-4 rounded-3xl border border-red-100 flex items-center justify-center gap-2"
             >
               <Trash2 size={18} />
@@ -337,6 +335,15 @@ export default function HabitDetailView({ habit, completions, onUpdate, onClose,
           )}
         </div>
       </div>
+      
+      <ConfirmDialog
+        isOpen={showDeleteConfirm}
+        title="delete habit?"
+        message="this habit and all its history will be permanently deleted. this action cannot be undone."
+        confirmText="delete habit"
+        onCancel={() => setShowDeleteConfirm(false)}
+        onConfirm={() => onDelete(editedHabit.id)}
+      />
     </motion.div>
   );
 }

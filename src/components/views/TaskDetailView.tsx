@@ -6,6 +6,7 @@ import { cn } from '../../utils/cn';
 import { motion, AnimatePresence } from 'framer-motion';
 import { format, differenceInDays, isPast, isToday } from 'date-fns';
 import { NEXUS_COLORS, getColorById } from '../../constants/colors';
+import ConfirmDialog from '../ui/ConfirmDialog';
 
 type Props = {
   task: Task;
@@ -36,6 +37,7 @@ export default function TaskDetailView({ task, projects, onUpdate, onClose, onDe
   const location = useLocation();
   const isEditing = location.pathname.endsWith('/edit');
   const [editedTask, setEditedTask] = useState<Task>(task);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   useEffect(() => {
     setEditedTask(task);
@@ -329,12 +331,7 @@ export default function TaskDetailView({ task, projects, onUpdate, onClose, onDe
                 </button>
               )}
               <button 
-                onClick={() => {
-                  if (window.confirm('delete this task?')) {
-                    onDelete(task.id);
-                    onClose();
-                  }
-                }}
+                onClick={() => setShowDeleteConfirm(true)}
                 className="w-full bg-red-50 text-red-500 font-black uppercase tracking-widest text-[10px] py-5 rounded-2xl border border-red-100 flex items-center justify-center gap-3 active:scale-[0.98] transition-all"
               >
                 <Trash2 size={18} />
@@ -344,6 +341,18 @@ export default function TaskDetailView({ task, projects, onUpdate, onClose, onDe
           )}
         </div>
       </div>
+
+      <ConfirmDialog
+        isOpen={showDeleteConfirm}
+        title="delete task?"
+        message="this task and its details will be permanently removed. this action cannot be undone."
+        confirmText="delete task"
+        onCancel={() => setShowDeleteConfirm(false)}
+        onConfirm={() => {
+          onDelete(task.id);
+          onClose();
+        }}
+      />
     </motion.div>
   );
 }
