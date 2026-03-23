@@ -24,13 +24,16 @@ export default function ProjectDetailView() {
   const color = getColorById(project.color);
   const completedCount = projectTasks.filter(t => !!t.completedAt).length;
 
-  // Find latest deadline among tasks as "due on"
-  const latestDeadline = projectTasks.length > 0
-    ? projectTasks.reduce((latest, t) => {
-        const d = new Date(t.deadline);
-        return d > latest ? d : latest;
-      }, new Date(projectTasks[0].deadline))
-    : null;
+  // Use explicit project deadline, otherwise fallback to latest task deadline
+  let displayDeadline = null;
+  if (project.deadline) {
+    displayDeadline = new Date(project.deadline);
+  } else if (projectTasks.length > 0) {
+    displayDeadline = projectTasks.reduce((latest, t) => {
+      const d = new Date(t.deadline);
+      return d > latest ? d : latest;
+    }, new Date(projectTasks[0].deadline));
+  }
 
   const handleDelete = async () => {
     await deleteProject(project.id);
@@ -77,9 +80,11 @@ export default function ProjectDetailView() {
           </div>
           <div className="w-px h-8 bg-gray-100" />
           <div className="flex flex-col items-center flex-1">
-            <span className="text-[10px] font-bold text-[#b0b0b0] uppercase tracking-wider mb-1">due on</span>
+            <span className="text-[10px] font-bold text-[#b0b0b0] uppercase tracking-wider mb-1">
+              {project.deadline ? 'target date' : 'latest task'}
+            </span>
             <span className="text-sm font-bold text-[#2d2d2d]">
-              {latestDeadline ? format(latestDeadline, 'd MMM').toLowerCase() : '—'}
+              {displayDeadline ? format(displayDeadline, 'd MMM').toLowerCase() : '—'}
             </span>
           </div>
         </div>

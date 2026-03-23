@@ -87,7 +87,8 @@ export default function AddWizardView({ onSave, onAddTask, onAddProject, onClose
         name: name.toLowerCase(),
         description,
         emojiUrl,
-        color
+        color,
+        deadline: deadline || undefined
       },
       taskIds: selectedTaskIds
     });
@@ -197,7 +198,7 @@ export default function AddWizardView({ onSave, onAddTask, onAddProject, onClose
             </div>
           ) : (
             <div key={`project-${step}`} className="h-full">
-              {step === 1 && <ProjectStep1 name={name} setName={setName} description={description} setDescription={setDescription} />}
+              {step === 1 && <ProjectStep1 name={name} setName={setName} description={description} setDescription={setDescription} deadline={deadline} setDeadline={setDeadline} />}
               {step === 2 && <ProjectStep2 emojiUrl={emojiUrl} setEmojiUrl={setEmojiUrl} color={color} setColor={setColor} />}
               {step === 3 && <ProjectStep3 tasks={tasks} selectedTaskIds={selectedTaskIds} setSelectedTaskIds={setSelectedTaskIds} />}
             </div>
@@ -471,7 +472,7 @@ function TaskStep1({ name, setName, description, setDescription, projects, proje
 }
 
 // PROJECT STEPS
-function ProjectStep1({ name, setName, description, setDescription }: any) {
+function ProjectStep1({ name, setName, description, setDescription, deadline, setDeadline }: any) {
   return (
     <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="px-6 space-y-8">
       <div className="text-center">
@@ -498,7 +499,20 @@ function ProjectStep1({ name, setName, description, setDescription }: any) {
             value={description} 
             onChange={e => setDescription(e.target.value)} 
             placeholder="What is this project about? (optional)" 
-            className="w-full bg-transparent p-6 outline-none text-base font-medium text-[#2d2d2d] h-40 resize-none placeholder:text-gray-200 scrollbar-hide" 
+            className="w-full bg-transparent p-6 outline-none text-base font-medium text-[#2d2d2d] h-32 resize-none placeholder:text-gray-200 scrollbar-hide" 
+          />
+        </div>
+
+        <div className="bg-white rounded-[32px] px-8 py-5 shadow-sm border border-gray-50 group focus-within:ring-4 focus-within:ring-purple-50 transition-all">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-[10px] font-black uppercase tracking-widest text-[#b0b0b0]">Target Date (Optional)</span>
+            <Calendar size={14} className="text-purple-500" />
+          </div>
+          <input 
+            type="date" 
+            value={deadline || ''} 
+            onChange={e => setDeadline(e.target.value)} 
+            className="w-full bg-transparent outline-none text-xl font-bold text-[#2d2d2d] placeholder:text-gray-200" 
           />
         </div>
       </div>

@@ -35,6 +35,7 @@ export type Project = {
   emojiUrl: string;
   color: string;
   status: 'active' | 'completed' | 'archived';
+  deadline?: string;
   createdAt: string;
   updatedAt: string;
 };

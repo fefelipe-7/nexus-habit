@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { Plus, Folder, MoreHorizontal, Sparkles, ChevronLeft, ChevronRight, CheckCircle2, Circle } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Plus, Folder, MoreHorizontal, Sparkles, ChevronLeft, ChevronRight, CheckCircle2, Circle, Edit2, Trash2 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useProjects } from '../../hooks/useProjects';
 import { useTasks } from '../../hooks/useTasks';
@@ -8,13 +8,18 @@ import { Project } from '../../types';
 import { cn } from '../../utils/cn';
 import { getColorById } from '../../constants/colors';
 import { EmptyState } from '../ui/EmptyState';
+import ConfirmDialog from '../ui/ConfirmDialog';
 import { format, addDays, startOfWeek, isSameDay, isToday } from 'date-fns';
 
 export default function ProjectsView() {
   const navigate = useNavigate();
-  const { projects, isLoading: projectsLoading } = useProjects();
+  const { projects, isLoading: projectsLoading, updateProject, deleteProject } = useProjects();
   const { tasks, toggleTask } = useTasks();
   const [selectedDate, setSelectedDate] = useState(new Date());
+  
+  const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [projectToDelete, setProjectToDelete] = useState<Project | null>(null);
 
   const weekStart = startOfWeek(selectedDate, { weekStartsOn: 1 });
   const weekDays = Array.from({ length: 7 }).map((_, i) => addDays(weekStart, i));
@@ -46,6 +51,14 @@ export default function ProjectsView() {
 
   return (
     <div className="flex-1 flex flex-col overflow-y-auto lowercase">
+      {/* Click outside overlay for action menu */}
+      {activeMenuId && (
+        <div 
+          className="fixed inset-0 z-[60]" 
+          onClick={() => setActiveMenuId(null)}
+        />
+      )}
+
       {/* Header */}
       <div className="px-6 pt-12 pb-2 flex items-center justify-between">
         <div className="flex items-center gap-3">
@@ -127,12 +140,56 @@ export default function ProjectsView() {
                     <div className="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center">
                       <img src={project.emojiUrl} alt="" className="w-6 h-6 object-contain" />
                     </div>
-                    <button 
-                      onClick={(e) => { e.stopPropagation(); }}
-                      className="w-7 h-7 flex items-center justify-center text-[#c0c0c0] hover:text-[#2d2d2d] transition-colors"
-                    >
-                      <MoreHorizontal size={16} />
-                    </button>
+                    <div className="relative">
+                      <button 
+                        onClick={(e) => { 
+                          e.stopPropagation(); 
+                          setActiveMenuId(activeMenuId === project.id ? null : project.id);
+                        }}
+                        className="w-7 h-7 flex items-center justify-center text-[#c0c0c0] hover:text-[#2d2d2d] transition-colors"
+                      >
+                        <MoreHorizontal size={16} />
+                      </button>
+
+                      <AnimatePresence>
+                        {activeMenuId === project.id && (
+                          <motion.div
+                            initial={{ opacity: 0, scale: 0.95, y: -10 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95, y: -10 }}
+                            className="absolute right-0 top-full mt-1 w-48 bg-white rounded-2xl shadow-xl border border-gray-100 z-[70] overflow-hidden"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <button 
+                              onClick={() => { setActiveMenuId(null); navigate(`/project/${project.id}/edit`); }}
+                              className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-[#2d2d2d] hover:bg-gray-50 transition-colors"
+                            >
+                              <Edit2 size={16} /> edit project
+                            </button>
+                            <button 
+                              onClick={() => {
+                                setActiveMenuId(null);
+                                updateProject(project.id, { status: project.status === 'completed' ? 'active' : 'completed' });
+                              }}
+                              className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-[#2d2d2d] hover:bg-gray-50 transition-colors border-t border-gray-50"
+                            >
+                              {project.status === 'completed' ? <Circle size={16} /> : <CheckCircle2 size={16} />}
+                              {project.status === 'completed' ? 'mark active' : 'mark complete'}
+                            </button>
+                            <button 
+                              onClick={() => { 
+                                setActiveMenuId(null); 
+                                setProjectToDelete(project); 
+                                setShowDeleteConfirm(true); 
+                              }}
+                              className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-red-500 hover:bg-red-50 transition-colors border-t border-gray-50"
+                            >
+                              <Trash2 size={16} /> delete
+                            </button>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
                   </div>
                   <div>
                     <h3 className="text-sm font-bold text-[#2d2d2d] leading-tight truncate">{project.name}</h3>
@@ -209,6 +266,21 @@ export default function ProjectsView() {
 
       {/* Bottom padding when no tasks */}
       {todayTasks.length === 0 && <div className="pb-24" />}
+
+      <ConfirmDialog
+        isOpen={showDeleteConfirm}
+        title="delete project?"
+        message="are you sure? tasks will be unlinked but not deleted."
+        confirmText="delete project"
+        onCancel={() => { setShowDeleteConfirm(false); setProjectToDelete(null); }}
+        onConfirm={async () => {
+          if (projectToDelete) {
+            await deleteProject(projectToDelete.id);
+            setShowDeleteConfirm(false);
+            setProjectToDelete(null);
+          }
+        }}
+      />
     </div>
   );
 }
