@@ -29,9 +29,9 @@ export default function LogProgressView({ habits, completions, onLog, onClose }:
 
   if (!habit) {
     return (
-      <div className="flex flex-col items-center justify-center h-full p-8 text-center bg-[#f8f6f2]">
-        <p className="text-[#8c8c8c] mb-4">habit not found</p>
-        <button onClick={onClose} className="px-6 py-3 bg-[#2d2d2d] text-white rounded-2xl font-bold">go back</button>
+      <div className="flex flex-col items-center justify-center h-full p-8 text-center bg-[#f8f6f2] dark:bg-black">
+        <p className="text-[#8c8c8c] dark:text-gray-600 mb-4 font-bold uppercase tracking-widest text-[10px]">habit not found</p>
+        <button onClick={onClose} className="px-6 py-3 bg-[#2d2d2d] dark:bg-white text-white dark:text-black rounded-2xl font-black uppercase tracking-widest text-xs">go back</button>
       </div>
     );
   }
@@ -59,29 +59,29 @@ export default function LogProgressView({ habits, completions, onLog, onClose }:
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: -20 }}
-      className="fixed inset-0 z-50 bg-[#f8f6f2] flex flex-col lowercase pointer-events-auto"
+      className="fixed inset-0 z-50 bg-[#f8f6f2] dark:bg-black flex flex-col lowercase pointer-events-auto"
     >
       {/* Header */}
       <div className="flex items-center justify-between px-6 pt-12 pb-4">
-        <button onClick={onClose} className="w-10 h-10 bg-white rounded-2xl flex items-center justify-center shadow-sm border border-gray-100">
-          <ChevronLeft size={20} />
+        <button onClick={onClose} className="w-10 h-10 bg-white dark:bg-[#1a1a1a] rounded-2xl flex items-center justify-center shadow-sm border border-black/5 dark:border-white/5">
+          <ChevronLeft size={20} className="dark:text-white" />
         </button>
         <div className="flex-1 text-center">
-          <h1 className="text-sm font-black uppercase tracking-widest text-[#8c8c8c]">log progress</h1>
+          <h1 className="text-[10px] font-black uppercase tracking-widest text-[#8c8c8c] dark:text-gray-600">log progress</h1>
         </div>
         <div className="w-10" /> {/* Spacer */}
       </div>
 
       <div className="flex-1 flex flex-col p-8 items-center justify-center">
         <div 
-          className="w-20 h-20 rounded-3xl flex items-center justify-center mb-6 shadow-sm"
+          className="w-20 h-20 rounded-[32px] flex items-center justify-center mb-6 shadow-sm border border-black/5 dark:border-white/10"
           style={{ backgroundColor: nexusColor.bg, color: nexusColor.text }}
         >
           <img src={habit.emojiUrl} alt="" className="w-12 h-12 object-contain" />
         </div>
         
-        <h2 className="text-2xl font-bold text-[#2d2d2d] mb-1 text-center">{habit.name}</h2>
-        <p className="text-xs text-[#8c8c8c] font-bold uppercase tracking-widest mb-12">current: {currentAmount} / {habit.duration} {habit.unit || 'units'}</p>
+        <h2 className="text-2xl font-black uppercase tracking-tighter text-[#2d2d2d] dark:text-white mb-1 text-center">{habit.name}</h2>
+        <p className="text-[10px] text-[#8c8c8c] dark:text-gray-600 font-black uppercase tracking-widest mb-12">current: {currentAmount} / {habit.duration} {habit.unit || 'units'}</p>
 
         <AnimatePresence mode="wait">
           {isSuccess ? (
@@ -91,19 +91,19 @@ export default function LogProgressView({ habits, completions, onLog, onClose }:
               animate={{ opacity: 1, scale: 1 }}
               className="flex flex-col items-center"
             >
-              <div className="w-24 h-24 rounded-full bg-green-100 flex items-center justify-center text-green-500 mb-6">
+              <div className="w-24 h-24 rounded-[40px] bg-green-50 dark:bg-green-500/10 flex items-center justify-center text-green-500 mb-6">
                 <PartyPopper size={48} />
               </div>
-              <h3 className="text-3xl font-bold text-[#2d2d2d] mb-2">excelente!</h3>
-              <p className="text-[#8c8c8c] text-center">seu progresso foi salvo.<br/>voltando para o início...</p>
+              <h3 className="text-3xl font-black uppercase tracking-tighter text-[#2d2d2d] dark:text-white mb-2">excelente!</h3>
+              <p className="text-xs font-bold uppercase tracking-widest text-[#8c8c8c] dark:text-gray-600 text-center leading-loose">seu progresso foi salvo.<br/>voltando para o início...</p>
             </motion.div>
           ) : (
             <motion.div key="input" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="w-full max-w-sm flex flex-col items-center">
-              <div className="bg-white rounded-[40px] p-10 shadow-sm w-full mb-8 flex flex-col items-center">
+              <div className="bg-white dark:bg-[#1a1a1a] rounded-[48px] p-10 shadow-sm w-full mb-8 flex flex-col items-center border border-black/5 dark:border-white/5">
                 <div className="flex items-center gap-8 mb-6">
                   <button 
                     onClick={() => setInputValue(Math.max(currentAmount, value - 1).toString())}
-                    className="w-16 h-16 rounded-3xl bg-[#f8f6f2] flex items-center justify-center text-[#2d2d2d] active:scale-90 transition-transform"
+                    className="w-16 h-16 rounded-[28px] bg-[#f8f6f2] dark:bg-white/5 flex items-center justify-center text-[#2d2d2d] dark:text-white active:scale-90 transition-transform"
                   >
                     <Minus size={28} />
                   </button>
@@ -116,8 +116,8 @@ export default function LogProgressView({ habits, completions, onLog, onClose }:
                         value={inputValue} 
                         onChange={e => setInputValue(e.target.value)}
                         className={cn(
-                            "text-6xl font-bold w-40 text-center outline-none bg-transparent transition-colors",
-                            error ? "text-red-500" : "text-[#2d2d2d]"
+                            "text-6xl font-black w-40 text-center outline-none bg-transparent transition-colors",
+                            error ? "text-red-500" : "text-[#2d2d2d] dark:text-white"
                         )}
                         autoFocus
                       />
@@ -131,7 +131,7 @@ export default function LogProgressView({ habits, completions, onLog, onClose }:
                   
                   <button 
                     onClick={() => setInputValue((value + 1).toString())}
-                    className="w-16 h-16 rounded-3xl bg-[#f8f6f2] flex items-center justify-center text-[#2d2d2d] active:scale-90 transition-transform"
+                    className="w-16 h-16 rounded-[28px] bg-[#f8f6f2] dark:bg-white/5 flex items-center justify-center text-[#2d2d2d] dark:text-white active:scale-90 transition-transform"
                   >
                     <Plus size={28} />
                   </button>
@@ -147,9 +147,9 @@ export default function LogProgressView({ habits, completions, onLog, onClose }:
                         disabled={isDisabled}
                         onClick={() => setInputValue(quickValue.toString())}
                         className={cn(
-                          "flex-1 py-4 rounded-2xl text-[10px] font-bold uppercase tracking-wider transition-all",
-                          value === quickValue ? "bg-[#2d2d2d] text-white" : "bg-gray-50 text-gray-400 hover:bg-gray-100",
-                          isDisabled && "opacity-20 cursor-not-allowed"
+                          "flex-1 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all",
+                          value === quickValue ? "bg-[#2d2d2d] dark:bg-white text-white dark:text-black" : "bg-gray-50 dark:bg-white/5 text-gray-400 dark:text-gray-700 hover:bg-gray-100",
+                          isDisabled && "opacity-10 cursor-not-allowed"
                         )}
                       >
                         {pct * 100}%
@@ -162,7 +162,7 @@ export default function LogProgressView({ habits, completions, onLog, onClose }:
               <button 
                 onClick={handleSave}
                 disabled={value < currentAmount}
-                className="w-full py-6 bg-[#f27d26] text-white rounded-[2.5rem] font-bold flex items-center justify-center gap-3 active:scale-[0.98] transition-all shadow-lg shadow-orange-100 disabled:opacity-50 disabled:grayscale"
+                className="w-full py-6 bg-[#f27d26] text-white rounded-[2.5rem] font-black uppercase tracking-widest flex items-center justify-center gap-3 active:scale-[0.98] transition-all shadow-lg shadow-orange-100 dark:shadow-none disabled:opacity-50 disabled:grayscale"
               >
                 <Check size={24} />
                 <span>confirm progress</span>

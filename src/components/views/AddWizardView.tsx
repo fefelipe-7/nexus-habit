@@ -153,17 +153,17 @@ export default function AddWizardView({ onSave, onAddTask, onAddProject, onClose
       animate={{ y: 0 }}
       exit={{ y: '100%' }}
       transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-      className="flex-1 bg-[#f8f6f2] flex flex-col h-full absolute inset-0 z-50 overflow-hidden pointer-events-auto"
+      className="flex-1 bg-[#f8f6f2] dark:bg-[#121212] flex flex-col h-full absolute inset-0 z-50 overflow-hidden pointer-events-auto"
     >
       {/* Header */}
       <div className="flex items-center justify-between px-6 pt-12 pb-4">
         <div className="flex items-center gap-3">
-          <button onClick={handleBack} className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm text-[#2d2d2d] active:scale-90 transition-transform">
+          <button onClick={handleBack} className="w-10 h-10 bg-white dark:bg-[#1a1a1a] rounded-full flex items-center justify-center shadow-sm border border-black/5 dark:border-white/5 text-[#2d2d2d] dark:text-white active:scale-90 transition-transform">
             <ArrowLeft size={20} />
           </button>
           <div className="flex flex-col">
-            <h1 className="text-xl font-medium text-[#2d2d2d] leading-tight">
-              {step === 0 ? 'create new' : `new ${typeSelected}`}
+            <h1 className="text-xl font-bold uppercase tracking-widest text-[#2d2d2d] dark:text-white leading-tight">
+              {step === 0 ? 'create' : `new ${typeSelected}`}
             </h1>
             {step > 0 && (
               <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest leading-tight">
@@ -172,7 +172,7 @@ export default function AddWizardView({ onSave, onAddTask, onAddProject, onClose
             )}
           </div>
         </div>
-        <button onClick={onClose} className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm text-[#2d2d2d] active:scale-90 transition-transform">
+        <button onClick={onClose} className="w-10 h-10 bg-white dark:bg-[#1a1a1a] rounded-full flex items-center justify-center shadow-sm border border-black/5 dark:border-white/5 text-[#2d2d2d] dark:text-white active:scale-90 transition-transform">
           <X size={20} />
         </button>
       </div>
@@ -185,7 +185,7 @@ export default function AddWizardView({ onSave, onAddTask, onAddProject, onClose
               <div key={s} className="flex-1">
                 <div className={cn(
                   "h-1.5 rounded-full transition-all duration-500", 
-                  step === s ? "bg-[#f27d26] w-full" : step > s ? "bg-[#f27d26] opacity-40 w-full" : "bg-gray-200 w-full"
+                  step === s ? "bg-[#f27d26] w-full" : step > s ? "bg-[#f27d26] opacity-40 w-full" : "bg-gray-200 dark:bg-gray-800 w-full"
                 )} />
               </div>
             ))}
@@ -222,13 +222,13 @@ export default function AddWizardView({ onSave, onAddTask, onAddProject, onClose
 
       {/* Action Footer */}
       {step > 0 && (
-        <div className="p-6 pb-12 bg-white/50 backdrop-blur-sm border-t border-gray-100">
+        <div className="p-6 pb-12 bg-white/50 dark:bg-black/50 backdrop-blur-sm border-t border-black/5 dark:border-white/5">
           <button 
             onClick={handleNext}
             disabled={!canContinue}
             className={cn(
-              "w-full py-5 rounded-3xl font-bold flex items-center justify-center gap-3 transition-all active:scale-[0.98]",
-              canContinue ? "bg-[#2d2d2d] text-white shadow-lg" : "bg-gray-200 text-gray-400"
+              "w-full py-5 rounded-3xl font-black uppercase tracking-widest flex items-center justify-center gap-3 transition-all active:scale-[0.98]",
+              canContinue ? "bg-[#2d2d2d] dark:bg-white text-white dark:text-black shadow-lg" : "bg-gray-200 dark:bg-gray-900 text-gray-400 dark:text-gray-700"
             )}
           >
             <span>{step < 3 ? 'continue' : `save ${typeSelected}`}</span>
@@ -244,47 +244,47 @@ function StepTypeSelect({ onSelect }: { onSelect: (type: 'habit' | 'task' | 'pro
   return (
     <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="px-6 flex flex-col items-center justify-center h-full gap-8">
       <div className="text-center mb-4">
-        <h2 className="text-2xl font-bold text-[#2d2d2d]">how do you want to start?</h2>
-        <p className="text-gray-400">choose the best format for your goal</p>
+        <h2 className="text-2xl font-black uppercase tracking-tighter text-[#2d2d2d] dark:text-white">how do you want to start?</h2>
+        <p className="text-gray-400 dark:text-gray-600 font-bold uppercase tracking-widest text-[10px] mt-2">choose the best format for your goal</p>
       </div>
       
       <div className="w-full space-y-4">
         <button 
           onClick={() => onSelect('habit')}
-          className="w-full bg-white p-8 rounded-[40px] shadow-sm flex items-center gap-6 group hover:ring-4 hover:ring-orange-100 transition-all text-left"
+          className="w-full bg-white dark:bg-[#1a1a1a] p-8 rounded-[40px] shadow-sm border border-black/5 dark:border-white/5 flex items-center gap-6 group hover:ring-4 hover:ring-orange-100 dark:hover:ring-orange-900/10 transition-all text-left"
         >
-          <div className="w-16 h-16 bg-orange-100 rounded-2xl flex items-center justify-center text-[#f27d26] group-hover:scale-110 transition-transform">
+          <div className="w-16 h-16 bg-orange-100 dark:bg-orange-950/20 rounded-2xl flex items-center justify-center text-[#f27d26] group-hover:scale-110 transition-transform">
             <Repeat size={32} />
           </div>
           <div>
-            <h2 className="text-xl font-bold text-[#2d2d2d]">Habit</h2>
-            <p className="text-sm text-[#8c8c8c]">Build consistency with a repeating routine every day or week.</p>
+            <h2 className="text-xl font-bold text-[#2d2d2d] dark:text-white uppercase tracking-tighter">Habit</h2>
+            <p className="text-sm text-[#8c8c8c] dark:text-gray-500">Build consistency with a repeating routine every day or week.</p>
           </div>
         </button>
 
         <button 
           onClick={() => onSelect('task')}
-          className="w-full bg-white p-8 rounded-[40px] shadow-sm flex items-center gap-6 group hover:ring-4 hover:ring-blue-100 transition-all text-left"
+          className="w-full bg-white dark:bg-[#1a1a1a] p-8 rounded-[40px] shadow-sm border border-black/5 dark:border-white/5 flex items-center gap-6 group hover:ring-4 hover:ring-blue-100 dark:hover:ring-blue-900/10 transition-all text-left"
         >
-          <div className="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center text-blue-500 group-hover:scale-110 transition-transform">
+          <div className="w-16 h-16 bg-blue-100 dark:bg-blue-950/20 rounded-2xl flex items-center justify-center text-blue-500 group-hover:scale-110 transition-transform">
             <Layers size={32} />
           </div>
           <div>
-            <h2 className="text-xl font-bold text-[#2d2d2d]">Task</h2>
-            <p className="text-sm text-[#8c8c8c]">A one-time activity with a specific deadline and duration.</p>
+            <h2 className="text-xl font-bold text-[#2d2d2d] dark:text-white uppercase tracking-tighter">Task</h2>
+            <p className="text-sm text-[#8c8c8c] dark:text-gray-500">A one-time activity with a specific deadline and duration.</p>
           </div>
         </button>
 
         <button 
           onClick={() => onSelect('project')}
-          className="w-full bg-white p-8 rounded-[40px] shadow-sm flex items-center gap-6 group hover:ring-4 hover:ring-orange-100 transition-all text-left"
+          className="w-full bg-white dark:bg-[#1a1a1a] p-8 rounded-[40px] shadow-sm border border-black/5 dark:border-white/5 flex items-center gap-6 group hover:ring-4 hover:ring-orange-100 dark:hover:ring-orange-900/10 transition-all text-left"
         >
-          <div className="w-16 h-16 bg-purple-100 rounded-2xl flex items-center justify-center text-purple-500 group-hover:scale-110 transition-transform">
+          <div className="w-16 h-16 bg-purple-100 dark:bg-purple-950/20 rounded-2xl flex items-center justify-center text-purple-500 group-hover:scale-110 transition-transform">
             <Folder size={32} />
           </div>
           <div>
-            <h2 className="text-xl font-bold text-[#2d2d2d]">Project</h2>
-            <p className="text-sm text-[#8c8c8c]">Group related tasks into a bigger goal.</p>
+            <h2 className="text-xl font-bold text-[#2d2d2d] dark:text-white uppercase tracking-tighter">Project</h2>
+            <p className="text-sm text-[#8c8c8c] dark:text-gray-500">Group related tasks into a bigger goal.</p>
           </div>
         </button>
       </div>
@@ -297,19 +297,19 @@ function HabitStep1({ categoryId, setCategoryId }: any) {
   return (
     <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="px-6 space-y-6">
       <div className="text-center mb-8">
-        <div className="w-16 h-16 bg-orange-50 rounded-full flex items-center justify-center mx-auto mb-4 text-[#f27d26]">
+        <div className="w-16 h-16 bg-orange-50 dark:bg-orange-950/20 rounded-full flex items-center justify-center mx-auto mb-4 text-[#f27d26]">
           <Layers size={24} />
         </div>
-        <h2 className="text-xl font-bold text-[#2d2d2d]">what area?</h2>
-        <p className="text-[#8c8c8c] text-sm leading-relaxed">categorizing helps you track your balance</p>
+        <h2 className="text-xl font-bold text-[#2d2d2d] dark:text-white uppercase tracking-tighter">what area?</h2>
+        <p className="text-[#8c8c8c] dark:text-gray-600 text-[10px] font-black uppercase tracking-widest mt-1">categorizing helps you track your balance</p>
       </div>
       <div className="grid grid-cols-2 gap-4">
         {CATEGORIES.map(cat => (
-          <button key={cat.id} onClick={() => setCategoryId(cat.id)} className={cn("flex flex-col items-center justify-center p-6 rounded-3xl transition-all bg-white shadow-sm hover:scale-105 active:scale-95", categoryId === cat.id ? "ring-4 ring-orange-50 bg-orange-50/20" : "")}>
-            <div className={cn("w-16 h-16 rounded-full flex items-center justify-center mb-3 transition-colors", categoryId === cat.id ? "bg-white" : "bg-gray-50")}>
+          <button key={cat.id} onClick={() => setCategoryId(cat.id)} className={cn("flex flex-col items-center justify-center p-6 rounded-3xl transition-all bg-white dark:bg-[#1a1a1a] shadow-sm hover:scale-105 active:scale-95 border border-black/5 dark:border-white/5", categoryId === cat.id ? "ring-4 ring-orange-100 dark:ring-orange-900/20 bg-orange-50/20 dark:bg-orange-500/10" : "")}>
+            <div className={cn("w-16 h-16 rounded-full flex items-center justify-center mb-3 transition-colors", categoryId === cat.id ? "bg-white dark:bg-[#2d2d2d]" : "bg-gray-50 dark:bg-white/5")}>
               <img src={cat.emojiUrl} alt="" className="w-10 h-10 object-contain" />
             </div>
-            <span className={cn("text-xs font-bold uppercase tracking-wider", categoryId === cat.id ? "text-[#f27d26]" : "text-gray-400")}>{cat.name}</span>
+            <span className={cn("text-[10px] font-black uppercase tracking-widest", categoryId === cat.id ? "text-[#f27d26]" : "text-gray-400 dark:text-gray-700")}>{cat.name}</span>
           </button>
         ))}
       </div>
@@ -321,42 +321,42 @@ function HabitStep2({ name, setName, emojiUrl, setEmojiUrl, color, setColor }: a
   return (
     <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="px-6 space-y-8 overflow-y-auto max-h-full pb-10 scrollbar-hide">
       <div className="text-center">
-        <h2 className="text-xl font-bold text-[#2d2d2d] mb-1">the basics</h2>
-        <p className="text-[#8c8c8c] text-sm">name your goal and pick a style</p>
+        <h2 className="text-xl font-bold text-[#2d2d2d] dark:text-white mb-1">the basics</h2>
+        <p className="text-[#8c8c8c] dark:text-gray-500 text-sm">name your goal and pick a style</p>
       </div>
 
       <div className="space-y-4">
-        <div className="bg-white rounded-3xl p-1 shadow-sm border border-gray-50">
+        <div className="bg-white dark:bg-[#1a1a1a] rounded-3xl p-1 shadow-sm border border-black/5 dark:border-white/5">
           <input 
             type="text" 
             value={name} 
             onChange={e => setName(e.target.value)} 
             placeholder="e.g. Morning Yoga" 
-            className="w-full bg-transparent p-5 outline-none text-lg font-medium text-[#2d2d2d] placeholder:text-gray-200" 
+            className="w-full bg-transparent p-5 outline-none text-lg font-black text-[#2d2d2d] dark:text-white placeholder:text-gray-200 dark:placeholder:text-gray-800" 
           />
         </div>
 
-        <div className="bg-white rounded-[40px] p-6 shadow-sm">
-          <label className="text-[10px] font-black uppercase tracking-widest text-gray-300 block mb-4">choose icon</label>
+        <div className="bg-white dark:bg-[#1a1a1a] rounded-[40px] p-6 shadow-sm border border-black/5 dark:border-white/5">
+          <label className="text-[10px] font-black uppercase tracking-widest text-gray-300 dark:text-gray-700 block mb-4">choose icon</label>
           <div className="grid grid-cols-5 gap-3">
             {EMOJIS.map(url => (
-              <button key={url} onClick={() => setEmojiUrl(url)} className={cn("aspect-square rounded-2xl flex items-center justify-center transition-all active:scale-90", emojiUrl === url ? "bg-orange-50" : "hover:bg-gray-50")}>
-                <img src={url} alt="" className={cn("w-8 h-8 transition-transform", emojiUrl === url ? "scale-125" : "scale-100 opacity-60")} />
+              <button key={url} onClick={() => setEmojiUrl(url)} className={cn("aspect-square rounded-2xl flex items-center justify-center transition-all active:scale-90", emojiUrl === url ? "bg-orange-50 dark:bg-orange-500/10" : "hover:bg-gray-50 dark:hover:bg-white/5")}>
+                <img src={url} alt="" className={cn("w-8 h-8 transition-transform", emojiUrl === url ? "scale-125 drop-shadow-xl" : "scale-100 opacity-60 dark:opacity-30")} />
               </button>
             ))}
           </div>
         </div>
 
-        <div className="bg-white rounded-[40px] p-6 shadow-sm">
-          <label className="text-[10px] font-black uppercase tracking-widest text-gray-300 block mb-4">signature color</label>
+        <div className="bg-white dark:bg-[#1a1a1a] rounded-[40px] p-6 shadow-sm border border-black/5 dark:border-white/5">
+          <label className="text-[10px] font-black uppercase tracking-widest text-[#8c8c8c] dark:text-gray-600 block mb-4">signature color</label>
           <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
             {COLORS.map(c => (
               <button 
                 key={c.id} 
                 onClick={() => setColor(c.id)} 
                 className={cn(
-                  "w-12 h-12 rounded-full flex-shrink-0 border-4 border-white shadow-md transition-all active:scale-90", 
-                  color === c.id ? "scale-110 ring-2 ring-gray-100" : "opacity-40"
+                  "w-12 h-12 rounded-full flex-shrink-0 border-4 border-white dark:border-[#2d2d2d] shadow-md transition-all active:scale-90", 
+                  color === c.id ? "scale-110 ring-2 ring-orange-500" : "opacity-40"
                 )} 
                 style={{ backgroundColor: c.primary }}
               />
@@ -372,41 +372,41 @@ function HabitStep3({ repeatDays, toggleDay, duration, setDuration, unit, setUni
   return (
     <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="px-6 space-y-8 overflow-y-auto max-h-full pb-10 scrollbar-hide text-center">
       <div>
-        <h2 className="text-xl font-bold text-[#2d2d2d] mb-1">frequency</h2>
-        <p className="text-[#8c8c8c] text-sm">how often will you do this?</p>
+        <h2 className="text-xl font-bold text-[#2d2d2d] dark:text-white mb-1">frequency</h2>
+        <p className="text-[#8c8c8c] dark:text-gray-500 text-sm">how often will you do this?</p>
       </div>
 
-      <div className="bg-white rounded-[40px] p-6 shadow-sm">
+      <div className="bg-white dark:bg-[#1a1a1a] rounded-[40px] p-6 shadow-sm border border-black/5 dark:border-white/5">
         <div className="flex justify-between items-center mb-6 px-2">
-          <span className="text-[10px] font-black uppercase tracking-widest text-gray-300">repeat routine</span>
+          <span className="text-[10px] font-black uppercase tracking-widest text-[#8c8c8c] dark:text-gray-600">repeat routine</span>
           <span className="text-[10px] font-black uppercase tracking-widest text-orange-500">{repeatDays.length} days / week</span>
         </div>
         <div className="flex justify-between">
           {DAYS.map((day, index) => (
-            <button key={index} onClick={() => toggleDay(index)} className={cn("w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold transition-all", repeatDays.includes(index) ? "bg-[#2d2d2d] text-white shadow-md scale-110" : "text-gray-300 hover:bg-gray-50")}>{day}</button>
+            <button key={index} onClick={() => toggleDay(index)} className={cn("w-10 h-10 rounded-full flex items-center justify-center text-sm font-black transition-all", repeatDays.includes(index) ? "bg-[#2d2d2d] dark:bg-white text-white dark:text-black shadow-md scale-110" : "text-gray-300 dark:text-gray-700 hover:bg-gray-50 dark:hover:bg-white/5")}>{day}</button>
           ))}
         </div>
       </div>
 
-      <div className="bg-white rounded-[40px] p-6 shadow-sm space-y-6">
+      <div className="bg-white dark:bg-[#1a1a1a] rounded-[40px] p-6 shadow-sm space-y-6 border border-black/5 dark:border-white/5">
         <div className="text-left px-2">
-          <label className="text-[10px] font-black uppercase tracking-widest text-gray-300 block mb-2">set a target</label>
+          <label className="text-[10px] font-black uppercase tracking-widest text-[#8c8c8c] dark:text-gray-600 block mb-2">set a target</label>
           <div className="flex gap-4 items-center">
             <input type="text" inputMode="numeric" value={duration} onChange={e => {
               if (e.target.value === '' || /^\d+$/.test(e.target.value)) {
                 setDuration(e.target.value);
               }
-            }} className="text-4xl font-bold text-[#2d2d2d] w-24 outline-none bg-transparent" />
-            <span className="text-xl font-medium text-orange-500">{unit}</span>
+            }} className="text-4xl font-black text-[#2d2d2d] dark:text-white w-24 outline-none bg-transparent" />
+            <span className="text-xl font-black uppercase tracking-widest text-orange-500">{unit}</span>
           </div>
         </div>
         <div className="flex flex-wrap gap-2">
           {UNITS.map(u => (
-            <button key={u} onClick={() => { setUnit(u); setIsCustomUnit(false); }} className={cn("px-4 py-2 rounded-2xl text-xs font-bold transition-all", unit === u && !isCustomUnit ? "bg-orange-100 text-[#f27d26]" : "bg-gray-50 text-gray-400 hover:bg-gray-100")}>{u}</button>
+            <button key={u} onClick={() => { setUnit(u); setIsCustomUnit(false); }} className={cn("px-4 py-2 rounded-2xl text-xs font-bold transition-all", unit === u && !isCustomUnit ? "bg-orange-100 dark:bg-orange-500/20 text-[#f27d26]" : "bg-gray-50 dark:bg-white/5 text-gray-400 dark:text-gray-700 hover:bg-gray-100 dark:hover:bg-white/10")}>{u}</button>
           ))}
           <button 
             onClick={() => setIsCustomUnit(true)} 
-            className={cn("px-4 py-2 rounded-2xl text-xs font-bold transition-all", isCustomUnit ? "bg-orange-100 text-[#f27d26]" : "bg-gray-50 text-gray-400 hover:bg-gray-100")}
+            className={cn("px-4 py-2 rounded-2xl text-xs font-bold transition-all", isCustomUnit ? "bg-orange-100 dark:bg-orange-500/20 text-[#f27d26]" : "bg-gray-50 dark:bg-white/5 text-gray-400 dark:text-gray-700 hover:bg-gray-100 dark:hover:bg-white/10")}
           >
             {isCustomUnit ? 'custom...' : '+ custom'}
           </button>
@@ -419,24 +419,24 @@ function HabitStep3({ repeatDays, toggleDay, duration, setDuration, unit, setUni
               value={unit} 
               onChange={e => setUnit(e.target.value)} 
               placeholder="Enter unit (e.g. pages, km)" 
-              className="w-full bg-gray-50 p-4 rounded-2xl outline-none text-sm font-medium text-[#2d2d2d] focus:ring-2 focus:ring-orange-100 transition-all"
+              className="w-full bg-gray-50 dark:bg-white/5 p-4 rounded-2xl outline-none text-sm font-medium text-[#2d2d2d] dark:text-white focus:ring-2 focus:ring-orange-100 dark:focus:ring-orange-900/10 transition-all font-bold"
               autoFocus
             />
           </motion.div>
         )}
       </div>
 
-      <button onClick={() => setReminders(!reminders)} className="w-full bg-white p-6 rounded-[40px] shadow-sm flex items-center justify-between group active:scale-[0.98] transition-all">
+      <button onClick={() => setReminders(!reminders)} className="w-full bg-white dark:bg-[#1a1a1a] p-6 rounded-[40px] shadow-sm border border-black/5 dark:border-white/5 flex items-center justify-between group active:scale-[0.98] transition-all">
         <div className="flex items-center gap-4">
-          <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center transition-colors", reminders ? "bg-orange-50 text-orange-500" : "bg-gray-50 text-gray-300")}>
+          <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center transition-colors", reminders ? "bg-orange-50 dark:bg-orange-500/20 text-orange-500" : "bg-gray-50 dark:bg-white/5 text-gray-300 dark:text-gray-800")}>
             <Clock size={24} />
           </div>
           <div className="text-left">
-            <p className="font-bold text-[#2d2d2d]">Daily Reminders</p>
-            <p className="text-xs text-gray-400">Get notified at optimal times</p>
+            <p className="font-bold text-[#2d2d2d] dark:text-white uppercase tracking-tighter">Daily Reminders</p>
+            <p className="text-[10px] font-black uppercase tracking-widest text-[#8c8c8c] dark:text-gray-600">Get notified at optimal times</p>
           </div>
         </div>
-        <div className={cn("w-12 h-6 rounded-full relative transition-colors", reminders ? "bg-[#f27d26]" : "bg-gray-200")}>
+        <div className={cn("w-12 h-6 rounded-full relative transition-colors", reminders ? "bg-[#f27d26]" : "bg-gray-200 dark:bg-gray-800")}>
           <motion.div animate={{ x: reminders ? 24 : 2 }} className="absolute top-1 w-4 h-4 rounded-full bg-white shadow-sm" />
         </div>
       </button>
@@ -449,41 +449,41 @@ function TaskStep1({ name, setName, description, setDescription, projects, proje
   return (
     <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="px-6 space-y-8 overflow-y-auto max-h-full pb-10 scrollbar-hide">
       <div className="text-center">
-        <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4 text-blue-500">
+        <div className="w-16 h-16 bg-blue-50 dark:bg-blue-950/20 rounded-full flex items-center justify-center mx-auto mb-4 text-blue-500">
           <Target size={24} />
         </div>
-        <h2 className="text-xl font-bold text-[#2d2d2d]">what's the goal?</h2>
-        <p className="text-[#8c8c8c] text-sm leading-relaxed">define your one-time task and its purpose</p>
+        <h2 className="text-xl font-bold text-[#2d2d2d] dark:text-white uppercase tracking-tighter">what's the goal?</h2>
+        <p className="text-[#8c8c8c] dark:text-gray-600 text-[10px] font-black uppercase tracking-widest mt-1">define your one-time task and its purpose</p>
       </div>
 
       <div className="space-y-4">
-        <div className="bg-white rounded-[32px] p-2 shadow-sm border border-gray-50 group focus-within:ring-4 focus-within:ring-blue-50 transition-all">
+        <div className="bg-white dark:bg-[#1a1a1a] rounded-[32px] p-2 shadow-sm border border-black/5 dark:border-white/5 group focus-within:ring-4 focus-within:ring-blue-100 dark:focus-within:ring-blue-900/10 transition-all">
           <input 
             type="text" 
             value={name} 
             onChange={e => setName(e.target.value)} 
             placeholder="Task name" 
-            className="w-full bg-transparent p-6 outline-none text-xl font-bold text-[#2d2d2d] placeholder:text-gray-200" 
+            className="w-full bg-transparent p-6 outline-none text-xl font-bold text-[#2d2d2d] dark:text-white placeholder:text-gray-200 dark:placeholder:text-gray-800" 
           />
         </div>
         
-        <div className="bg-white rounded-[32px] p-2 shadow-sm border border-gray-50 group focus-within:ring-4 focus-within:ring-blue-50 transition-all">
+        <div className="bg-white dark:bg-[#1a1a1a] rounded-[32px] p-2 shadow-sm border border-black/5 dark:border-white/5 group focus-within:ring-4 focus-within:ring-blue-100 dark:focus-within:ring-blue-900/10 transition-all">
           <textarea 
             value={description} 
             onChange={e => setDescription(e.target.value)} 
             placeholder="Detailed description (optional)" 
-            className="w-full bg-transparent p-6 outline-none text-base font-medium text-[#2d2d2d] h-32 resize-none placeholder:text-gray-200 scrollbar-hide" 
+            className="w-full bg-transparent p-6 outline-none text-base font-medium text-[#2d2d2d] dark:text-gray-300 h-32 resize-none placeholder:text-gray-200 dark:placeholder:text-gray-800 scrollbar-hide" 
           />
         </div>
 
         <div>
-          <label className="text-[10px] font-black uppercase tracking-widest text-gray-300 block mb-3 px-4">Link to Project (Optional)</label>
+          <label className="text-[10px] font-black uppercase tracking-widest text-[#8c8c8c] dark:text-gray-600 block mb-3 px-4">Link to Project (Optional)</label>
           <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
             <button 
               onClick={() => setProjectId('')}
               className={cn(
-                "px-4 py-3 rounded-2xl text-xs font-bold transition-all whitespace-nowrap",
-                projectId === '' ? "bg-[#2d2d2d] text-white shadow-md" : "bg-white text-gray-400 border border-gray-50 shadow-sm"
+                "px-4 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap",
+                projectId === '' ? "bg-[#2d2d2d] dark:bg-white text-white dark:text-black shadow-md" : "bg-white dark:bg-[#1a1a1a] text-gray-400 dark:text-gray-700 border border-black/5 dark:border-white/5 shadow-sm"
               )}
             >
               No Project
@@ -493,8 +493,8 @@ function TaskStep1({ name, setName, description, setDescription, projects, proje
                 key={p.id}
                 onClick={() => setProjectId(p.id)}
                 className={cn(
-                  "px-4 py-3 rounded-2xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-2",
-                  projectId === p.id ? "bg-[#2d2d2d] text-white shadow-md" : "bg-white text-gray-400 border border-gray-50 shadow-sm"
+                  "px-4 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap flex items-center gap-2",
+                  projectId === p.id ? "bg-[#2d2d2d] dark:bg-white text-white dark:text-black shadow-md" : "bg-white dark:bg-[#1a1a1a] text-gray-400 dark:text-gray-700 border border-black/5 dark:border-white/5 shadow-sm"
                 )}
               >
                 <img src={p.emojiUrl} alt="" className="w-4 h-4" />
@@ -513,43 +513,43 @@ function ProjectStep1({ name, setName, description, setDescription, deadline, se
   return (
     <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="px-6 space-y-8">
       <div className="text-center">
-        <div className="w-16 h-16 bg-purple-50 rounded-full flex items-center justify-center mx-auto mb-4 text-purple-500">
+        <div className="w-16 h-16 bg-purple-50 dark:bg-purple-950/20 rounded-full flex items-center justify-center mx-auto mb-4 text-purple-500">
           <Folder size={24} />
         </div>
-        <h2 className="text-xl font-bold text-[#2d2d2d]">new project</h2>
-        <p className="text-[#8c8c8c] text-sm leading-relaxed">group related tasks under a bigger goal</p>
+        <h2 className="text-xl font-bold text-[#2d2d2d] dark:text-white uppercase tracking-tighter">new project</h2>
+        <p className="text-[#8c8c8c] dark:text-gray-600 text-[10px] font-black uppercase tracking-widest mt-1">group related tasks under a bigger goal</p>
       </div>
 
       <div className="space-y-4">
-        <div className="bg-white rounded-[32px] p-2 shadow-sm border border-gray-50 group focus-within:ring-4 focus-within:ring-purple-50 transition-all">
+        <div className="bg-white dark:bg-[#1a1a1a] rounded-[32px] p-2 shadow-sm border border-black/5 dark:border-white/5 group focus-within:ring-4 focus-within:ring-purple-100 dark:focus-within:ring-purple-900/10 transition-all">
           <input 
             type="text" 
             value={name} 
             onChange={e => setName(e.target.value)} 
             placeholder="Project name" 
-            className="w-full bg-transparent p-6 outline-none text-xl font-bold text-[#2d2d2d] placeholder:text-gray-200" 
+            className="w-full bg-transparent p-6 outline-none text-xl font-bold text-[#2d2d2d] dark:text-white placeholder:text-gray-200 dark:placeholder:text-gray-800" 
           />
         </div>
         
-        <div className="bg-white rounded-[32px] p-2 shadow-sm border border-gray-50 group focus-within:ring-4 focus-within:ring-purple-50 transition-all">
+        <div className="bg-white dark:bg-[#1a1a1a] rounded-[32px] p-2 shadow-sm border border-black/5 dark:border-white/5 group focus-within:ring-4 focus-within:ring-purple-100 dark:focus-within:ring-purple-900/10 transition-all">
           <textarea 
             value={description} 
             onChange={e => setDescription(e.target.value)} 
             placeholder="What is this project about? (optional)" 
-            className="w-full bg-transparent p-6 outline-none text-base font-medium text-[#2d2d2d] h-32 resize-none placeholder:text-gray-200 scrollbar-hide" 
+            className="w-full bg-transparent p-6 outline-none text-base font-medium text-[#2d2d2d] dark:text-gray-300 h-32 resize-none placeholder:text-gray-200 dark:placeholder:text-gray-800 scrollbar-hide" 
           />
         </div>
 
-        <div className="bg-white rounded-[32px] px-8 py-5 shadow-sm border border-gray-50 group focus-within:ring-4 focus-within:ring-purple-50 transition-all">
+        <div className="bg-white dark:bg-[#1a1a1a] rounded-[32px] px-8 py-5 shadow-sm border border-black/5 dark:border-white/5 group focus-within:ring-4 focus-within:ring-purple-100 dark:focus-within:ring-purple-900/10 transition-all">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-[10px] font-black uppercase tracking-widest text-[#b0b0b0]">Target Date (Optional)</span>
+            <span className="text-[10px] font-black uppercase tracking-widest text-[#b0b0b0] dark:text-gray-600">Target Date (Optional)</span>
             <Calendar size={14} className="text-purple-500" />
           </div>
           <input 
             type="date" 
             value={deadline || ''} 
             onChange={e => setDeadline(e.target.value)} 
-            className="w-full bg-transparent outline-none text-xl font-bold text-[#2d2d2d] placeholder:text-gray-200" 
+            className="w-full bg-transparent outline-none text-xl font-bold text-[#2d2d2d] dark:text-white placeholder:text-gray-200" 
           />
         </div>
       </div>
@@ -561,32 +561,32 @@ function ProjectStep2({ emojiUrl, setEmojiUrl, color, setColor }: any) {
   return (
     <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="px-6 space-y-8 overflow-y-auto max-h-full pb-10 scrollbar-hide">
       <div className="text-center">
-        <h2 className="text-xl font-bold text-[#2d2d2d] mb-1">style it</h2>
-        <p className="text-[#8c8c8c] text-sm">make this project stand out</p>
+        <h2 className="text-xl font-bold text-[#2d2d2d] dark:text-white mb-1">style it</h2>
+        <p className="text-[#8c8c8c] dark:text-gray-500 text-sm">make this project stand out</p>
       </div>
 
       <div className="space-y-6">
-        <div className="bg-white rounded-[40px] p-6 shadow-sm">
-          <label className="text-[10px] font-black uppercase tracking-widest text-gray-300 block mb-4">choose icon</label>
+        <div className="bg-white dark:bg-[#1a1a1a] rounded-[40px] p-6 shadow-sm border border-black/5 dark:border-white/5">
+          <label className="text-[10px] font-black uppercase tracking-widest text-[#8c8c8c] dark:text-gray-600 block mb-4">choose icon</label>
           <div className="grid grid-cols-5 gap-3">
             {EMOJIS.map(url => (
-              <button key={url} onClick={() => setEmojiUrl(url)} className={cn("aspect-square rounded-2xl flex items-center justify-center transition-all active:scale-90", emojiUrl === url ? "bg-purple-50 ring-2 ring-purple-500/20" : "hover:bg-gray-50")}>
-                <img src={url} alt="" className={cn("w-8 h-8 transition-transform", emojiUrl === url ? "scale-125" : "scale-100 opacity-60")} />
+              <button key={url} onClick={() => setEmojiUrl(url)} className={cn("aspect-square rounded-2xl flex items-center justify-center transition-all active:scale-90", emojiUrl === url ? "bg-purple-50 dark:bg-white ring-2 ring-purple-500/20" : "hover:bg-gray-50 dark:hover:bg-white/5")}>
+                <img src={url} alt="" className={cn("w-8 h-8 transition-all", emojiUrl === url ? "scale-125 drop-shadow-md" : "scale-100 opacity-30 grayscale")} />
               </button>
             ))}
           </div>
         </div>
 
-        <div className="bg-white rounded-[40px] p-6 shadow-sm">
-          <label className="text-[10px] font-black uppercase tracking-widest text-gray-300 block mb-4">signature color</label>
+        <div className="bg-white dark:bg-[#1a1a1a] rounded-[40px] p-6 shadow-sm border border-black/5 dark:border-white/5">
+          <label className="text-[10px] font-black uppercase tracking-widest text-[#8c8c8c] dark:text-gray-600 block mb-4">signature color</label>
           <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
             {COLORS.map(c => (
               <button 
                 key={c.id} 
                 onClick={() => setColor(c.id)} 
                 className={cn(
-                  "w-12 h-12 rounded-full flex-shrink-0 border-4 border-white shadow-md transition-all active:scale-90", 
-                  color === c.id ? "scale-110 ring-2 ring-gray-100 opacity-100" : "opacity-40"
+                  "w-12 h-12 rounded-full flex-shrink-0 border-4 border-white dark:border-[#2d2d2d] shadow-md transition-all active:scale-90", 
+                  color === c.id ? "scale-110 ring-2 ring-purple-500 opacity-100" : "opacity-40"
                 )} 
                 style={{ backgroundColor: c.primary }}
               />
@@ -602,17 +602,17 @@ function TaskStep2({ deadline, setDeadline, estimatedTime, setEstimatedTime }: a
   return (
     <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="px-6 space-y-10">
       <div className="text-center">
-        <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4 text-blue-500">
+        <div className="w-16 h-16 bg-blue-50 dark:bg-blue-950/20 rounded-full flex items-center justify-center mx-auto mb-4 text-blue-500">
           <CalendarDays size={24} />
         </div>
-        <h2 className="text-xl font-bold text-[#2d2d2d]">when & for how long?</h2>
-        <p className="text-[#8c8c8c] text-sm leading-relaxed">set your timeline and estimated duration</p>
+        <h2 className="text-xl font-bold text-[#2d2d2d] dark:text-white uppercase tracking-tighter">when & for how long?</h2>
+        <p className="text-[#8c8c8c] dark:text-gray-600 text-[10px] font-black uppercase tracking-widest mt-1">set your timeline and estimated duration</p>
       </div>
 
       <div className="space-y-6">
-        <div className="bg-white rounded-[40px] p-8 shadow-sm group active:scale-[0.98] transition-all">
+        <div className="bg-white dark:bg-[#1a1a1a] rounded-[40px] p-8 shadow-sm border border-black/5 dark:border-white/5 group active:scale-[0.98] transition-all">
           <div className="flex items-center justify-between mb-4">
-            <span className="text-[10px] font-black uppercase tracking-widest text-gray-300">completion date</span>
+            <span className="text-[10px] font-black uppercase tracking-widest text-[#8c8c8c] dark:text-gray-600">completion date</span>
             <AlertTriangle size={14} className="text-blue-500" />
           </div>
           <div className="flex items-center gap-4">
@@ -621,14 +621,14 @@ function TaskStep2({ deadline, setDeadline, estimatedTime, setEstimatedTime }: a
               type="date" 
               value={deadline} 
               onChange={e => setDeadline(e.target.value)} 
-              className="text-2xl font-bold text-[#2d2d2d] bg-transparent outline-none w-full" 
+              className="text-2xl font-bold text-[#2d2d2d] dark:text-white bg-transparent outline-none w-full" 
             />
           </div>
         </div>
 
-        <div className="bg-white rounded-[40px] p-8 shadow-sm group active:scale-[0.98] transition-all">
+        <div className="bg-white dark:bg-[#1a1a1a] rounded-[40px] p-8 shadow-sm border border-black/5 dark:border-white/5 group active:scale-[0.98] transition-all">
           <div className="flex items-center justify-between mb-4">
-            <span className="text-[10px] font-black uppercase tracking-widest text-gray-300">estimated time</span>
+            <span className="text-[10px] font-black uppercase tracking-widest text-[#8c8c8c] dark:text-gray-600">estimated time</span>
             <Clock size={14} className="text-blue-500" />
           </div>
           <div className="flex items-center gap-4">
@@ -642,16 +642,16 @@ function TaskStep2({ deadline, setDeadline, estimatedTime, setEstimatedTime }: a
                   setEstimatedTime(e.target.value);
                 }
               }} 
-              className="text-4xl font-bold text-[#2d2d2d] w-24 outline-none bg-transparent" 
+              className="text-4xl font-black text-[#2d2d2d] dark:text-white w-24 outline-none bg-transparent" 
             />
-              <span className="text-xl font-medium text-blue-500 mb-1">mins</span>
+              <span className="text-xl font-black uppercase tracking-widest text-blue-500 mb-1">mins</span>
             </div>
             <div className="flex-1 flex justify-end gap-1">
               {[30, 60, 120].map(m => (
                 <button 
                   key={m} 
                   onClick={() => setEstimatedTime(m)}
-                  className={cn("px-3 py-1.5 rounded-xl text-[10px] font-bold transition-all", estimatedTime === m ? "bg-blue-500 text-white" : "bg-gray-50 text-gray-400")}
+                  className={cn("px-3 py-1.5 rounded-xl text-[10px] font-black transition-all", estimatedTime === m ? "bg-blue-500 text-white shadow-md shadow-blue-200" : "bg-gray-50 dark:bg-white/5 text-gray-400 dark:text-gray-700")}
                 >
                   {m === 120 ? '2h' : `${m}m`}
                 </button>
@@ -668,28 +668,28 @@ function TaskStep3({ emojiUrl, setEmojiUrl, color, setColor, priority, setPriori
   return (
     <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="px-6 space-y-8 overflow-y-auto max-h-full pb-10 scrollbar-hide">
       <div className="text-center">
-        <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4 text-blue-500">
+        <div className="w-16 h-16 bg-blue-50 dark:bg-blue-950/20 rounded-full flex items-center justify-center mx-auto mb-4 text-blue-500">
           <Palette size={24} />
         </div>
-        <h2 className="text-xl font-bold text-[#2d2d2d]">priority & style</h2>
-        <p className="text-[#8c8c8c] text-sm leading-relaxed">make it yours and define importance</p>
+        <h2 className="text-xl font-bold text-[#2d2d2d] dark:text-white uppercase tracking-tighter">priority & style</h2>
+        <p className="text-[#8c8c8c] dark:text-gray-600 text-[10px] font-black uppercase tracking-widest mt-1">make it yours and define importance</p>
       </div>
 
       <div className="space-y-6">
         <div>
-          <label className="text-[10px] font-black uppercase tracking-widest text-gray-300 block mb-3 px-4">priority level</label>
-          <div className="flex bg-white rounded-3xl p-1.5 shadow-sm gap-1">
+          <label className="text-[10px] font-black uppercase tracking-widest text-[#8c8c8c] dark:text-gray-600 block mb-3 px-4">priority level</label>
+          <div className="flex bg-white dark:bg-[#1a1a1a] rounded-3xl p-1.5 shadow-sm border border-black/5 dark:border-white/5 gap-1">
             {(['low', 'medium', 'high'] as Priority[]).map(p => (
               <button 
                 key={p} 
                 onClick={() => setPriority(p)} 
                 className={cn(
-                  "flex-1 py-3 text-xs font-bold rounded-2xl capitalize transition-all", 
+                  "flex-1 py-3 text-[10px] font-black uppercase rounded-2xl transition-all", 
                   priority === p ? (
                     p === 'high' ? "bg-red-500 text-white shadow-md shadow-red-200" : 
-                    p === 'medium' ? "bg-[#2d2d2d] text-white shadow-md" : 
+                    p === 'medium' ? "bg-[#2d2d2d] dark:bg-white text-white dark:text-black shadow-md" : 
                     "bg-blue-500 text-white shadow-md shadow-blue-200"
-                  ) : "text-gray-400 bg-transparent"
+                  ) : "text-gray-400 dark:text-gray-700 bg-transparent"
                 )}
               >
                 {p}
@@ -698,12 +698,12 @@ function TaskStep3({ emojiUrl, setEmojiUrl, color, setColor, priority, setPriori
           </div>
         </div>
 
-        <div className="bg-white rounded-[40px] p-6 shadow-sm">
-          <label className="text-[10px] font-black uppercase tracking-widest text-gray-300 block mb-4">visual identity</label>
+        <div className="bg-white dark:bg-[#1a1a1a] rounded-[40px] p-6 shadow-sm border border-black/5 dark:border-white/5">
+          <label className="text-[10px] font-black uppercase tracking-widest text-[#8c8c8c] dark:text-gray-600 block mb-4">visual identity</label>
           <div className="grid grid-cols-5 gap-3 mb-6">
             {EMOJIS.slice(0, 10).map(url => (
-              <button key={url} onClick={() => setEmojiUrl(url)} className={cn("aspect-square rounded-2xl flex items-center justify-center transition-all", emojiUrl === url ? "bg-blue-50 ring-2 ring-blue-500/20" : "hover:bg-gray-50")}>
-                <img src={url} alt="" className={cn("w-8 h-8 transition-all", emojiUrl === url ? "scale-110" : "opacity-40 grayscale")} />
+              <button key={url} onClick={() => setEmojiUrl(url)} className={cn("aspect-square rounded-2xl flex items-center justify-center transition-all", emojiUrl === url ? "bg-blue-50 dark:bg-white ring-2 ring-blue-500/20" : "hover:bg-gray-50 dark:hover:bg-white/5")}>
+                <img src={url} alt="" className={cn("w-8 h-8 transition-all", emojiUrl === url ? "scale-110 drop-shadow-md" : "opacity-30 grayscale")} />
               </button>
             ))}
           </div>
@@ -712,7 +712,7 @@ function TaskStep3({ emojiUrl, setEmojiUrl, color, setColor, priority, setPriori
               <button 
                 key={c.id} 
                 onClick={() => setColor(c.id)} 
-                className={cn("w-10 h-10 rounded-full flex-shrink-0 border-4 border-white shadow-sm transition-all", color === c.id ? "scale-110 opacity-100" : "opacity-30")} 
+                className={cn("w-10 h-10 rounded-full flex-shrink-0 border-4 border-white dark:border-[#2d2d2d] shadow-sm transition-all", color === c.id ? "scale-110 opacity-100 ring-2 ring-blue-500" : "opacity-30")} 
                 style={{ backgroundColor: c.primary }}
               />
             ))}
@@ -720,20 +720,20 @@ function TaskStep3({ emojiUrl, setEmojiUrl, color, setColor, priority, setPriori
         </div>
 
         {/* Dynamic Summary Preview */}
-        <div className="bg-[#2d2d2d] rounded-[32px] p-6 shadow-xl text-white">
+        <div className="bg-[#2d2d2d] dark:bg-white rounded-[32px] p-6 shadow-xl text-white dark:text-black">
           <div className="flex items-center justify-between mb-4">
             <span className="text-[10px] font-black uppercase tracking-widest opacity-50">task preview</span>
-            <div className={cn("px-2 py-1 rounded-lg text-[8px] font-black uppercase", priority === 'high' ? 'bg-red-500' : 'bg-gray-700')}>
+            <div className={cn("px-2 py-1 rounded-lg text-[8px] font-black uppercase", priority === 'high' ? 'bg-red-500 text-white' : 'bg-gray-700 dark:bg-gray-100')}>
               {priority} priority
             </div>
           </div>
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center">
+            <div className="w-12 h-12 bg-white/10 dark:bg-black/5 rounded-2xl flex items-center justify-center">
               <img src={emojiUrl} alt="" className="w-8 h-8" />
             </div>
             <div>
-              <p className="font-bold leading-tight">{name || 'Unnamed Task'}</p>
-              <p className="text-[10px] opacity-60">Complete by {format(new Date(deadline), 'MMM d, yyyy')}</p>
+              <p className="font-black uppercase tracking-tighter leading-tight">{name || 'Unnamed Task'}</p>
+              <p className="text-[10px] font-black uppercase tracking-widest opacity-60">Complete by {format(new Date(deadline), 'MMM d, yyyy')}</p>
             </div>
           </div>
         </div>
@@ -757,23 +757,23 @@ function ProjectStep3({ tasks, selectedTaskIds, setSelectedTaskIds }: { tasks: T
   return (
     <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="px-6 space-y-6 overflow-y-auto max-h-full pb-10 scrollbar-hide">
       <div className="text-center">
-        <div className="w-16 h-16 bg-purple-50 rounded-full flex items-center justify-center mx-auto mb-4 text-purple-500">
+        <div className="w-16 h-16 bg-purple-50 dark:bg-purple-950/20 rounded-full flex items-center justify-center mx-auto mb-4 text-purple-500">
           <Link2 size={24} />
         </div>
-        <h2 className="text-xl font-bold text-[#2d2d2d]">link tasks</h2>
-        <p className="text-[#8c8c8c] text-sm leading-relaxed">optionally attach existing tasks to this project</p>
+        <h2 className="text-xl font-bold text-[#2d2d2d] dark:text-white uppercase tracking-tighter">link tasks</h2>
+        <p className="text-[#8c8c8c] dark:text-gray-600 text-[10px] font-black uppercase tracking-widest mt-1">optionally attach existing tasks to this project</p>
       </div>
 
       {unlinkedTasks.length === 0 ? (
-        <div className="bg-white p-10 rounded-[2rem] border-2 border-dashed border-gray-100 text-center">
-          <p className="text-[#8c8c8c] text-sm">no unlinked tasks available</p>
-          <p className="text-[10px] text-[#b0b0b0] mt-2">you can link tasks later from the task detail view</p>
+        <div className="bg-white dark:bg-[#1a1a1a] p-10 rounded-[2rem] border-2 border-dashed border-gray-100 dark:border-white/5 text-center">
+          <p className="text-[#8c8c8c] text-sm font-bold uppercase tracking-widest">no unlinked tasks available</p>
+          <p className="text-[10px] text-[#b0b0b0] dark:text-gray-700 mt-2 font-black uppercase tracking-widest">you can link tasks later from the task detail view</p>
         </div>
       ) : (
         <div className="space-y-2">
           <div className="flex items-center justify-between px-2 mb-2">
-            <span className="text-[10px] font-black uppercase tracking-widest text-[#b0b0b0]">available tasks</span>
-            <span className="text-[10px] font-bold text-[#f27d26]">{selectedTaskIds.length} selected</span>
+            <span className="text-[10px] font-black uppercase tracking-widest text-[#b0b0b0] dark:text-gray-700">available tasks</span>
+            <span className="text-[10px] font-black uppercase tracking-widest text-[#f27d26]">{selectedTaskIds.length} selected</span>
           </div>
           {unlinkedTasks.map(task => {
             const isSelected = selectedTaskIds.includes(task.id);
@@ -782,21 +782,21 @@ function ProjectStep3({ tasks, selectedTaskIds, setSelectedTaskIds }: { tasks: T
                 key={task.id}
                 onClick={() => toggleTask(task.id)}
                 className={cn(
-                  "w-full flex items-center gap-3 p-4 rounded-2xl transition-all text-left",
-                  isSelected ? "bg-purple-50 ring-2 ring-purple-200" : "bg-white shadow-sm border border-gray-100"
+                  "w-full flex items-center gap-3 p-4 rounded-2xl transition-all text-left border",
+                  isSelected ? "bg-purple-50 dark:bg-purple-500/10 border-purple-200 dark:border-purple-500/30" : "bg-white dark:bg-[#1a1a1a] border-black/5 dark:border-white/5 shadow-sm"
                 )}
               >
                 <div className={cn(
                   "w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0 transition-all",
-                  isSelected ? "bg-purple-500 text-white" : "bg-gray-100"
+                  isSelected ? "bg-purple-500 text-white" : "bg-gray-100 dark:bg-white/5"
                 )}>
                   {isSelected && <CheckCircle2 size={14} />}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-bold text-[#2d2d2d] truncate">{task.name}</p>
-                  <p className="text-[10px] text-[#8c8c8c]">due {format(new Date(task.deadline), 'MMM d').toLowerCase()}</p>
+                  <p className="text-sm font-black uppercase tracking-tighter text-[#2d2d2d] dark:text-white truncate">{task.name}</p>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-[#8c8c8c] dark:text-gray-600">due {format(new Date(task.deadline), 'MMM d').toLowerCase()}</p>
                 </div>
-                <img src={task.emojiUrl} alt="" className="w-6 h-6 object-contain opacity-40" />
+                <img src={task.emojiUrl} alt="" className="w-6 h-6 object-contain opacity-40 dark:opacity-20" />
               </button>
             );
           })}

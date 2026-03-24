@@ -50,12 +50,12 @@ export default function StatisticsView({ habits, completions, stats, onHabitClic
   const weekDays = Array.from({ length: 7 }).map((_, i) => addDays(startOfCurrentWeek, i));
 
   return (
-    <div className="flex-1 overflow-y-auto pb-32">
+    <div className="flex-1 overflow-y-auto pb-32 bg-inherit">
       <div className="px-6 pt-12 pb-6">
         <motion.h1 
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-2xl font-medium text-[#2d2d2d] text-center mb-6"
+          className="text-2xl font-bold uppercase tracking-widest text-[#2d2d2d] dark:text-white text-center mb-6"
         >
           statistics
         </motion.h1>
@@ -64,22 +64,22 @@ export default function StatisticsView({ habits, completions, stats, onHabitClic
         <motion.div 
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="flex bg-white rounded-full p-1 shadow-sm mb-6 relative"
+          className="flex bg-white dark:bg-[#1a1a1a] border border-black/5 dark:border-white/5 rounded-full p-1 shadow-sm mb-6 relative"
         >
           {['today', 'weekly', 'overall'].map((t) => (
             <button
               key={t}
               onClick={() => setTab(t as any)}
-              className={cn(
-                "flex-1 py-2 text-sm font-medium rounded-full transition-colors capitalize relative z-10",
-                tab === t ? "text-white" : "text-[#8c8c8c] hover:text-[#2d2d2d]"
+               className={cn(
+                "flex-1 py-2 text-sm font-bold rounded-full transition-colors capitalize relative z-10",
+                tab === t ? "text-white dark:text-black" : "text-[#8c8c8c] dark:text-gray-500 hover:text-[#2d2d2d] dark:hover:text-white"
               )}
             >
               {t}
-              {tab === t && (
+               {tab === t && (
                 <motion.div
                   layoutId="stats-tab-indicator"
-                  className="absolute inset-0 bg-[#2d2d2d] rounded-full z-[-1]"
+                  className="absolute inset-0 bg-[#2d2d2d] dark:bg-white rounded-full z-[-1]"
                   transition={{ type: "spring", stiffness: 300, damping: 30 }}
                 />
               )}
@@ -97,23 +97,23 @@ export default function StatisticsView({ habits, completions, stats, onHabitClic
           >
             {tab === 'overall' && (
               <motion.div variants={itemVariants} className="mb-6">
-                <h2 className="text-sm font-medium text-[#2d2d2d] mb-3">summary:</h2>
+                <h2 className="text-sm font-bold uppercase tracking-widest text-[#2d2d2d] dark:text-white mb-4 ml-1">summary:</h2>
                 <div className="grid grid-cols-2 gap-3">
-                  <div className="bg-white p-4 rounded-2xl shadow-sm">
-                    <p className="text-xs text-[#8c8c8c] mb-1">current streak</p>
-                    <p className="text-lg font-medium text-[#2d2d2d]">{stats.currentStreak} days</p>
+                  <div className="bg-white dark:bg-[#1a1a1a] border border-black/5 dark:border-white/5 p-4 rounded-2xl shadow-sm">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-[#8c8c8c] mb-1">current streak</p>
+                    <p className="text-lg font-bold text-[#2d2d2d] dark:text-white">{stats.currentStreak} days</p>
                   </div>
-                  <div className="bg-white p-4 rounded-2xl shadow-sm">
-                    <p className="text-xs text-[#8c8c8c] mb-1">success rate</p>
-                    <p className="text-lg font-medium text-[#2d2d2d]">{stats.successRate}%</p>
+                  <div className="bg-white dark:bg-[#1a1a1a] border border-black/5 dark:border-white/5 p-4 rounded-2xl shadow-sm">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-[#8c8c8c] mb-1">success rate</p>
+                    <p className="text-lg font-bold text-[#2d2d2d] dark:text-white">{stats.successRate}%</p>
                   </div>
-                  <div className="bg-white p-4 rounded-2xl shadow-sm">
-                    <p className="text-xs text-[#8c8c8c] mb-1">best streak</p>
-                    <p className="text-lg font-medium text-[#2d2d2d]">{stats.longestStreak} days</p>
+                  <div className="bg-white dark:bg-[#1a1a1a] border border-black/5 dark:border-white/5 p-4 rounded-2xl shadow-sm">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-[#8c8c8c] mb-1">best streak</p>
+                    <p className="text-lg font-bold text-[#2d2d2d] dark:text-white">{stats.longestStreak} days</p>
                   </div>
-                  <div className="bg-white p-4 rounded-2xl shadow-sm">
-                    <p className="text-xs text-[#8c8c8c] mb-1">completed habits</p>
-                    <p className="text-lg font-medium text-[#2d2d2d]">{stats.totalCompletions}</p>
+                  <div className="bg-white dark:bg-[#1a1a1a] border border-black/5 dark:border-white/5 p-4 rounded-2xl shadow-sm">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-[#8c8c8c] mb-1">completed</p>
+                    <p className="text-lg font-bold text-[#2d2d2d] dark:text-white">{stats.totalCompletions}</p>
                   </div>
                 </div>
               </motion.div>
@@ -128,7 +128,7 @@ export default function StatisticsView({ habits, completions, stats, onHabitClic
                   <motion.div 
                     key={habit.id} 
                     variants={itemVariants} 
-                    className="bg-white rounded-3xl p-5 shadow-sm cursor-pointer"
+                    className="bg-white dark:bg-[#1a1a1a] border border-black/5 dark:border-white/5 rounded-3xl p-5 shadow-sm cursor-pointer"
                     onClick={() => onHabitClick(habit.id)}
                   >
                     <div className="flex items-center justify-between mb-4">
@@ -136,10 +136,10 @@ export default function StatisticsView({ habits, completions, stats, onHabitClic
                         <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center", colorClass)}>
                           <img src={habit.emojiUrl} alt={habit.name} className="w-5 h-5 object-contain drop-shadow-sm" />
                         </div>
-                        <h3 className="text-sm font-medium text-[#2d2d2d]">{habit.name}</h3>
+                        <h3 className="text-sm font-bold text-[#2d2d2d] dark:text-white tracking-tight">{habit.name}</h3>
                       </div>
-                      <span className="text-xs text-[#8c8c8c]">
-                        {habit.repeatDays.length === 7 ? 'everyday' : `${habit.repeatDays.length} days per week`}
+                      <span className="text-[10px] font-black uppercase tracking-widest text-[#8c8c8c] dark:text-gray-500">
+                        {habit.repeatDays.length === 7 ? 'everyday' : `${habit.repeatDays.length} days / week`}
                       </span>
                     </div>
 
@@ -152,10 +152,10 @@ export default function StatisticsView({ habits, completions, stats, onHabitClic
                           
                           return (
                             <div key={dateStr} className="flex flex-col items-center gap-2">
-                              <span className="text-[10px] text-[#8c8c8c]">{format(day, 'EEE')}</span>
+                              <span className="text-[10px] text-[#8c8c8c] dark:text-gray-500 font-bold uppercase">{format(day, 'EEE')}</span>
                               <div className={cn(
                                 "w-8 h-8 rounded-full flex items-center justify-center transition-colors",
-                                isCompleted ? colorClass.split(' ')[0] : "bg-[#f8f6f2]",
+                                isCompleted ? colorClass.split(' ')[0] : "bg-[#f8f6f2] dark:bg-[#252525]",
                                 !isScheduled && "opacity-30"
                               )}>
                                 {isCompleted && (
@@ -186,7 +186,7 @@ export default function StatisticsView({ habits, completions, stats, onHabitClic
                                   key={i} 
                                   className={cn(
                                     "w-3 h-3 rounded-sm transition-colors",
-                                    day.value > 0 ? heatColor : "bg-[#f8f6f2]"
+                                    day.value > 0 ? heatColor : "bg-[#f8f6f2] dark:bg-[#252525]"
                                   )} 
                                   style={day.value > 0 ? { opacity } : {}}
                                 />
@@ -197,16 +197,16 @@ export default function StatisticsView({ habits, completions, stats, onHabitClic
                       </div>
                     ) : (
                       <div className="mt-4 flex flex-col gap-3">
-                        <div className="flex items-center justify-between p-3 bg-gray-50 rounded-2xl">
-                          <span className="text-sm text-[#8c8c8c]">today's status</span>
+                        <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-[#1e1e1e] rounded-2xl">
+                          <span className="text-[10px] font-black uppercase tracking-widest text-[#8c8c8c] dark:text-gray-500">today's status</span>
                           {completions.some(c => c.habitId === habit.id && c.date === format(today, 'yyyy-MM-dd')) ? (
-                            <span className="text-sm font-medium text-green-500 flex items-center gap-1">
-                              <Check size={16} /> completed
+                            <span className="text-[10px] font-black uppercase text-green-500 flex items-center gap-1">
+                              <Check size={14} /> completed
                             </span>
                           ) : habit.repeatDays.includes(today.getDay()) ? (
-                            <span className="text-sm font-medium text-orange-500">pending</span>
+                            <span className="text-[10px] font-black uppercase text-orange-500">pending</span>
                           ) : (
-                            <span className="text-sm font-medium text-gray-400">rest day</span>
+                            <span className="text-[10px] font-black uppercase text-gray-400 dark:text-gray-600">rest day</span>
                           )}
                         </div>
                       </div>

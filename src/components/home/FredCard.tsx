@@ -68,7 +68,7 @@ export default function FredCard({ habits, tasks, completions, selectedDate, sho
 
   return (
     <motion.div 
-      className="mx-6 my-4 bg-white rounded-[2rem] p-6 shadow-sm border border-[#e8e4dc] relative overflow-hidden flex items-center justify-between"
+      className="mx-6 my-4 bg-white dark:bg-[#1a1a1a] rounded-[2rem] p-6 shadow-sm border border-[#e8e4dc] dark:border-white/5 relative overflow-hidden flex items-center justify-between"
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       whileHover={{ scale: 1.01 }}
@@ -78,7 +78,7 @@ export default function FredCard({ habits, tasks, completions, selectedDate, sho
         {showPhrases && (
           <>
             <div className="flex items-center gap-2 mb-2">
-              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#f27d26] bg-[#fef1e6] px-2 py-0.5 rounded-full">
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#f27d26] bg-[#fef1e6] dark:bg-orange-900/30 px-2 py-0.5 rounded-full">
                 fred says
               </span>
             </div>
@@ -88,7 +88,7 @@ export default function FredCard({ habits, tasks, completions, selectedDate, sho
                 initial={{ opacity: 0, x: -5 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: 5 }}
-                className="text-sm font-medium text-[#2d2d2d] leading-relaxed mb-4 italic"
+                className="text-sm font-medium text-[#2d2d2d] dark:text-white leading-relaxed mb-4 italic"
               >
                 "{phrase}"
               </motion.p>
@@ -97,11 +97,11 @@ export default function FredCard({ habits, tasks, completions, selectedDate, sho
         )}
         
         <div className="flex flex-col gap-1">
-          <p className="text-[11px] text-[#8c8c8c]">
-            Today: <span className="text-[#2d2d2d] font-bold">{completedCount}/{totalEntries}</span> items finished
+          <p className="text-[11px] text-[#8c8c8c] dark:text-gray-400 font-medium">
+            Today: <span className="text-[#2d2d2d] dark:text-white font-bold">{completedCount}/{totalEntries}</span> items finished
           </p>
-          <p className="text-[11px] text-[#8c8c8c]">
-            Total: <span className="text-[#2d2d2d] font-bold">{habits.length}</span> habits • <span className="text-[#2d2d2d] font-bold">{tasks.filter(t => !t.completedAt).length}</span> active tasks
+          <p className="text-[11px] text-[#8c8c8c] dark:text-gray-400 font-medium">
+            Total: <span className="text-[#2d2d2d] dark:text-white font-bold">{habits.length}</span> habits • <span className="text-[#2d2d2d] dark:text-white font-bold">{tasks.filter(t => !t.completedAt).length}</span> active tasks
           </p>
         </div>
       </div>
@@ -130,7 +130,7 @@ export default function FredCard({ habits, tasks, completions, selectedDate, sho
       </div>
       
       {/* Decorative background element */}
-      <div className="absolute top-[-20px] right-[-20px] w-40 h-40 bg-[#f8f6f2] rounded-full -z-20 opacity-50" />
+      <div className="absolute top-[-20px] right-[-20px] w-40 h-40 bg-[#f8f6f2] dark:bg-[#252525] rounded-full -z-20 opacity-50" />
     </motion.div>
   );
 }

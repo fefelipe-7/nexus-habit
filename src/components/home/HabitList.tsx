@@ -4,6 +4,7 @@ import { format, isSameDay } from 'date-fns';
 import { Flame, CheckCircle2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { getColorById } from '../../constants/colors';
+import { cn } from '../../utils/cn';
 
 type Props = {
   habits: Habit[];
@@ -43,8 +44,8 @@ export default function HabitList({ habits, tasks, completions, selectedDate, on
   return (
     <div className="px-6 pb-32">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-medium text-[#2d2d2d]">daily routine</h2>
-        <button className="text-xs text-[#8c8c8c] hover:text-[#2d2d2d] transition-colors">see all</button>
+        <h2 className="text-lg font-medium text-[#2d2d2d] dark:text-white uppercase">daily routine</h2>
+        <button className="text-xs text-[#8c8c8c] dark:text-gray-500 hover:text-[#2d2d2d] dark:hover:text-white transition-colors">see all</button>
       </div>
       
       <motion.div 
@@ -56,7 +57,7 @@ export default function HabitList({ habits, tasks, completions, selectedDate, on
         }}
       >
         {totalEntries === 0 ? (
-          <p className="text-sm text-[#8c8c8c] text-center py-8">nothing scheduled for today.</p>
+          <p className="text-sm text-[#8c8c8c] dark:text-gray-500 text-center py-8">nothing scheduled for today.</p>
         ) : (
           <>
             {/* Habits */}
@@ -85,37 +86,37 @@ export default function HabitList({ habits, tasks, completions, selectedDate, on
 
             {/* Tasks (Simplified list view for home) */}
             {relevantTasks.map((task) => (
-              <motion.div 
-                key={task.id}
-                variants={{
-                  hidden: { opacity: 0, y: 10 },
-                  show: { opacity: 1, y: 0 }
-                }}
-                className={cn(
-                  "bg-white rounded-3xl p-4 shadow-sm flex items-center justify-between border-l-4 transition-all active:scale-[0.98]",
-                  task.completedAt ? "opacity-50" : ""
-                )}
-                style={{ borderLeftColor: getColorById(task.color).primary }}
-                onClick={() => onTaskClick(task.id)}
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-2xl flex items-center justify-center" style={{ backgroundColor: getColorById(task.color).bg }}>
-                    <img src={task.emojiUrl} alt="" className="w-6 h-6 object-contain" />
-                  </div>
-                  <div>
-                    <h3 className={cn("text-sm font-bold text-[#2d2d2d] tracking-tight", task.completedAt && "line-through text-[#8c8c8c]")}>{task.name}</h3>
-                    <div className="flex items-center gap-2 mt-0.5">
-                      <span className="text-[10px] text-[#8c8c8c] uppercase font-black tracking-widest">{task.priority} task</span>
+                <div 
+                  key={task.id} 
+                  variants={{
+                    hidden: { opacity: 0, y: 10 },
+                    show: { opacity: 1, y: 0 }
+                  }}
+                  className={cn(
+                    "bg-white dark:bg-[#1a1a1a] rounded-3xl p-4 shadow-sm flex items-center justify-between border-l-4 border-black/5 dark:border-white/5 transition-all active:scale-[0.98]",
+                    task.completedAt ? "opacity-50" : ""
+                  )}
+                  style={{ borderLeftColor: getColorById(task.color).primary }}
+                  onClick={() => onTaskClick(task.id)}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-2xl flex items-center justify-center shadow-inner" style={{ backgroundColor: getColorById(task.color).bg }}>
+                      <img src={task.emojiUrl} alt="" className="w-6 h-6 object-contain" />
+                    </div>
+                    <div>
+                      <h3 className={cn("text-sm font-bold text-[#2d2d2d] dark:text-white tracking-tight leading-tight", task.completedAt && "line-through text-[#8c8c8c]")}>{task.name}</h3>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        <span className="text-[10px] text-[#8c8c8c] dark:text-gray-500 uppercase font-black tracking-widest">{task.priority} task</span>
+                      </div>
                     </div>
                   </div>
-                </div>
-                <button 
-                  onClick={(e) => { e.stopPropagation(); onToggleTask(task.id); }}
-                  className={cn(
-                    "w-8 h-8 rounded-full flex items-center justify-center transition-all",
-                    task.completedAt ? "bg-green-500 text-white shadow-sm" : "bg-gray-100 text-gray-300 active:scale-90"
-                  )}
-                >
+                  <button 
+                    onClick={(e) => { e.stopPropagation(); onToggleTask(task.id); }}
+                    className={cn(
+                      "w-8 h-8 rounded-full flex items-center justify-center transition-all shadow-sm",
+                      task.completedAt ? "bg-green-500 text-white" : "bg-gray-100 dark:bg-[#252525] text-gray-300 dark:text-gray-600 active:scale-90"
+                    )}
+                  >
                   <CheckCircle2 size={20} />
                 </button>
               </motion.div>
@@ -149,6 +150,3 @@ export default function HabitList({ habits, tasks, completions, selectedDate, on
   );
 }
 
-function cn(...classes: any[]) {
-  return classes.filter(Boolean).join(' ');
-}

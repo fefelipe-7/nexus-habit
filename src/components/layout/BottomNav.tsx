@@ -41,12 +41,12 @@ export default function BottomNav({ currentView, onChangeView }: Props) {
   return (
     <>
       {/* Gradient fade for smooth scrolling behind the nav */}
-      <div className="fixed bottom-0 left-0 w-full h-24 bg-gradient-to-t from-[#f8f6f2] via-[#f8f6f2]/80 to-transparent pointer-events-none z-30" />
+      <div className="fixed bottom-0 left-0 w-full h-24 bg-gradient-to-t from-[#f8f6f2] dark:from-[#121212] via-[#f8f6f2]/80 dark:via-[#121212]/80 to-transparent pointer-events-none z-30" />
       <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 w-max max-w-[calc(100vw-2rem)]">
         <ExpandableTabs 
           tabs={tabs} 
-          activeColor="text-[#f27d26] bg-[#f27d26]/10" 
-          className="border-[#d1d1d1] bg-[#f8f6f2] shadow-[0_8px_16px_rgba(0,0,0,0.05)]"
+          activeColor="text-[#f27d26] bg-[#f27d26]/10 dark:bg-orange-500/20" 
+          className="border-[#d1d1d1] dark:border-white/5 bg-[#f8f6f2] dark:bg-[#1a1a1a] shadow-[0_8px_16px_rgba(0,0,0,0.05)]"
           defaultSelected={viewToIndex[currentView]}
           onChange={handleTabChange}
         />

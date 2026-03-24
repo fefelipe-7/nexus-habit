@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { habitService } from '../services/habitService';
 import { Habit } from '../types';
 import { calculateGlobalStats } from '../utils/stats';
+import { notificationService } from '../services/notificationService';
 
 export function useHabits() {
   const queryClient = useQueryClient();
@@ -27,23 +28,26 @@ export function useHabits() {
 
   const createHabitMutation = useMutation({
     mutationFn: habitService.createHabit,
-    onSuccess: () => {
+    onSuccess: ({ data }) => {
       queryClient.invalidateQueries({ queryKey: ['habits'] });
+      if (data) notificationService.scheduleHabitReminder(data as Habit);
     },
   });
 
   const updateHabitMutation = useMutation({
     mutationFn: ({ id, updates }: { id: string, updates: Partial<Habit> }) => 
       habitService.updateHabit(id, updates),
-    onSuccess: () => {
+    onSuccess: ({ data }) => {
       queryClient.invalidateQueries({ queryKey: ['habits'] });
+      if (data) notificationService.scheduleHabitReminder(data as Habit);
     },
   });
 
   const deleteHabitMutation = useMutation({
     mutationFn: habitService.deleteHabit,
-    onSuccess: () => {
+    onSuccess: (_data, id) => {
       queryClient.invalidateQueries({ queryKey: ['habits'] });
+      notificationService.cancelNotification(id);
     },
   });
 
@@ -85,8 +89,8 @@ export function useHabits() {
     [habits, completions]
   );
 
-  const createHabit = useCallback((h: Partial<Habit>) => createHabitMutation.mutateAsync(h), [createHabitMutation]);
-  const updateHabit = useCallback((args: { id: string, updates: Partial<Habit> }) => updateHabitMutation.mutateAsync(args), [updateHabitMutation]);
+  const createHabit = useCallback((h: any) => createHabitMutation.mutateAsync(h), [createHabitMutation]);
+  const updateHabit = useCallback((args: { id: string, updates: any }) => updateHabitMutation.mutateAsync(args), [updateHabitMutation]);
   const deleteHabit = useCallback((id: string) => deleteHabitMutation.mutateAsync(id), [deleteHabitMutation]);
   const toggleCompletion = useCallback((args: { habitId: string, date: string, amount?: number }) => toggleCompletionMutation.mutateAsync(args), [toggleCompletionMutation]);
 

@@ -20,7 +20,7 @@ export default function Header({ date, username, avatarUrl, onProfileClick }: Pr
     <div className="flex items-center justify-between px-6 pt-12 pb-4">
       <div>
         <motion.h1 
-          className="text-3xl font-medium text-[#2d2d2d] tracking-tight"
+          className="text-3xl font-medium text-[#2d2d2d] dark:text-white tracking-tight"
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5, type: "spring" }}
@@ -28,7 +28,7 @@ export default function Header({ date, username, avatarUrl, onProfileClick }: Pr
           {getGreeting()}, {username}
         </motion.h1>
         <motion.p 
-          className="text-[#8c8c8c] text-sm mt-1"
+          className="text-[#8c8c8c] dark:text-gray-400 text-sm mt-1"
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5, type: "spring", delay: 0.1 }}
@@ -38,7 +38,7 @@ export default function Header({ date, username, avatarUrl, onProfileClick }: Pr
       </div>
       <motion.button 
         onClick={onProfileClick}
-        className="w-12 h-12 rounded-full bg-[#ffdfbf] overflow-hidden border-2 border-white shadow-sm"
+        className="w-12 h-12 rounded-full bg-[#ffdfbf] overflow-hidden border-2 border-white dark:border-[#1a1a1a] shadow-sm"
         initial={{ opacity: 0, scale: 0.5 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.5, type: "spring", delay: 0.2 }}

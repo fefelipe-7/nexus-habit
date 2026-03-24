@@ -78,11 +78,11 @@ export default function TaskDetailView({ task, projects, onUpdate, onClose, onDe
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.95 }}
-      className="fixed inset-0 z-50 bg-[#f8f6f2] flex flex-col overflow-hidden lowercase pointer-events-auto"
+      className="fixed inset-0 z-50 bg-[#f8f6f2] dark:bg-[#121212] flex flex-col overflow-hidden lowercase pointer-events-auto"
     >
       {/* Header */}
       <div className="flex items-center justify-between px-6 pt-12 pb-4">
-        <button onClick={onClose} className="w-10 h-10 bg-white rounded-2xl flex items-center justify-center shadow-sm border border-gray-100 text-[#2d2d2d] active:scale-90 transition-transform">
+        <button onClick={onClose} className="w-10 h-10 bg-white dark:bg-[#1a1a1a] rounded-2xl flex items-center justify-center shadow-sm border border-gray-100 dark:border-white/5 text-[#2d2d2d] dark:text-white active:scale-90 transition-transform">
           <ArrowLeft size={20} />
         </button>
         <h1 className="text-lg font-bold text-[#2d2d2d]">task details</h1>
@@ -90,7 +90,7 @@ export default function TaskDetailView({ task, projects, onUpdate, onClose, onDe
           onClick={toggleEdit} 
           className={cn(
             "w-10 h-10 rounded-2xl flex items-center justify-center shadow-sm transition-all active:scale-90 border",
-            isEditing ? "bg-[#2d2d2d] text-white border-[#2d2d2d]" : "bg-white text-[#2d2d2d] border-gray-100"
+            isEditing ? "bg-[#2d2d2d] dark:bg-white text-white dark:text-black border-[#2d2d2d] dark:border-white" : "bg-white dark:bg-[#1a1a1a] text-[#2d2d2d] dark:text-white border-gray-100 dark:border-white/5"
           )}
         >
           <MoreHorizontal size={20} />
@@ -111,15 +111,15 @@ export default function TaskDetailView({ task, projects, onUpdate, onClose, onDe
               <input 
                 value={editedTask.name} 
                 onChange={e => setEditedTask({...editedTask, name: e.target.value})}
-                className="w-full bg-white rounded-xl p-3 text-xl font-bold text-[#2d2d2d] shadow-sm outline-none border border-gray-100"
+                className="w-full bg-white dark:bg-[#1a1a1a] rounded-xl p-3 text-xl font-bold text-[#2d2d2d] dark:text-white shadow-sm outline-none border border-gray-100 dark:border-white/5"
               />
             ) : (
-              <h2 className="text-2xl font-bold text-[#2d2d2d] truncate">{editedTask.name}</h2>
+              <h2 className="text-2xl font-bold text-[#2d2d2d] dark:text-white truncate">{editedTask.name}</h2>
             )}
             <div className={cn(
-              "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest mt-1",
+               "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest mt-1",
               priorityConfig[editedTask.priority].bg,
-              priorityConfig[editedTask.priority].color
+              priorityConfig[editedTask.priority].color.replace('text-', 'dark:text-').replace('600', '400') || priorityConfig[editedTask.priority].color
             )}>
               <AlertTriangle size={10} />
               {priorityConfig[editedTask.priority].label}
@@ -138,8 +138,8 @@ export default function TaskDetailView({ task, projects, onUpdate, onClose, onDe
         {/* Info Cards Row */}
         <div className="grid grid-cols-2 gap-3 mb-6">
           {/* Deadline Card */}
-          <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-2">
-            <div className="flex items-center gap-2 text-[#b0b0b0]">
+          <div className="bg-white dark:bg-[#1a1a1a] p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-white/5 space-y-2">
+            <div className="flex items-center gap-2 text-[#b0b0b0] dark:text-gray-600">
               <CalendarDays size={14} />
               <span className="text-[10px] font-black uppercase tracking-widest">deadline</span>
             </div>
@@ -148,11 +148,11 @@ export default function TaskDetailView({ task, projects, onUpdate, onClose, onDe
                 type="date" 
                 value={editedTask.deadline} 
                 onChange={e => setEditedTask({...editedTask, deadline: e.target.value})}
-                className="w-full text-sm font-bold text-[#2d2d2d] outline-none"
+                className="w-full text-sm font-bold text-[#2d2d2d] dark:text-white bg-transparent outline-none"
               />
             ) : (
               <>
-                <p className="text-sm font-bold text-[#2d2d2d]">{format(deadlineDate, 'MMM d, yyyy').toLowerCase()}</p>
+                <p className="text-sm font-bold text-[#2d2d2d] dark:text-white">{format(deadlineDate, 'MMM d, yyyy').toLowerCase()}</p>
                 <p className={cn("text-[10px] font-bold", isOverdue ? "text-red-500" : "text-[#f27d26]")}>
                   {deadlineLabel}
                 </p>
@@ -161,8 +161,8 @@ export default function TaskDetailView({ task, projects, onUpdate, onClose, onDe
           </div>
 
           {/* Duration Card */}
-          <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-2">
-            <div className="flex items-center gap-2 text-[#b0b0b0]">
+          <div className="bg-white dark:bg-[#1a1a1a] p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-white/5 space-y-2">
+            <div className="flex items-center gap-2 text-[#b0b0b0] dark:text-gray-600">
               <Clock size={14} />
               <span className="text-[10px] font-black uppercase tracking-widest">estimated</span>
             </div>
@@ -172,12 +172,12 @@ export default function TaskDetailView({ task, projects, onUpdate, onClose, onDe
                   type="number" 
                   value={editedTask.estimatedTime} 
                   onChange={e => setEditedTask({...editedTask, estimatedTime: parseInt(e.target.value) || 0})}
-                  className="w-14 text-sm font-bold text-[#2d2d2d] outline-none"
+                  className="w-14 text-sm font-bold text-[#2d2d2d] dark:text-white bg-transparent outline-none"
                 />
-                <span className="text-xs text-[#8c8c8c] font-bold">mins</span>
+                <span className="text-xs text-[#8c8c8c] dark:text-gray-500 font-bold">mins</span>
               </div>
             ) : (
-              <p className="text-sm font-bold text-[#2d2d2d]">
+              <p className="text-sm font-bold text-[#2d2d2d] dark:text-white">
                 {editedTask.estimatedTime >= 60 
                   ? `${Math.floor(editedTask.estimatedTime / 60)}h ${editedTask.estimatedTime % 60}m` 
                   : `${editedTask.estimatedTime} mins`}
@@ -187,8 +187,8 @@ export default function TaskDetailView({ task, projects, onUpdate, onClose, onDe
         </div>
 
         {/* Project Link */}
-        <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 mb-6">
-          <div className="flex items-center gap-2 text-[#b0b0b0] mb-3">
+        <div className="bg-white dark:bg-[#1a1a1a] p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-white/5 mb-6">
+          <div className="flex items-center gap-2 text-[#b0b0b0] dark:text-gray-600 mb-3">
             <Folder size={14} />
             <span className="text-[10px] font-black uppercase tracking-widest">project</span>
           </div>
@@ -198,7 +198,7 @@ export default function TaskDetailView({ task, projects, onUpdate, onClose, onDe
                 onClick={() => setEditedTask({...editedTask, projectId: undefined})}
                 className={cn(
                   "px-3 py-2 rounded-xl text-xs font-bold transition-all",
-                  !editedTask.projectId ? "bg-[#2d2d2d] text-white shadow-md" : "bg-gray-50 text-[#8c8c8c]"
+                  !editedTask.projectId ? "bg-[#2d2d2d] dark:bg-white text-white dark:text-black shadow-md" : "bg-gray-50 dark:bg-gray-800 text-[#8c8c8c] dark:text-gray-400"
                 )}
               >
                 no project
@@ -209,7 +209,7 @@ export default function TaskDetailView({ task, projects, onUpdate, onClose, onDe
                   onClick={() => setEditedTask({...editedTask, projectId: p.id})}
                   className={cn(
                     "px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5",
-                    editedTask.projectId === p.id ? "bg-[#2d2d2d] text-white shadow-md" : "bg-gray-50 text-[#8c8c8c]"
+                    editedTask.projectId === p.id ? "bg-[#2d2d2d] dark:bg-white text-white dark:text-black shadow-md" : "bg-gray-50 dark:bg-gray-800 text-[#8c8c8c] dark:text-gray-400"
                   )}
                 >
                   <img src={p.emojiUrl} alt="" className="w-4 h-4" />
@@ -222,34 +222,34 @@ export default function TaskDetailView({ task, projects, onUpdate, onClose, onDe
               onClick={() => navigate(`/project/${linkedProject.id}`)}
               className="flex items-center gap-3 group"
             >
-              <div className="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center">
+              <div className="w-10 h-10 bg-gray-50 dark:bg-[#252525] rounded-xl flex items-center justify-center">
                 <img src={linkedProject.emojiUrl} alt="" className="w-6 h-6 object-contain" />
               </div>
               <div className="text-left">
-                <p className="text-sm font-bold text-[#2d2d2d] group-hover:text-[#f27d26] transition-colors">{linkedProject.name}</p>
-                <p className="text-[10px] text-[#8c8c8c] flex items-center gap-1"><Link2 size={10} /> linked</p>
+                <p className="text-sm font-bold text-[#2d2d2d] dark:text-white group-hover:text-[#f27d26] transition-colors">{linkedProject.name}</p>
+                <p className="text-[10px] text-[#8c8c8c] dark:text-gray-500 flex items-center gap-1"><Link2 size={10} /> linked</p>
               </div>
             </button>
           ) : (
-            <p className="text-sm text-[#b0b0b0] flex items-center gap-2"><Unlink size={14} /> no project linked</p>
+            <p className="text-sm text-[#b0b0b0] dark:text-gray-600 flex items-center gap-2"><Unlink size={14} /> no project linked</p>
           )}
         </div>
 
         {/* Description */}
-        <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 mb-6">
-          <div className="flex items-center gap-2 text-[#b0b0b0] mb-3">
+        <div className="bg-white dark:bg-[#1a1a1a] p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-white/5 mb-6">
+          <div className="flex items-center gap-2 text-[#b0b0b0] dark:text-gray-600 mb-3">
             <span className="text-[10px] font-black uppercase tracking-widest">description</span>
           </div>
           {isEditing ? (
             <textarea 
               value={editedTask.description} 
               onChange={e => setEditedTask({...editedTask, description: e.target.value})}
-              className="w-full bg-transparent text-sm font-medium text-[#2d2d2d] h-28 resize-none outline-none"
+              className="w-full bg-transparent text-sm font-medium text-[#2d2d2d] dark:text-gray-200 h-28 resize-none outline-none"
               placeholder="add a description..."
             />
           ) : (
-            <p className="text-sm font-medium text-[#2d2d2d] leading-relaxed">
-              {editedTask.description || <span className="text-[#b0b0b0] italic">no description provided</span>}
+            <p className="text-sm font-medium text-[#2d2d2d] dark:text-white leading-relaxed">
+              {editedTask.description || <span className="text-[#b0b0b0] dark:text-gray-600 italic">no description provided</span>}
             </p>
           )}
         </div>
@@ -264,8 +264,8 @@ export default function TaskDetailView({ task, projects, onUpdate, onClose, onDe
               className="space-y-4 overflow-hidden mb-6"
             >
               {/* Priority */}
-              <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-3">
-                <span className="text-[10px] font-black uppercase tracking-widest text-[#b0b0b0]">priority</span>
+              <div className="bg-white dark:bg-[#1a1a1a] p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-white/5 space-y-3">
+                <span className="text-[10px] font-black uppercase tracking-widest text-[#b0b0b0] dark:text-gray-600">priority</span>
                 <div className="flex gap-2">
                   {(['low', 'medium', 'high'] as Priority[]).map(p => (
                     <button 
@@ -274,8 +274,8 @@ export default function TaskDetailView({ task, projects, onUpdate, onClose, onDe
                       className={cn(
                         "flex-1 py-3 text-[10px] font-black uppercase rounded-xl transition-all",
                         editedTask.priority === p ? 
-                          (p === 'high' ? 'bg-red-500 text-white shadow-md' : p === 'medium' ? 'bg-[#2d2d2d] text-white shadow-md' : 'bg-blue-500 text-white shadow-md') 
-                          : 'bg-gray-50 text-[#8c8c8c]'
+                          (p === 'high' ? 'bg-red-500 text-white shadow-md' : p === 'medium' ? 'bg-[#2d2d2d] dark:bg-white text-white dark:text-black shadow-md' : 'bg-blue-500 text-white shadow-md') 
+                          : 'bg-gray-50 dark:bg-gray-800 text-[#8c8c8c] dark:text-gray-400'
                       )}
                     >
                       {p}
@@ -285,11 +285,11 @@ export default function TaskDetailView({ task, projects, onUpdate, onClose, onDe
               </div>
 
               {/* Visuals */}
-              <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4">
-                <span className="text-[10px] font-black uppercase tracking-widest text-[#b0b0b0]">visuals</span>
+              <div className="bg-white dark:bg-[#1a1a1a] p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-white/5 space-y-4">
+                <span className="text-[10px] font-black uppercase tracking-widest text-[#b0b0b0] dark:text-gray-600">visuals</span>
                 <div className="grid grid-cols-6 gap-2">
                   {EMOJIS.map(url => (
-                    <button key={url} onClick={() => setEditedTask({...editedTask, emojiUrl: url})} className={cn("aspect-square rounded-xl bg-gray-50 flex items-center justify-center p-2", editedTask.emojiUrl === url && "ring-2 ring-[#f27d26] bg-white shadow-sm")}>
+                    <button key={url} onClick={() => setEditedTask({...editedTask, emojiUrl: url})} className={cn("aspect-square rounded-xl bg-gray-50 dark:bg-gray-800 flex items-center justify-center p-2", editedTask.emojiUrl === url && "ring-2 ring-[#f27d26] bg-white dark:bg-[#1a1a1a] shadow-sm")}>
                       <img src={url} alt="" className={cn("w-full h-full object-contain", editedTask.emojiUrl !== url && "opacity-40 grayscale")} />
                     </button>
                   ))}
@@ -299,7 +299,7 @@ export default function TaskDetailView({ task, projects, onUpdate, onClose, onDe
                     <button 
                       key={c.id} 
                       onClick={() => setEditedTask({...editedTask, color: c.id})} 
-                      className={cn("w-9 h-9 rounded-full flex-shrink-0 border-4 border-white shadow-sm transition-transform", editedTask.color === c.id ? "scale-110 shadow-md" : "opacity-30")} 
+                      className={cn("w-9 h-9 rounded-full flex-shrink-0 border-4 border-white dark:border-[#2d2d2d] shadow-sm transition-transform", editedTask.color === c.id ? "scale-110 shadow-md" : "opacity-30")} 
                       style={{ backgroundColor: c.primary }}
                     />
                   ))}

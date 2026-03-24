@@ -50,7 +50,7 @@ export default function ProjectsView() {
   }
 
   return (
-    <div className="flex-1 flex flex-col overflow-y-auto lowercase">
+    <div className="flex-1 flex flex-col overflow-y-auto lowercase bg-inherit">
       {/* Click outside overlay for action menu */}
       {activeMenuId && (
         <div 
@@ -62,12 +62,12 @@ export default function ProjectsView() {
       {/* Header */}
       <div className="px-6 pt-12 pb-2 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-white rounded-2xl flex items-center justify-center shadow-sm border border-gray-100">
-            <Folder size={18} className="text-[#2d2d2d]" />
+          <div className="w-10 h-10 bg-white dark:bg-[#1a1a1a] rounded-2xl flex items-center justify-center shadow-sm border border-black/5 dark:border-white/5">
+            <Folder size={18} className="text-[#2d2d2d] dark:text-white" />
           </div>
-          <h1 className="text-2xl font-bold text-[#2d2d2d]">projects</h1>
+          <h1 className="text-2xl font-bold text-[#2d2d2d] dark:text-white">projects</h1>
         </div>
-        <span className="text-sm font-medium text-[#8c8c8c]">{format(selectedDate, 'MMMM, yyyy').toLowerCase()}</span>
+        <span className="text-sm font-medium text-[#8c8c8c] dark:text-gray-500">{format(selectedDate, 'MMMM, yyyy').toLowerCase()}</span>
       </div>
 
       {/* Calendar Strip */}
@@ -84,12 +84,12 @@ export default function ProjectsView() {
                 onClick={() => setSelectedDate(day)}
                 className="flex flex-col items-center gap-1 relative"
               >
-                <span className={cn("text-[10px] font-bold uppercase tracking-wider", isSelected ? "text-[#2d2d2d]" : "text-[#b0b0b0]")}>
+                <span className={cn("text-[10px] font-bold uppercase tracking-wider", isSelected ? "text-[#2d2d2d] dark:text-white" : "text-[#b0b0b0] dark:text-gray-600")}>
                   {format(day, 'EEE').toLowerCase()}
                 </span>
                 <div className={cn(
                   "w-9 h-9 rounded-xl flex items-center justify-center text-sm font-bold transition-all",
-                  isSelected ? "bg-[#2d2d2d] text-white shadow-md" : "text-[#2d2d2d]"
+                  isSelected ? "bg-[#2d2d2d] dark:bg-white text-white dark:text-black shadow-md scale-110" : "text-[#2d2d2d] dark:text-gray-400"
                 )}>
                   {format(day, 'd')}
                 </div>
@@ -134,10 +134,10 @@ export default function ProjectsView() {
                   key={project.id}
                   whileTap={{ scale: 0.97 }}
                   onClick={() => navigate(`/project/${project.id}`)}
-                  className="bg-white p-4 rounded-[1.5rem] shadow-sm border border-gray-100 cursor-pointer flex flex-col gap-3"
+                  className="bg-white dark:bg-[#1a1a1a] p-4 rounded-[1.5rem] shadow-sm border border-black/5 dark:border-white/5 cursor-pointer flex flex-col gap-3"
                 >
                   <div className="flex items-center justify-between">
-                    <div className="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center">
+                    <div className="w-10 h-10 bg-gray-50 dark:bg-[#252525] rounded-xl flex items-center justify-center shadow-inner">
                       <img src={project.emojiUrl} alt="" className="w-6 h-6 object-contain" />
                     </div>
                     <div className="relative">
@@ -157,12 +157,12 @@ export default function ProjectsView() {
                             initial={{ opacity: 0, scale: 0.95, y: -10 }}
                             animate={{ opacity: 1, scale: 1, y: 0 }}
                             exit={{ opacity: 0, scale: 0.95, y: -10 }}
-                            className="absolute right-0 top-full mt-1 w-48 bg-white rounded-2xl shadow-xl border border-gray-100 z-[70] overflow-hidden"
+                            className="absolute right-0 top-full mt-1 w-48 bg-white dark:bg-[#1e1e1e] rounded-2xl shadow-xl border border-black/5 dark:border-white/5 z-[70] overflow-hidden"
                             onClick={(e) => e.stopPropagation()}
                           >
                             <button 
                               onClick={() => { setActiveMenuId(null); navigate(`/project/${project.id}/edit`); }}
-                              className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-[#2d2d2d] hover:bg-gray-50 transition-colors"
+                              className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-[#2d2d2d] dark:text-white hover:bg-gray-50 dark:hover:bg-white/5 transition-colors"
                             >
                               <Edit2 size={16} /> edit project
                             </button>
@@ -171,7 +171,7 @@ export default function ProjectsView() {
                                 setActiveMenuId(null);
                                 updateProject(project.id, { status: project.status === 'completed' ? 'active' : 'completed' });
                               }}
-                              className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-[#2d2d2d] hover:bg-gray-50 transition-colors border-t border-gray-50"
+                              className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-[#2d2d2d] dark:text-white hover:bg-gray-50 dark:hover:bg-white/5 transition-colors border-t border-black/5 dark:border-white/5"
                             >
                               {project.status === 'completed' ? <Circle size={16} /> : <CheckCircle2 size={16} />}
                               {project.status === 'completed' ? 'mark active' : 'mark complete'}
@@ -182,7 +182,7 @@ export default function ProjectsView() {
                                 setProjectToDelete(project); 
                                 setShowDeleteConfirm(true); 
                               }}
-                              className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-red-500 hover:bg-red-50 transition-colors border-t border-gray-50"
+                              className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors border-t border-black/5 dark:border-white/5"
                             >
                               <Trash2 size={16} /> delete
                             </button>
@@ -192,7 +192,7 @@ export default function ProjectsView() {
                     </div>
                   </div>
                   <div>
-                    <h3 className="text-sm font-bold text-[#2d2d2d] leading-tight truncate">{project.name}</h3>
+                    <h3 className="text-sm font-bold text-[#2d2d2d] dark:text-white leading-tight truncate">{project.name}</h3>
                     <div className="flex items-center gap-1.5 mt-1.5">
                       <Sparkles size={12} className="text-[#f27d26]" />
                       <span className="text-[11px] text-[#8c8c8c] font-medium">
@@ -212,10 +212,10 @@ export default function ProjectsView() {
         <div className="px-6 pt-8 pb-24">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
-              <span className="text-xs font-bold text-[#2d2d2d] uppercase tracking-wider">task</span>
-              <span className="w-5 h-5 bg-[#2d2d2d] text-white text-[10px] font-bold rounded-md flex items-center justify-center">{todayTasks.length}</span>
+              <span className="text-xs font-bold text-[#2d2d2d] dark:text-white uppercase tracking-wider">task</span>
+              <span className="w-5 h-5 bg-[#2d2d2d] dark:bg-white text-white dark:text-black text-[10px] font-bold rounded-md flex items-center justify-center">{todayTasks.length}</span>
             </div>
-            <span className="text-xs font-bold text-[#8c8c8c] uppercase tracking-wider">today</span>
+            <span className="text-xs font-bold text-[#8c8c8c] dark:text-gray-500 uppercase tracking-wider">today</span>
           </div>
 
           <div className="space-y-3">
@@ -226,7 +226,7 @@ export default function ProjectsView() {
                 <motion.div
                   key={task.id}
                   layout
-                  className="bg-white p-5 rounded-[1.5rem] shadow-sm border border-gray-100"
+                  className="bg-white dark:bg-[#1a1a1a] p-5 rounded-[1.5rem] shadow-sm border border-black/5 dark:border-white/5"
                 >
                   <div className="flex items-start justify-between mb-2">
                     {project && (
@@ -243,7 +243,7 @@ export default function ProjectsView() {
                       )}
                     </button>
                   </div>
-                  <h4 className={cn("text-base font-bold text-[#2d2d2d] mb-1", task.completedAt && "line-through opacity-50")}>
+                  <h4 className={cn("text-base font-bold text-[#2d2d2d] dark:text-white mb-1", task.completedAt && "line-through opacity-50")}>
                     {task.name}
                   </h4>
                   {task.description && (

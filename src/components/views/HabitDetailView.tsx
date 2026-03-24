@@ -82,19 +82,19 @@ export default function HabitDetailView({ habit, completions, onUpdate, onClose,
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.95 }}
-      className="fixed inset-0 z-50 bg-[#f8f6f2] flex flex-col overflow-hidden lowercase pointer-events-auto"
+      className="fixed inset-0 z-50 bg-[#f8f6f2] dark:bg-[#121212] flex flex-col overflow-hidden lowercase pointer-events-auto"
     >
       {/* Header */}
       <div className="flex items-center justify-between px-6 pt-12 pb-4">
-        <button onClick={onClose} className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm text-[#2d2d2d]">
+        <button onClick={onClose} className="w-10 h-10 bg-white dark:bg-[#1a1a1a] rounded-full flex items-center justify-center shadow-sm text-[#2d2d2d] dark:text-gray-300 border border-black/5 dark:border-white/5">
           <ArrowLeft size={20} />
         </button>
-        <h1 className="text-lg font-medium text-[#2d2d2d]">habit details</h1>
+        <h1 className="text-lg font-bold uppercase tracking-widest text-[#2d2d2d] dark:text-white">habit details</h1>
         <button 
           onClick={toggleEdit} 
           className={cn(
-            "w-10 h-10 rounded-full flex items-center justify-center shadow-sm transition-colors",
-            isEditing ? "bg-[#2d2d2d] text-white" : "bg-white text-[#2d2d2d]"
+            "w-10 h-10 rounded-full flex items-center justify-center shadow-sm transition-colors border border-black/5 dark:border-white/5",
+            isEditing ? "bg-[#2d2d2d] dark:bg-white text-white dark:text-black" : "bg-white dark:bg-[#1a1a1a] text-[#2d2d2d] dark:text-gray-300"
           )}
         >
           <MoreHorizontal size={20} />
@@ -110,16 +110,16 @@ export default function HabitDetailView({ habit, completions, onUpdate, onClose,
           >
             <img src={editedHabit.emojiUrl} alt="" className="w-12 h-12 object-contain drop-shadow-sm" />
           </div>
-          <h2 className={cn("text-2xl font-bold text-[#2d2d2d] text-center px-10 transition-all", isEditing && "bg-white rounded-xl py-1")}>
+          <h2 className={cn("text-2xl font-bold text-[#2d2d2d] dark:text-white text-center px-10 transition-all", isEditing && "bg-white dark:bg-[#1a1a1a] rounded-xl py-1 border border-black/5 dark:border-white/5")}>
             {isEditing ? (
               <input 
                 value={editedHabit.name} 
                 onChange={e => setEditedHabit({...editedHabit, name: e.target.value})}
-                className="bg-transparent text-center outline-none w-full"
+                className="bg-transparent text-center outline-none w-full dark:text-white"
               />
             ) : editedHabit.name}
           </h2>
-          <p className="text-[#8c8c8c] text-sm mt-1">{CATEGORIES.find(c => c.id === editedHabit.categoryId)?.name || 'habit'}</p>
+          <p className="text-[#8c8c8c] dark:text-gray-500 font-bold uppercase tracking-widest text-[10px] mt-1">{CATEGORIES.find(c => c.id === editedHabit.categoryId)?.name || 'habit'}</p>
         </div>
 
         {/* Arc Progress Section */}
@@ -129,7 +129,8 @@ export default function HabitDetailView({ habit, completions, onUpdate, onClose,
             <circle
               cx="100" cy="100" r={radius}
               fill="transparent"
-              stroke="#e5e5e5"
+              stroke="currentColor"
+              className="text-gray-100 dark:text-[#1a1a1a]"
               strokeWidth="12"
               strokeDasharray={circumference}
               strokeDashoffset={circumference / 2}
@@ -155,18 +156,18 @@ export default function HabitDetailView({ habit, completions, onUpdate, onClose,
             </defs>
           </svg>
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center mt-4">
-            <span className="block text-4xl font-bold text-[#2d2d2d]">{editedHabit.streak || 0}</span>
-            <span className="text-[10px] text-[#8c8c8c] uppercase tracking-widest font-bold">streak days</span>
+            <span className="block text-4xl font-black text-[#2d2d2d] dark:text-white">{editedHabit.streak || 0}</span>
+            <span className="text-[10px] text-[#8c8c8c] dark:text-gray-600 uppercase tracking-widest font-black">streak</span>
           </div>
           
           {/* Side Info in Arcs */}
           <div className="absolute top-4 left-4 text-center">
-            <span className="block text-sm font-bold text-[#202020]">{stats.successRate}%</span>
-            <span className="text-[8px] text-[#8c8c8c] uppercase font-bold">Rate</span>
+            <span className="block text-sm font-black text-[#202020] dark:text-white">{stats.successRate}%</span>
+            <span className="text-[8px] text-[#8c8c8c] dark:text-gray-600 uppercase font-black">Rate</span>
           </div>
           <div className="absolute top-4 right-4 text-center">
-            <span className="block text-sm font-bold text-[#202020]">{stats.totalCompletions}</span>
-            <span className="text-[8px] text-[#8c8c8c] uppercase font-bold">Logs</span>
+            <span className="block text-sm font-black text-[#202020] dark:text-white">{stats.totalCompletions}</span>
+            <span className="text-[8px] text-[#8c8c8c] dark:text-gray-600 uppercase font-black">Logs</span>
           </div>
         </div>
 
@@ -178,10 +179,10 @@ export default function HabitDetailView({ habit, completions, onUpdate, onClose,
             { label: 'Rate', value: `${stats.successRate}%`, color: 'border-purple-500' },
           ].map((stat, i) => (
             <div key={i} className="flex flex-col items-center gap-2">
-              <div className={cn("w-14 h-14 rounded-full border-4 flex items-center justify-center text-xs font-bold", stat.color)}>
+              <div className={cn("w-14 h-14 rounded-full border-4 flex items-center justify-center text-xs font-black dark:text-white", stat.color)}>
                 {stat.value}
               </div>
-              <span className="text-[10px] text-[#8c8c8c] font-bold uppercase">{stat.label}</span>
+              <span className="text-[10px] text-[#8c8c8c] dark:text-gray-500 font-black uppercase tracking-tighter">{stat.label}</span>
             </div>
           ))}
         </div>
@@ -190,10 +191,10 @@ export default function HabitDetailView({ habit, completions, onUpdate, onClose,
         <div className="mt-12 space-y-6">
           {/* Goal & Frequency */}
           <div className="grid grid-cols-2 gap-4">
-            <div className="bg-white p-5 rounded-3xl shadow-sm space-y-2">
-              <div className="flex items-center gap-2 text-[#8c8c8c] mb-1">
+            <div className="bg-white dark:bg-[#1a1a1a] p-5 rounded-3xl shadow-sm space-y-2 border border-black/5 dark:border-white/5">
+              <div className="flex items-center gap-2 text-[#8c8c8c] dark:text-gray-600 mb-1">
                 <Clock size={14} />
-                <span className="text-xs font-bold uppercase">goal</span>
+                <span className="text-[10px] font-black uppercase tracking-widest">goal</span>
               </div>
               {isEditing ? (
                 <div className="flex flex-col gap-2">
@@ -203,13 +204,13 @@ export default function HabitDetailView({ habit, completions, onUpdate, onClose,
                     value={editedHabit.duration} 
                     onChange={e => {
                       if (e.target.value === '' || /^\d+$/.test(e.target.value)) {
-                        setEditedHabit({...editedHabit, duration: parseInt(e.target.value) || 0 as any});
+                        setEditedHabit({...editedHabit, duration: parseInt(e.target.value) || 0});
                       }
                     }}
-                    className="text-lg font-bold outline-none w-full"
+                    className="text-lg font-bold bg-white dark:bg-[#252525] dark:text-white outline-none w-full rounded-lg px-2 border border-black/5 dark:border-white/10"
                   />
                   <select 
-                    value={isCustomUnit ? 'custom' : editedHabit.unit} 
+                    value={isCustomUnit ? 'custom' : editedHabit.unit}
                     onChange={e => {
                       if (e.target.value === 'custom') {
                         setIsCustomUnit(true);
@@ -218,11 +219,11 @@ export default function HabitDetailView({ habit, completions, onUpdate, onClose,
                         setEditedHabit({...editedHabit, unit: e.target.value});
                       }
                     }}
-                    className="text-xs text-[#f27d26] outline-none"
+                    className="text-[10px] font-black uppercase text-[#f27d26] bg-transparent outline-none"
                   >
-                    {UNITS.map(u => <option key={u} value={u}>{u}</option>)}
-                    {!UNITS.includes(editedHabit.unit || '') && <option value={editedHabit.unit}>{editedHabit.unit}</option>}
-                    <option value="custom">custom...</option>
+                    {UNITS.map(u => <option key={u} value={u} className="bg-white dark:bg-[#1a1a1a]">{u}</option>)}
+                    {!UNITS.includes(editedHabit.unit || '') && <option value={editedHabit.unit} className="bg-white dark:bg-[#1a1a1a]">{editedHabit.unit}</option>}
+                    <option value="custom" className="bg-white dark:bg-[#1a1a1a]">custom...</option>
                   </select>
                   {isCustomUnit && (
                     <input 
@@ -230,36 +231,36 @@ export default function HabitDetailView({ habit, completions, onUpdate, onClose,
                       value={editedHabit.unit} 
                       onChange={e => setEditedHabit({...editedHabit, unit: e.target.value})}
                       placeholder="unit"
-                      className="text-xs text-[#f27d26] border-b border-orange-200 outline-none w-full"
+                      className="text-xs text-[#f27d26] border-b border-orange-200 dark:border-orange-500/30 bg-transparent outline-none w-full"
                     />
                   )}
                 </div>
               ) : (
-                <p className="text-lg font-bold text-[#2d2d2d]">{editedHabit.duration} {editedHabit.unit || 'mins'}</p>
+                <p className="text-lg font-bold text-[#2d2d2d] dark:text-white leading-tight">{editedHabit.duration} {editedHabit.unit || 'mins'}</p>
               )}
             </div>
 
-            <div className="bg-white p-5 rounded-3xl shadow-sm space-y-2">
-              <div className="flex items-center gap-2 text-[#8c8c8c] mb-1">
+            <div className="bg-white dark:bg-[#1a1a1a] p-5 rounded-3xl shadow-sm space-y-2 border border-black/5 dark:border-white/5">
+              <div className="flex items-center gap-2 text-[#8c8c8c] dark:text-gray-600 mb-1">
                 <Calendar size={14} />
-                <span className="text-xs font-bold uppercase">frequency</span>
+                <span className="text-[10px] font-black uppercase tracking-widest">frequency</span>
               </div>
-              <p className="text-lg font-bold text-[#2d2d2d]">{editedHabit.repeatDays.length} days / week</p>
+              <p className="text-lg font-bold text-[#2d2d2d] dark:text-white leading-tight">{editedHabit.repeatDays.length} days / week</p>
             </div>
           </div>
 
           {/* Repeat Days Selection (Editable) */}
           {isEditing && (
-            <div className="bg-white p-6 rounded-3xl shadow-sm">
-               <label className="text-xs font-bold uppercase text-[#8c8c8c] mb-4 block">Edit Schedule</label>
+            <div className="bg-white dark:bg-[#1a1a1a] p-6 rounded-3xl shadow-sm border border-black/5 dark:border-white/5">
+               <label className="text-[10px] font-black uppercase tracking-widest text-[#8c8c8c] dark:text-gray-600 mb-4 block">Edit Schedule</label>
                <div className="flex justify-between">
                 {DAYS.map((day, i) => (
                   <button
                     key={i}
                     onClick={() => toggleDay(i)}
                     className={cn(
-                      "w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold transition-all",
-                      editedHabit.repeatDays.includes(i) ? "bg-[#2d2d2d] text-white" : "bg-[#f8f6f2] text-[#8c8c8c]"
+                      "w-9 h-9 rounded-full flex items-center justify-center text-xs font-black transition-all",
+                      editedHabit.repeatDays.includes(i) ? "bg-[#2d2d2d] dark:bg-white text-white dark:text-black shadow-md scale-110" : "bg-[#f8f6f2] dark:bg-[#252525] text-[#8c8c8c] dark:text-gray-700"
                     )}
                   >
                     {day}
@@ -271,9 +272,9 @@ export default function HabitDetailView({ habit, completions, onUpdate, onClose,
 
           {/* Color & Icon (Editable) */}
           {isEditing && (
-            <div className="bg-white p-6 rounded-3xl shadow-sm space-y-6">
+            <div className="bg-white dark:bg-[#1a1a1a] p-6 rounded-3xl shadow-sm space-y-8 border border-black/5 dark:border-white/5">
               <div>
-                <label className="text-xs font-bold uppercase text-[#8c8c8c] mb-4 block">Choose Color</label>
+                <label className="text-[10px] font-black uppercase tracking-widest text-[#8c8c8c] dark:text-gray-600 mb-4 block">Choose Color</label>
                 <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
                   {COLORS.map(c => (
                     <button 
@@ -288,13 +289,13 @@ export default function HabitDetailView({ habit, completions, onUpdate, onClose,
                 </div>
               </div>
               <div>
-                <label className="text-xs font-bold uppercase text-[#8c8c8c] mb-4 block">Choose Icon</label>
+                <label className="text-[10px] font-black uppercase tracking-widest text-[#8c8c8c] dark:text-gray-600 mb-4 block">Choose Icon</label>
                 <div className="grid grid-cols-6 gap-3">
                   {EMOJIS.map(url => (
                     <button 
                       key={url}
                       onClick={() => setEditedHabit({...editedHabit, emojiUrl: url})}
-                      className={cn("aspect-square rounded-xl bg-[#f8f6f2] flex items-center justify-center p-2", editedHabit.emojiUrl === url && "ring-2 ring-[#f27d26] bg-white")}
+                      className={cn("aspect-square rounded-xl bg-[#f8f6f2] dark:bg-[#252525] flex items-center justify-center p-2 transition-all", editedHabit.emojiUrl === url && "ring-2 ring-[#f27d26] bg-white dark:bg-white scale-110 shadow-md")}
                     >
                       <img src={url} alt="" className="w-full h-full object-contain" />
                     </button>
@@ -306,34 +307,34 @@ export default function HabitDetailView({ habit, completions, onUpdate, onClose,
 
           {/* Activity Log — Real data from last 7 days */}
           {!isEditing && (
-            <div className="bg-white rounded-3xl p-6 shadow-sm">
+            <div className="bg-white dark:bg-[#1a1a1a] rounded-3xl p-6 shadow-sm border border-black/5 dark:border-white/5">
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-sm font-bold uppercase tracking-wider text-[#2d2d2d]">activity log</h3>
-                  <span className="text-[10px] font-bold text-[#8c8c8c] uppercase tracking-wider">last 7 days</span>
+                  <h3 className="text-[10px] font-black uppercase tracking-widest text-[#2d2d2d] dark:text-white">activity log</h3>
+                  <span className="text-[8px] font-black text-[#8c8c8c] dark:text-gray-600 uppercase tracking-widest">last 7 days</span>
                 </div>
                 <div className="space-y-4">
                    {stats.last7Days.slice().reverse().map((day, i) => {
                     const isScheduled = editedHabit.repeatDays.includes(day.date.getDay());
                     const dayLabel = format(day.date, 'EEE, MMM d').toLowerCase();
                     return (
-                      <div key={i} className="flex items-center justify-between py-2 border-b border-gray-50 last:border-0">
+                      <div key={i} className="flex items-center justify-between py-3 border-b border-black/5 dark:border-white/5 last:border-0">
                          <div className="flex-1">
                             <div className="flex justify-between items-center">
-                                <p className="text-sm font-bold text-[#2d2d2d]">{dayLabel}</p>
+                                <p className="text-sm font-black dark:text-white">{dayLabel}</p>
                                 <div className={cn(
-                                "px-3 py-1 rounded-full text-[10px] font-bold",
-                                !isScheduled ? "bg-gray-100 text-gray-400" :
-                                day.completed ? "bg-green-100 text-green-600" : "bg-red-100 text-red-600"
+                                "px-3 py-1 rounded-full text-[8px] font-black uppercase",
+                                !isScheduled ? "bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-600" :
+                                day.completed ? "bg-green-100 dark:bg-green-950/30 text-green-600 dark:text-green-400" : "bg-red-100 dark:bg-red-950/30 text-red-600 dark:text-red-400"
                                 )}>
                                 {!isScheduled ? 'off' : day.completed ? 'completed' : 'missed'}
                                 </div>
                             </div>
                             <div className="mt-1">
-                                <p className="text-[10px] text-[#8c8c8c] lowercase">
+                                <p className="text-[10px] font-black text-[#8c8c8c] dark:text-gray-600 uppercase tracking-tighter">
                                     {!isScheduled ? 'rest day' : `${day.amount || 0} / ${editedHabit.duration || 1} ${editedHabit.unit || 'units'} done`}
                                 </p>
                                 {isScheduled && editedHabit.duration && (
-                                    <div className="w-full h-1 bg-gray-50 rounded-full mt-1 overflow-hidden">
+                                    <div className="w-full h-1 bg-gray-50 dark:bg-gray-800 rounded-full mt-1 overflow-hidden">
                                         <div 
                                             className="h-full bg-orange-400 rounded-full" 
                                             style={{ width: `${Math.min(100, ((day.amount || 0) / editedHabit.duration) * 100)}%` }}
@@ -363,7 +364,7 @@ export default function HabitDetailView({ habit, completions, onUpdate, onClose,
           ) : (
             <button 
               onClick={() => setShowDeleteConfirm(true)}
-              className="w-full bg-red-50 text-red-500 font-bold py-4 rounded-3xl border border-red-100 flex items-center justify-center gap-2"
+              className="w-full bg-red-50 dark:bg-red-950/10 text-red-500 font-bold py-4 rounded-3xl border border-red-100 dark:border-red-900/10 flex items-center justify-center gap-2"
             >
               <Trash2 size={18} />
               Delete Habit

@@ -1,4 +1,4 @@
-import { useState, useMemo, lazy, Suspense } from 'react';
+import { useState, useMemo, lazy, Suspense, useEffect } from 'react';
 import { format, addDays } from 'date-fns';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Routes, Route, useLocation, useNavigate, Navigate, useParams } from 'react-router-dom';
@@ -26,6 +26,7 @@ import { useHabits } from './hooks/useHabits';
 import { useTasks } from './hooks/useTasks';
 import { useProjects } from './hooks/useProjects';
 import { useProfile } from './hooks/useProfile';
+import { notificationService } from './services/notificationService';
 
 const pageVariants = {
   initial: { opacity: 0, y: 10, scale: 0.98 },
@@ -51,6 +52,34 @@ export default function App() {
   const { habits, completions, stats, isLoading: habitsLoading, createHabit, updateHabit, deleteHabit, toggleCompletion } = useHabits();
   const { tasks, toggleTask, createTask, updateTask, deleteTask, isLoading: tasksLoading } = useTasks();
   const { createProject, projects } = useProjects();
+  const { updateProfile } = useProfile();
+
+  // Dark Mode Support
+  useEffect(() => {
+    const root = window.document.documentElement;
+    const theme = profile?.settings?.theme || 'light';
+    
+    if (theme === 'system') {
+      const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      root.classList.toggle('dark', systemTheme === 'dark');
+      
+      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+      const handleChange = (e: MediaQueryListEvent) => {
+        root.classList.toggle('dark', e.matches);
+      };
+      mediaQuery.addEventListener('change', handleChange);
+      return () => mediaQuery.removeEventListener('change', handleChange);
+    } else {
+      root.classList.toggle('dark', theme === 'dark');
+    }
+  }, [profile?.settings?.theme]);
+  
+  // Initialize notifications
+  useEffect(() => {
+    if (profile?.settings?.notifications) {
+      notificationService.requestPermissions();
+    }
+  }, [profile?.settings?.notifications]);
 
   const background = location.state?.background;
 
@@ -85,8 +114,8 @@ export default function App() {
         <Loader2 className="animate-spin text-[#f27d26]" size={32} />
       </div>
     }>
-      <div className="h-[100dvh] bg-gray-100 text-[#2d2d2d] font-sans flex justify-center lowercase selection:bg-[#f27d26] selection:text-white overflow-hidden">
-        <div className="w-full bg-[#f8f6f2] h-full relative shadow-2xl overflow-hidden flex flex-col">
+      <div className="h-[100dvh] bg-gray-100 dark:bg-black text-[#2d2d2d] dark:text-gray-100 font-sans flex justify-center lowercase selection:bg-[#f27d26] selection:text-white overflow-hidden">
+        <div className="w-full bg-[#f8f6f2] dark:bg-[#121212] h-full relative shadow-2xl overflow-hidden flex flex-col">
           
           <div className="flex-1 relative overflow-hidden">
             {/* Main Background Views */}
@@ -94,7 +123,7 @@ export default function App() {
               <div key={background?.pathname || location.pathname} className="absolute inset-0">
                 <Routes location={background || location}>
                 <Route path="/" element={
-                  <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.2 }} className="absolute inset-0 flex flex-col pb-24 bg-[#f8f6f2]">
+                  <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.2 }} className="absolute inset-0 flex flex-col pb-24 bg-[#f8f6f2] dark:bg-[#121212]">
                     <HomeView 
                       habits={habits} 
                       tasks={tasks}
@@ -116,25 +145,25 @@ export default function App() {
                 } />
                 
                 <Route path="/tasks" element={
-                  <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.2 }} className="absolute inset-0 flex flex-col pb-24 bg-[#f8f6f2]">
+                  <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.2 }} className="absolute inset-0 flex flex-col pb-24 bg-[#f8f6f2] dark:bg-[#121212]">
                     <TasksView tasks={tasks} onToggleTask={toggleTask} onTaskClick={(id) => navigateToModal(`/task/${id}`)} isLoading={tasksLoading} />
                   </motion.div>
                 } />
 
                 <Route path="/journey" element={
-                  <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.2 }} className="absolute inset-0 flex flex-col pb-24 bg-[#f8f6f2]">
+                  <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.2 }} className="absolute inset-0 flex flex-col pb-24 bg-[#f8f6f2] dark:bg-[#121212]">
                     <StatisticsView habits={habits} completions={completions} stats={stats} onHabitClick={(id) => navigateToModal(`/habit/${id}`)} />
                   </motion.div>
                 } />
 
                 <Route path="/streak" element={
-                  <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.2 }} className="absolute inset-0 flex flex-col pb-24 bg-[#f8f6f2]">
+                  <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.2 }} className="absolute inset-0 flex flex-col pb-24 bg-[#f8f6f2] dark:bg-[#121212]">
                     <StreakView streak={stats.currentStreak} stats={stats} />
                   </motion.div>
                 } />
 
                 <Route path="/projects" element={
-                  <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.2 }} className="absolute inset-0 flex flex-col pb-24 bg-[#f8f6f2]">
+                  <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.2 }} className="absolute inset-0 flex flex-col pb-24 bg-[#f8f6f2] dark:bg-[#121212]">
                     <ProjectsView />
                   </motion.div>
                 } />
@@ -167,7 +196,7 @@ export default function App() {
                   <TaskDetailRoute tasks={tasks} projects={projects} onUpdate={updateTask} onDelete={(id) => deleteTask(id).then(() => navigate('/tasks'))} />
                 } />
                 <Route path="/profile" element={
-                  <motion.div initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} transition={{ type: 'spring', damping: 25, stiffness: 200 }} className="absolute inset-0 z-50 bg-[#f8f6f2] flex flex-col pointer-events-auto">
+                  <motion.div initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} transition={{ type: 'spring', damping: 25, stiffness: 200 }} className="absolute inset-0 z-50 bg-[#f8f6f2] dark:bg-[#121212] flex flex-col pointer-events-auto">
                     <ProfileView onBack={() => navigate(-1)} onLogout={() => signOut().then(() => navigate('/login'))} />
                   </motion.div>
                 } />

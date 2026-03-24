@@ -17,7 +17,6 @@ export function useProfile() {
         profile.settings = {
           notifications: true,
           theme: 'light',
-          language: 'pt',
           dailyHabitGoal: 3,
           showMascotPhrases: true
         };

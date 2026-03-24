@@ -49,7 +49,6 @@ export type Completion = {
 export type UserSettings = {
   notifications: boolean;
   theme: 'light' | 'dark' | 'system';
-  language: 'pt' | 'en';
   dailyHabitGoal: number;
   showMascotPhrases: boolean;
 };
