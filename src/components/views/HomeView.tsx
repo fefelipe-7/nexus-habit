@@ -1,7 +1,7 @@
 import { Habit, Completion, Task } from '../../types';
 import Header from '../layout/Header';
 import CalendarStrip from '../home/CalendarStrip';
-import ReminderCard from '../home/ReminderCard';
+import FredCard from '../home/FredCard';
 import HabitList from '../home/HabitList';
 import { motion, AnimatePresence } from 'framer-motion';
 import { HabitSkeleton, TaskSkeleton } from '../ui/Skeleton';
@@ -61,7 +61,12 @@ export default function HomeView({ habits, tasks, completions, selectedDate, set
         <CalendarStrip selectedDate={selectedDate} onSelectDate={setSelectedDate} />
       </motion.div>
       <motion.div variants={itemVariants}>
-        <ReminderCard />
+        <FredCard 
+          habits={habits} 
+          tasks={tasks} 
+          completions={completions} 
+          selectedDate={selectedDate} 
+        />
       </motion.div>
       <motion.div variants={itemVariants} className="px-6 space-y-4">
         <AnimatePresence mode="wait">
