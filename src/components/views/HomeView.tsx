@@ -25,6 +25,7 @@ type Props = {
   username: string;
   avatarUrl?: string;
   stats: any;
+  profile?: any;
 };
 
 const containerVariants = {
@@ -42,8 +43,11 @@ const itemVariants = {
   show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 24 } }
 };
 
-export default function HomeView({ habits, tasks, completions, selectedDate, setSelectedDate, toggleCompletion, toggleTask, onShowStreak, onProfileClick, onHabitClick, onTaskClick, isLoading, username, avatarUrl }: Props) {
+export default function HomeView({ habits, tasks, completions, selectedDate, setSelectedDate, toggleCompletion, toggleTask, onShowStreak, onProfileClick, onHabitClick, onTaskClick, isLoading, username, profile }: Props) {
   const navigate = useNavigate();
+  const avatarUrl = profile?.avatarUrl;
+  const showMascot = profile?.settings?.showMascotPhrases ?? true;
+
   const filteredHabits = habits.filter(habit => 
     habit.repeatDays.includes(selectedDate.getDay())
   );
@@ -67,6 +71,7 @@ export default function HomeView({ habits, tasks, completions, selectedDate, set
           tasks={tasks} 
           completions={completions} 
           selectedDate={selectedDate} 
+          showPhrases={showMascot}
         />
       </motion.div>
       <motion.div variants={itemVariants} className="px-6 space-y-4">

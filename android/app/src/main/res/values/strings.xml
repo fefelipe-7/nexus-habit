@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">NexusHabit</string>
+    <string name="title_activity_main">NexusHabit</string>
+    <string name="package_name">com.nexus.habit</string>
+    <string name="custom_url_scheme">com.nexus.habit</string>
+</resources>

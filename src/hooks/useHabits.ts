@@ -1,3 +1,4 @@
+import { useMemo, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { habitService } from '../services/habitService';
 import { Habit } from '../types';
@@ -49,7 +50,6 @@ export function useHabits() {
   const toggleCompletionMutation = useMutation({
     mutationFn: ({ habitId, date, amount }: { habitId: string, date: string, amount?: number }) => 
       habitService.toggleCompletion(habitId, date, amount),
-    // Optimistic Update
     onMutate: async ({ habitId, date, amount }) => {
       await queryClient.cancelQueries({ queryKey: ['completions'] });
       const previousCompletions = queryClient.getQueryData(['completions']);
@@ -77,16 +77,27 @@ export function useHabits() {
     },
   });
 
-  const stats = calculateGlobalStats(habitsQuery.data ?? [], completionsQuery.data ?? []);
+  const habits = habitsQuery.data ?? [];
+  const completions = completionsQuery.data ?? [];
+
+  const stats = useMemo(() => 
+    calculateGlobalStats(habits, completions),
+    [habits, completions]
+  );
+
+  const createHabit = useCallback((h: Partial<Habit>) => createHabitMutation.mutateAsync(h), [createHabitMutation]);
+  const updateHabit = useCallback((args: { id: string, updates: Partial<Habit> }) => updateHabitMutation.mutateAsync(args), [updateHabitMutation]);
+  const deleteHabit = useCallback((id: string) => deleteHabitMutation.mutateAsync(id), [deleteHabitMutation]);
+  const toggleCompletion = useCallback((args: { habitId: string, date: string, amount?: number }) => toggleCompletionMutation.mutateAsync(args), [toggleCompletionMutation]);
 
   return {
-    habits: habitsQuery.data ?? [],
-    completions: completionsQuery.data ?? [],
+    habits,
+    completions,
     stats,
     isLoading: habitsQuery.isLoading || completionsQuery.isLoading,
-    createHabit: createHabitMutation.mutateAsync,
-    updateHabit: updateHabitMutation.mutateAsync,
-    deleteHabit: deleteHabitMutation.mutateAsync,
-    toggleCompletion: toggleCompletionMutation.mutateAsync,
+    createHabit,
+    updateHabit,
+    deleteHabit,
+    toggleCompletion,
   };
 }

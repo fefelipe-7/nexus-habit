@@ -46,11 +46,19 @@ export type Completion = {
   amount: number;
 };
 
+export type UserSettings = {
+  notifications: boolean;
+  theme: 'light' | 'dark' | 'system';
+  language: 'pt' | 'en';
+  dailyHabitGoal: number;
+  showMascotPhrases: boolean;
+};
+
 export type Profile = {
   id: string;
   displayName: string;
   bio?: string;
   avatarUrl?: string;
-  settings: Record<string, any>;
+  settings: UserSettings;
   updatedAt: string;
 };

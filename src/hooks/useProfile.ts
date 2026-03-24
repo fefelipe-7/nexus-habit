@@ -10,7 +10,19 @@ export function useProfile() {
     queryFn: async () => {
       const { data, error } = await profileService.getProfile();
       if (error) throw error;
-      return data as Profile;
+      
+      const profile = data as Profile;
+      // Ensure settings has defaults
+      if (!profile.settings || Object.keys(profile.settings).length === 0) {
+        profile.settings = {
+          notifications: true,
+          theme: 'light',
+          language: 'pt',
+          dailyHabitGoal: 3,
+          showMascotPhrases: true
+        };
+      }
+      return profile;
     },
   });
 

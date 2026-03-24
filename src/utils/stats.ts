@@ -95,25 +95,35 @@ export const calculateGlobalStats = (habits: Habit[], completions: Completion[])
   const totalCompletions = completions.length;
   const currentStreak = habits.length > 0 ? Math.max(...habits.map(h => h.streak || 0)) : 0;
   
-  // Longest streak across all habits
-  const longestStreak = habits.length > 0 ? Math.max(...habits.map(h => {
-    const stats = calculateHabitStats(h, completions);
-    return stats.longestStreak;
-  })) : 0;
+  // Group completions by date for faster heatmap and habit stats
+  const completionsByDate = new Map<string, Completion[]>();
+  completions.forEach(c => {
+    const list = completionsByDate.get(c.date) || [];
+    list.push(c);
+    completionsByDate.set(c.date, list);
+  });
 
-  // Global Success Rate
-  const totalSuccessRate = habits.length > 0 
-    ? Math.round(habits.reduce((acc, h) => acc + calculateHabitStats(h, completions).successRate, 0) / habits.length)
+  // Calculate habit stats once per habit
+  const habitStats = habits.map(h => calculateHabitStats(h, completions));
+
+  // Longest streak across all habits
+  const longestStreak = habitStats.length > 0 
+    ? Math.max(...habitStats.map(s => s.longestStreak)) 
     : 0;
 
-  // Heatmap (Last 105 days)
+  // Global Success Rate
+  const totalSuccessRate = habitStats.length > 0 
+    ? Math.round(habitStats.reduce((acc, s) => acc + s.successRate, 0) / habitStats.length)
+    : 0;
+
+  // Heatmap (Last 105 days) - O(days)
   const heatmap = Array.from({ length: 105 }).map((_, i) => {
     const d = subDays(new Date(), i);
     const dateStr = format(d, 'yyyy-MM-dd');
-    const count = completions.filter(c => c.date === dateStr).length;
+    const dayCompletions = completionsByDate.get(dateStr) || [];
     return {
       date: dateStr,
-      value: count // number of habits done that day
+      value: dayCompletions.length // number of habits done that day
     };
   }).reverse();
 

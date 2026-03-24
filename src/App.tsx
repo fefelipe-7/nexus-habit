@@ -1,20 +1,23 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, lazy, Suspense } from 'react';
 import { format, addDays } from 'date-fns';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Routes, Route, useLocation, useNavigate, Navigate, useParams } from 'react-router-dom';
-import { Folder } from 'lucide-react';
-import HomeView from './components/views/HomeView';
-import AddWizardView from './components/views/AddWizardView';
-import StatisticsView from './components/views/StatisticsView';
-import StreakView from './components/views/StreakView';
-import TasksView from './components/views/TasksView';
-import ProfileView from './components/views/ProfileView';
-import HabitDetailView from './components/views/HabitDetailView';
-import TaskDetailView from './components/views/TaskDetailView';
-import ProjectsView from './components/views/ProjectsView';
-import ProjectDetailView from './components/views/ProjectDetailView';
-import LogProgressView from './components/views/LogProgressView';
-import LoginView from './components/views/LoginView';
+import { Folder, Loader2 } from 'lucide-react';
+
+// Lazy load views for better bundle splitting
+const HomeView = lazy(() => import('./components/views/HomeView'));
+const AddWizardView = lazy(() => import('./components/views/AddWizardView'));
+const StatisticsView = lazy(() => import('./components/views/StatisticsView'));
+const StreakView = lazy(() => import('./components/views/StreakView'));
+const TasksView = lazy(() => import('./components/views/TasksView'));
+const ProfileView = lazy(() => import('./components/views/ProfileView'));
+const HabitDetailView = lazy(() => import('./components/views/HabitDetailView'));
+const TaskDetailView = lazy(() => import('./components/views/TaskDetailView'));
+const ProjectsView = lazy(() => import('./components/views/ProjectsView'));
+const ProjectDetailView = lazy(() => import('./components/views/ProjectDetailView'));
+const LogProgressView = lazy(() => import('./components/views/LogProgressView'));
+const LoginView = lazy(() => import('./components/views/LoginView'));
+
 import BottomNav from './components/layout/BottomNav';
 import FloatingActionButton from './components/layout/FloatingActionButton';
 import { Habit, Task, Completion, Project } from './types';
@@ -23,7 +26,6 @@ import { useHabits } from './hooks/useHabits';
 import { useTasks } from './hooks/useTasks';
 import { useProjects } from './hooks/useProjects';
 import { useProfile } from './hooks/useProfile';
-import { Loader2 } from 'lucide-react';
 
 const pageVariants = {
   initial: { opacity: 0, y: 10, scale: 0.98 },
@@ -78,140 +80,146 @@ export default function App() {
   }
 
   return (
-    <div className="h-[100dvh] bg-gray-100 text-[#2d2d2d] font-sans flex justify-center lowercase selection:bg-[#f27d26] selection:text-white overflow-hidden">
-      <div className="w-full bg-[#f8f6f2] h-full relative shadow-2xl overflow-hidden flex flex-col">
-        
-        <div className="flex-1 relative overflow-hidden">
-          {/* Main Background Views */}
-          <AnimatePresence>
-            <div key={background?.pathname || location.pathname} className="absolute inset-0">
-              <Routes location={background || location}>
-              <Route path="/" element={
-                <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.2 }} className="absolute inset-0 flex flex-col pb-24 bg-[#f8f6f2]">
-                  <HomeView 
-                    habits={habits} 
-                    tasks={tasks}
-                    completions={completions} 
-                    selectedDate={selectedDate} 
-                    setSelectedDate={setSelectedDate}
-                    toggleCompletion={(id, date, amount) => { toggleCompletion({ habitId: id, date: format(date, 'yyyy-MM-dd'), amount }); }}
-                    toggleTask={toggleTask}
-                    onHabitClick={(id) => navigateToModal(`/habit/${id}`)}
-                    onTaskClick={(id) => navigateToModal(`/task/${id}`)}
-                    onShowStreak={() => navigate('/streak')}
-                    onProfileClick={() => navigateToModal('/profile')}
-                    isLoading={habitsLoading || tasksLoading}
-                    username={username}
-                    avatarUrl={profile?.avatarUrl}
-                    stats={stats}
-                  />
-                </motion.div>
-              } />
-              
-              <Route path="/tasks" element={
-                <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.2 }} className="absolute inset-0 flex flex-col pb-24 bg-[#f8f6f2]">
-                  <TasksView tasks={tasks} onToggleTask={toggleTask} onTaskClick={(id) => navigateToModal(`/task/${id}`)} isLoading={tasksLoading} />
-                </motion.div>
-              } />
-
-              <Route path="/journey" element={
-                <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.2 }} className="absolute inset-0 flex flex-col pb-24 bg-[#f8f6f2]">
-                  <StatisticsView habits={habits} completions={completions} stats={stats} onHabitClick={(id) => navigateToModal(`/habit/${id}`)} />
-                </motion.div>
-              } />
-
-              <Route path="/streak" element={
-                <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.2 }} className="absolute inset-0 flex flex-col pb-24 bg-[#f8f6f2]">
-                  <StreakView streak={stats.currentStreak} stats={stats} />
-                </motion.div>
-              } />
-
-              <Route path="/projects" element={
-                <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.2 }} className="absolute inset-0 flex flex-col pb-24 bg-[#f8f6f2]">
-                  <ProjectsView />
-                </motion.div>
-              } />
-            </Routes>
-          </div>
-        </AnimatePresence>
-
-          {/* Modal / Overlay Routes */}
-          <AnimatePresence>
-            <div key={location.pathname.split('/')[1] || 'root'} className="absolute inset-0 pointer-events-none">
-              <Routes location={location}>
-              <Route path="/add/*" element={
-                <AddWizardView 
-                  onSave={(h) => createHabit(h).then(() => navigate('/'))} 
-                  onAddTask={(t) => createTask(t).then(() => navigate('/tasks'))} 
-                  onAddProject={async ({ project, taskIds }: { project: any, taskIds: string[] }) => {
-                    const result = await createProject(project);
-                    if (result && taskIds.length > 0) {
-                      const projectId = (result as any).id;
-                      if (projectId) {
-                        await Promise.all(taskIds.map(tid => updateTask({ id: tid, updates: { projectId } })));
-                      }
-                    }
-                    navigate('/projects');
-                  }}
-                  onClose={() => navigate('/')} 
-                />
-              } />
-              <Route path="/task/:id/*" element={
-                <TaskDetailRoute tasks={tasks} projects={projects} onUpdate={updateTask} onDelete={(id) => deleteTask(id).then(() => navigate('/tasks'))} />
-              } />
-              <Route path="/profile" element={
-                <motion.div initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} transition={{ type: 'spring', damping: 25, stiffness: 200 }} className="absolute inset-0 z-50 bg-[#f8f6f2] flex flex-col pointer-events-auto">
-                  <ProfileView onBack={() => navigate(-1)} onLogout={() => signOut().then(() => navigate('/login'))} />
-                </motion.div>
-              } />
-              <Route path="/habit/:id/*" element={
-                <HabitDetailRoute 
-                  habits={habits} 
-                  completions={completions}
-                  onUpdate={(h) => updateHabit({ id: h.id, updates: h })} 
-                  onDelete={(id) => deleteHabit(id).then(() => navigate('/'))} 
-                  onClose={() => navigate(-1)} 
-                />
-              } />
-              <Route path="/project/:id/*" element={
-                <ProjectDetailView />
-              } />
-              <Route path="/habit/:id/log" element={
-                <LogProgressRoute habits={habits} completions={completions} onLog={(habitId, amount) => toggleCompletion({ habitId, date: format(selectedDate, 'yyyy-MM-dd'), amount })} onClose={() => navigate(-1)} />
-              } />
-              <Route path="*" element={null} />
-            </Routes>
-          </div>
-        </AnimatePresence>
-        </div>
-
-        <AnimatePresence>
-          {!isModalOpen && (
-            <>
-              <FloatingActionButton onClick={() => navigateToModal('/add')} />
-              <motion.div 
-                initial={{ y: 100 }} 
-                animate={{ y: 0 }} 
-                exit={{ y: 100 }} 
-                transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                className="absolute bottom-0 left-0 right-0 z-40"
-              >
-                <BottomNav currentView={currentTab} onChangeView={(v) => {
-                  const viewToPath = {
-                    'home': '/',
-                    'tasks': '/tasks',
-                    'stats': '/journey',
-                    'streak': '/streak',
-                    'projects': '/projects'
-                  } as any;
-                  navigate(viewToPath[v]);
-                }} />
-              </motion.div>
-            </>
-          )}
-        </AnimatePresence>
+    <Suspense fallback={
+      <div className="h-[100dvh] bg-[#f8f6f2] flex items-center justify-center">
+        <Loader2 className="animate-spin text-[#f27d26]" size={32} />
       </div>
-    </div>
+    }>
+      <div className="h-[100dvh] bg-gray-100 text-[#2d2d2d] font-sans flex justify-center lowercase selection:bg-[#f27d26] selection:text-white overflow-hidden">
+        <div className="w-full bg-[#f8f6f2] h-full relative shadow-2xl overflow-hidden flex flex-col">
+          
+          <div className="flex-1 relative overflow-hidden">
+            {/* Main Background Views */}
+            <AnimatePresence>
+              <div key={background?.pathname || location.pathname} className="absolute inset-0">
+                <Routes location={background || location}>
+                <Route path="/" element={
+                  <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.2 }} className="absolute inset-0 flex flex-col pb-24 bg-[#f8f6f2]">
+                    <HomeView 
+                      habits={habits} 
+                      tasks={tasks}
+                      completions={completions} 
+                      selectedDate={selectedDate} 
+                      setSelectedDate={setSelectedDate}
+                      toggleCompletion={(id, date, amount) => { toggleCompletion({ habitId: id, date: format(date, 'yyyy-MM-dd'), amount }); }}
+                      toggleTask={toggleTask}
+                      onHabitClick={(id) => navigateToModal(`/habit/${id}`)}
+                      onTaskClick={(id) => navigateToModal(`/task/${id}`)}
+                      onShowStreak={() => navigate('/streak')}
+                      onProfileClick={() => navigateToModal('/profile')}
+                      isLoading={habitsLoading || tasksLoading}
+                      username={username}
+                      profile={profile}
+                      stats={stats}
+                    />
+                  </motion.div>
+                } />
+                
+                <Route path="/tasks" element={
+                  <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.2 }} className="absolute inset-0 flex flex-col pb-24 bg-[#f8f6f2]">
+                    <TasksView tasks={tasks} onToggleTask={toggleTask} onTaskClick={(id) => navigateToModal(`/task/${id}`)} isLoading={tasksLoading} />
+                  </motion.div>
+                } />
+
+                <Route path="/journey" element={
+                  <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.2 }} className="absolute inset-0 flex flex-col pb-24 bg-[#f8f6f2]">
+                    <StatisticsView habits={habits} completions={completions} stats={stats} onHabitClick={(id) => navigateToModal(`/habit/${id}`)} />
+                  </motion.div>
+                } />
+
+                <Route path="/streak" element={
+                  <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.2 }} className="absolute inset-0 flex flex-col pb-24 bg-[#f8f6f2]">
+                    <StreakView streak={stats.currentStreak} stats={stats} />
+                  </motion.div>
+                } />
+
+                <Route path="/projects" element={
+                  <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.2 }} className="absolute inset-0 flex flex-col pb-24 bg-[#f8f6f2]">
+                    <ProjectsView />
+                  </motion.div>
+                } />
+              </Routes>
+            </div>
+          </AnimatePresence>
+
+            {/* Modal / Overlay Routes */}
+            <AnimatePresence>
+              <div key={location.pathname.split('/')[1] || 'root'} className="absolute inset-0 pointer-events-none">
+                <Routes location={location}>
+                <Route path="/add/*" element={
+                  <AddWizardView 
+                    onSave={(h) => createHabit(h).then(() => navigate('/'))} 
+                    onAddTask={(t) => createTask(t).then(() => navigate('/tasks'))} 
+                    onAddProject={async ({ project, taskIds }: { project: any, taskIds: string[] }) => {
+                      const result = await createProject(project);
+                      if (result && taskIds.length > 0) {
+                        const projectId = (result as any).id;
+                        if (projectId) {
+                          await Promise.all(taskIds.map(tid => updateTask({ id: tid, updates: { projectId } })));
+                        }
+                      }
+                      navigate('/projects');
+                    }}
+                    onClose={() => navigate('/')} 
+                  />
+                } />
+                <Route path="/task/:id/*" element={
+                  <TaskDetailRoute tasks={tasks} projects={projects} onUpdate={updateTask} onDelete={(id) => deleteTask(id).then(() => navigate('/tasks'))} />
+                } />
+                <Route path="/profile" element={
+                  <motion.div initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} transition={{ type: 'spring', damping: 25, stiffness: 200 }} className="absolute inset-0 z-50 bg-[#f8f6f2] flex flex-col pointer-events-auto">
+                    <ProfileView onBack={() => navigate(-1)} onLogout={() => signOut().then(() => navigate('/login'))} />
+                  </motion.div>
+                } />
+                <Route path="/habit/:id/*" element={
+                  <HabitDetailRoute 
+                    habits={habits} 
+                    completions={completions}
+                    onUpdate={(h) => updateHabit({ id: h.id, updates: h })} 
+                    onDelete={(id) => deleteHabit(id).then(() => navigate('/'))} 
+                    onClose={() => navigate(-1)} 
+                  />
+                } />
+                <Route path="/project/:id/*" element={
+                  <ProjectDetailView />
+                } />
+                <Route path="/habit/:id/log" element={
+                  <LogProgressRoute habits={habits} completions={completions} onLog={(habitId, amount) => toggleCompletion({ habitId, date: format(selectedDate, 'yyyy-MM-dd'), amount })} onClose={() => navigate(-1)} />
+                } />
+                <Route path="*" element={null} />
+              </Routes>
+            </div>
+          </AnimatePresence>
+          </div>
+
+          <AnimatePresence>
+            {!isModalOpen && (
+              <>
+                <FloatingActionButton onClick={() => navigateToModal('/add')} />
+                <motion.div 
+                  initial={{ y: 100 }} 
+                  animate={{ y: 0 }} 
+                  exit={{ y: 100 }} 
+                  transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+                  className="absolute bottom-0 left-0 right-0 z-40"
+                >
+                  <BottomNav currentView={currentTab} onChangeView={(v) => {
+                    const viewToPath = {
+                      'home': '/',
+                      'tasks': '/tasks',
+                      'stats': '/journey',
+                      'streak': '/streak',
+                      'projects': '/projects'
+                    } as any;
+                    navigate(viewToPath[v]);
+                  }} />
+                </motion.div>
+              </>
+            )}
+          </AnimatePresence>
+        </div>
+      </div>
+    </Suspense>
   );
 }
 

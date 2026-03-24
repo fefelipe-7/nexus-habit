@@ -1,3 +1,4 @@
+import { useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { projectService } from '../services/projectService';
 import { Project } from '../types';
@@ -36,11 +37,15 @@ export function useProjects() {
     },
   });
 
+  const createProject = useCallback((p: Partial<Project>) => createProjectMutation.mutateAsync(p), [createProjectMutation]);
+  const updateProject = useCallback((args: { id: string, updates: Partial<Project> }) => updateProjectMutation.mutateAsync(args), [updateProjectMutation]);
+  const deleteProject = useCallback((id: string) => deleteProjectMutation.mutateAsync(id), [deleteProjectMutation]);
+
   return {
     projects: projectsQuery.data ?? [],
     isLoading: projectsQuery.isLoading,
-    createProject: createProjectMutation.mutateAsync,
-    updateProject: updateProjectMutation.mutateAsync,
-    deleteProject: deleteProjectMutation.mutateAsync,
+    createProject,
+    updateProject,
+    deleteProject,
   };
 }

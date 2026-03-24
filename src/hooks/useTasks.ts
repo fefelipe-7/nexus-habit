@@ -1,3 +1,4 @@
+import { useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { taskService } from '../services/taskService';
 import { Task } from '../types';
@@ -61,12 +62,17 @@ export function useTasks() {
     },
   });
 
+  const createTask = useCallback((t: Partial<Task>) => createTaskMutation.mutateAsync(t), [createTaskMutation]);
+  const updateTask = useCallback((args: { id: string, updates: Partial<Task> }) => updateTaskMutation.mutateAsync(args), [updateTaskMutation]);
+  const deleteTask = useCallback((id: string) => deleteTaskMutation.mutateAsync(id), [deleteTaskMutation]);
+  const toggleTask = useCallback((id: string) => toggleTaskMutation.mutateAsync(id), [toggleTaskMutation]);
+
   return {
     tasks: tasksQuery.data ?? [],
     isLoading: tasksQuery.isLoading,
-    createTask: createTaskMutation.mutateAsync,
-    updateTask: updateTaskMutation.mutateAsync,
-    deleteTask: deleteTaskMutation.mutateAsync,
-    toggleTask: toggleTaskMutation.mutateAsync,
+    createTask,
+    updateTask,
+    deleteTask,
+    toggleTask,
   };
 }

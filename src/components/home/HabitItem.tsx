@@ -1,3 +1,4 @@
+import React from 'react';
 import { Check, Clock, Plus } from 'lucide-react';
 import { Habit, Completion } from '../../types';
 import { cn } from '../../utils/cn';
@@ -16,8 +17,7 @@ type Props = {
   isLast?: boolean;
 };
 
-
-export default function HabitItem({ habit, isCompleted, completion, onToggle, onHabitClick, isLast }: Props) {
+const HabitItem = React.memo(function HabitItem({ habit, isCompleted, completion, onToggle, onHabitClick, isLast }: Props) {
   const navigate = useNavigate();
   const nexusColor = getColorById(habit.color);
   const category = getCategoryById(habit.categoryId || '');
@@ -121,4 +121,6 @@ export default function HabitItem({ habit, isCompleted, completion, onToggle, on
       </motion.div>
     </motion.div>
   );
-}
+});
+
+export default HabitItem;

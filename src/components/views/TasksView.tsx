@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { Task, Priority } from '../../types';
@@ -129,7 +129,7 @@ export default function TasksView({ tasks, onToggleTask, onTaskClick, isLoading 
   );
 }
 
-function ListView({ tasks, completed, onToggle, onDetail, getUrgencyColor, getPriorityColor }: any) {
+const ListView = React.memo(function ListView({ tasks, completed, onToggle, onDetail, getUrgencyColor, getPriorityColor }: any) {
   return (
     <div className="space-y-10">
       <div>
@@ -158,7 +158,7 @@ function ListView({ tasks, completed, onToggle, onDetail, getUrgencyColor, getPr
       )}
     </div>
   );
-}
+});
 
 function BoardView({ tasks, onToggle, onDetail, getPriorityColor }: any) {
   const priorities: Priority[] = ['high', 'medium', 'low'];
@@ -269,7 +269,7 @@ function HeaderSection({ title, count, color }: any) {
   );
 }
 
-function TaskCard({ task, onToggle, onDetail, getUrgencyColor, getPriorityColor }: any) {
+const TaskCard = React.memo(function TaskCard({ task, onToggle, onDetail, getUrgencyColor, getPriorityColor }: any) {
   return (
     <motion.div
       layoutId={task.id}
@@ -322,4 +322,4 @@ function TaskCard({ task, onToggle, onDetail, getUrgencyColor, getPriorityColor 
       </div>
     </motion.div>
   );
-}
+});

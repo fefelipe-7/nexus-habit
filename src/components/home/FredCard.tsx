@@ -9,11 +9,12 @@ type Props = {
   tasks: Task[];
   completions: Completion[];
   selectedDate: Date;
+  showPhrases?: boolean;
 };
 
 type Mood = 'alone' | 'confident' | 'confused' | 'happy' | 'idle' | 'joking' | 'rage' | 'sad' | 'satisfied';
 
-export default function FredCard({ habits, tasks, completions, selectedDate }: Props) {
+export default function FredCard({ habits, tasks, completions, selectedDate, showPhrases = true }: Props) {
   const dateStr = format(selectedDate, 'yyyy-MM-dd');
   const dayOfWeek = selectedDate.getDay();
 
@@ -74,22 +75,26 @@ export default function FredCard({ habits, tasks, completions, selectedDate }: P
       transition={{ type: 'spring', stiffness: 300, damping: 25 }}
     >
       <div className="z-10 flex-1 pr-4">
-        <div className="flex items-center gap-2 mb-2">
-          <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#f27d26] bg-[#fef1e6] px-2 py-0.5 rounded-full">
-            fred says
-          </span>
-        </div>
-        <AnimatePresence mode="wait">
-          <motion.p 
-            key={phrase}
-            initial={{ opacity: 0, x: -5 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 5 }}
-            className="text-sm font-medium text-[#2d2d2d] leading-relaxed mb-4 italic"
-          >
-            "{phrase}"
-          </motion.p>
-        </AnimatePresence>
+        {showPhrases && (
+          <>
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#f27d26] bg-[#fef1e6] px-2 py-0.5 rounded-full">
+                fred says
+              </span>
+            </div>
+            <AnimatePresence mode="wait">
+              <motion.p 
+                key={phrase}
+                initial={{ opacity: 0, x: -5 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 5 }}
+                className="text-sm font-medium text-[#2d2d2d] leading-relaxed mb-4 italic"
+              >
+                "{phrase}"
+              </motion.p>
+            </AnimatePresence>
+          </>
+        )}
         
         <div className="flex flex-col gap-1">
           <p className="text-[11px] text-[#8c8c8c]">
