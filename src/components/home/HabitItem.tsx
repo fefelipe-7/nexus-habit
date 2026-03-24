@@ -4,8 +4,7 @@ import { cn } from '../../utils/cn';
 import { motion } from 'framer-motion';
 import { getColorById } from '../../constants/colors';
 import { getCategoryById } from '../../constants/categories';
-import { useState } from 'react';
-import LogProgressModal from './LogProgressModal';
+import { useNavigate } from 'react-router-dom';
 
 type Props = {
   key?: string | number;
@@ -19,7 +18,7 @@ type Props = {
 
 
 export default function HabitItem({ habit, isCompleted, completion, onToggle, onHabitClick, isLast }: Props) {
-  const [isLogModalOpen, setIsLogModalOpen] = useState(false);
+  const navigate = useNavigate();
   const nexusColor = getColorById(habit.color);
   const category = getCategoryById(habit.categoryId || '');
 
@@ -89,7 +88,7 @@ export default function HabitItem({ habit, isCompleted, completion, onToggle, on
                     <button 
                         onClick={(e) => {
                             e.stopPropagation();
-                            setIsLogModalOpen(true);
+                            navigate(`/habit/${habit.id}/log`);
                         }}
                         className="w-8 h-8 rounded-full bg-[#f8f6f2] flex items-center justify-center text-[#2d2d2d] hover:bg-orange-50 hover:text-[#f27d26] transition-colors"
                     >
@@ -120,14 +119,6 @@ export default function HabitItem({ habit, isCompleted, completion, onToggle, on
             </div>
         )}
       </motion.div>
-
-      <LogProgressModal 
-        isOpen={isLogModalOpen}
-        onClose={() => setIsLogModalOpen(false)}
-        habit={habit}
-        currentAmount={currentAmount}
-        onLog={onToggle}
-      />
     </motion.div>
   );
 }

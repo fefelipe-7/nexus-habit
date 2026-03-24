@@ -13,6 +13,7 @@ import HabitDetailView from './components/views/HabitDetailView';
 import TaskDetailView from './components/views/TaskDetailView';
 import ProjectsView from './components/views/ProjectsView';
 import ProjectDetailView from './components/views/ProjectDetailView';
+import LogProgressView from './components/views/LogProgressView';
 import LoginView from './components/views/LoginView';
 import BottomNav from './components/layout/BottomNav';
 import FloatingActionButton from './components/layout/FloatingActionButton';
@@ -175,6 +176,9 @@ export default function App() {
               <Route path="/project/:id/*" element={
                 <ProjectDetailView />
               } />
+              <Route path="/habit/:id/log" element={
+                <LogProgressRoute habits={habits} completions={completions} onLog={(habitId, amount) => toggleCompletion({ habitId, date: format(selectedDate, 'yyyy-MM-dd'), amount })} onClose={() => navigate(-1)} />
+              } />
               <Route path="*" element={null} />
             </Routes>
           </div>
@@ -211,7 +215,6 @@ export default function App() {
   );
 }
 
-// Helper component for Habit Details
 function HabitDetailRoute({ habits, completions, onUpdate, onDelete, onClose }: { 
   habits: Habit[], 
   completions: Completion[],
@@ -223,4 +226,13 @@ function HabitDetailRoute({ habits, completions, onUpdate, onDelete, onClose }: 
   const habit = habits.find(h => h.id === id);
   if (!habit) return null;
   return <HabitDetailView habit={habit} completions={completions} onUpdate={onUpdate} onDelete={onDelete} onClose={onClose} />;
+}
+
+function LogProgressRoute({ habits, completions, onLog, onClose }: { 
+  habits: Habit[], 
+  completions: Completion[],
+  onLog: (id: string, amount: number) => void,
+  onClose: () => void 
+}) {
+  return <LogProgressView habits={habits} completions={completions} onLog={onLog} onClose={onClose} />;
 }
