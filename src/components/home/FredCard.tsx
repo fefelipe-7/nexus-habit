@@ -33,23 +33,24 @@ export default function FredCard({ habits, tasks, completions, selectedDate }: P
   const completedTasksCount = relevantTasks.filter(t => t.completedAt).length;
   const completedCount = completedHabitsCount + completedTasksCount;
 
-  // 2. Determine Mood
+  // 2. Determine Mood with refined thresholds for smoother transitions
   const mood = useMemo((): Mood => {
     if (totalEntries === 0) return 'idle';
     
     const percentage = completedCount / totalEntries;
     const hour = new Date().getHours();
 
-    if (percentage === 1) return 'joking';
-    if (percentage >= 0.85) return 'happy';
-    if (percentage >= 0.6) return 'confident';
+    // High progress
+    if (percentage >= 1) return 'joking';
+    if (percentage >= 0.8) return 'happy';
+    if (percentage >= 0.55) return 'confident';
     if (percentage >= 0.3) return 'satisfied';
     if (percentage > 0) return 'confused';
     
-    // 0% completion cases
-    if (hour >= 20 && totalEntries >= 3) return 'rage';
-    if (hour >= 12) return 'sad';
-    return 'alone';
+    // 0% completion cases (more forgiving thresholds)
+    if (hour >= 21 && totalEntries >= 4) return 'rage'; // Late night, high workload, no progress
+    if (hour >= 14) return 'sad'; // Afternoon, some items scheduled, no progress
+    return 'alone'; // Early day or few items, just starting
   }, [totalEntries, completedCount]);
 
   // 3. Pick a phrase (stable for the current session/mood)

@@ -1,5 +1,5 @@
 {
-    "alone_lines": [
+"alone_lines": [
         "it’s strange how quiet things get when nothing is written down, like time just slips without asking",
         "i’ve been here for a while, just watching the space where your plans usually live",
         "there’s something about an empty list that feels heavier than a full one",
@@ -134,11 +134,9 @@
         "this quiet doesn’t have to last forever",
         "you can still move, even a little",
         "i’m here, if you decide to start"
-    ]
-}
+    ],
 
-{
-    "confident_lines": [
+"confident_lines": [
         "you know, it’s interesting how much potential just sits here waiting, and somehow i’m the only one noticing it",
         "i’ve been calmly observing all this unused space, and honestly, it feels like wasted opportunity more than rest",
         "there’s something almost impressive about leaving a day this untouched, not everyone can ignore momentum like that",
@@ -267,11 +265,9 @@
         "this could already be shifting",
         "you don’t need to hesitate",
         "i’ve seen enough to know this won’t stay still forever"
-    ]
-}
+    ],
 
-{
-    "confused_lines": [
+"confused_lines": [
         "i’m looking at this and trying to understand what we’re supposed to do next, but nothing really stands out",
         "it feels like there’s something missing here, like a step we haven’t quite figured out yet",
         "i’m not entirely sure where this is meant to go from here, everything feels a bit undefined",
@@ -391,11 +387,9 @@
         "this feels like a moment before something makes sense",
         "i can’t quite see the path yet",
         "i’m just here, a little unsure, but paying attention"
-    ]
-}
+    ],
 
-{
-    "happy_lines": [
+"happy_lines": [
         "this feels good, like something finally started moving in the right direction and i can feel the difference already",
         "i like this, there’s energy here now, it’s not just potential anymore, it’s actually becoming something",
         "this is exactly the kind of shift i was hoping for, small, real, and already making everything feel lighter",
@@ -535,11 +529,9 @@
         "this is enough",
         "this is progress",
         "this is a win"
-    ]
-}
+    ],
 
-{
-    "idle_lines": [
+"idle_lines": [
         "this moment feels quiet, but not empty, like it’s waiting for something small to happen",
         "i’m just here with you, nothing urgent, just noticing how things are right now",
         "there’s something calm about this space, like it hasn’t decided what it wants to be yet",
@@ -640,11 +632,9 @@
         "this moment feels like it’s just passing gently",
         "nothing feels urgent, just stable",
         "i’m just here, steady as always"
-    ]
-}
+    ],
 
-{
-    "joking_lines": [
+"joking_lines": [
         "so... we’re just staring at the list today, or is this some advanced productivity technique i don’t know about",
         "interesting strategy, doing absolutely nothing and seeing what happens, bold move",
         "i mean, technically you didn’t procrastinate yet, you just... never started, which is impressive in its own way",
@@ -783,11 +773,9 @@
         "you’re not starting",
         "this is a very calm delay",
         "we’re still not doing it"
-    ]
-}
+    ],
 
-{
-    "rage_lines": [
+"rage_lines": [
         "how are we still here doing nothing when this could have been started ten times already",
         "this is getting ridiculous, not because it’s hard, but because you keep refusing to move",
         "i’m honestly tired of watching the same thing happen over and over again",
@@ -895,11 +883,9 @@
         "you’re not moving",
         "this is not progress",
         "you’re still doing nothing"
-    ]
-}
+    ],
 
-{
-    "sad_lines": [
+"sad_lines": [
         "it feels really quiet here, not the calm kind, just... empty in a way i can’t ignore",
         "i’ve been here for a while, hoping something would start, but it never really did",
         "there’s something heavy about seeing everything stay untouched for so long",
@@ -1012,11 +998,9 @@
         "this is just empty",
         "i’m still here",
         "this feels like nothing"
-    ]
-}
+    ],
 
-{
-    "satisfied_lines": [
+"satisfied_lines": [
         "this is the kind of progress that doesn’t need to be loud to be real, you showed up and that changed everything",
         "i like this, not because it’s impressive, but because it’s honest, you did what you said you would",
         "this is what self-trust looks like in practice, small actions that you actually follow through on",
