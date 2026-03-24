@@ -8,13 +8,15 @@ import { cn } from '../../utils/cn';
 import { getColorById } from '../../constants/colors';
 import { format } from 'date-fns';
 import ConfirmDialog from '../ui/ConfirmDialog';
+import TaskSelectionModal from '../project/TaskSelectionModal';
 
 export default function ProjectDetailView() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { projects, deleteProject } = useProjects();
-  const { tasks, toggleTask } = useTasks();
+  const { tasks, toggleTask, updateTask } = useTasks();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
 
   const project = projects.find(p => p.id === id);
   const projectTasks = tasks.filter(t => t.projectId === id);
@@ -38,6 +40,10 @@ export default function ProjectDetailView() {
   const handleDelete = async () => {
     await deleteProject(project.id);
     navigate('/projects');
+  };
+
+  const handleAssociateTasks = async (taskIds: string[]) => {
+    await Promise.all(taskIds.map(tid => updateTask({ id: tid, updates: { projectId: id } })));
   };
 
   return (
@@ -107,10 +113,10 @@ export default function ProjectDetailView() {
 
         {/* Add Task Button */}
         <button 
-          onClick={() => navigate('/add/task', { state: { projectId: project.id } })}
+          onClick={() => setIsTaskModalOpen(true)}
           className="w-full flex items-center gap-2 px-4 py-3 text-[#f27d26] text-xs font-bold hover:bg-orange-50/50 rounded-xl transition-colors mb-1"
         >
-          <Plus size={14} /> add task
+          <Plus size={14} /> add existing task
         </button>
 
         {projectTasks.length === 0 ? (
@@ -178,6 +184,13 @@ export default function ProjectDetailView() {
         confirmText="delete project"
         onCancel={() => setShowDeleteConfirm(false)}
         onConfirm={handleDelete}
+      />
+
+      <TaskSelectionModal 
+        isOpen={isTaskModalOpen}
+        onClose={() => setIsTaskModalOpen(false)}
+        tasks={tasks}
+        onAssociate={handleAssociateTasks}
       />
     </motion.div>
   );

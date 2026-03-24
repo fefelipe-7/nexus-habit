@@ -198,9 +198,14 @@ export default function HabitDetailView({ habit, completions, onUpdate, onClose,
               {isEditing ? (
                 <div className="flex flex-col gap-2">
                   <input 
-                    type="number" 
+                    type="text" 
+                    inputMode="numeric"
                     value={editedHabit.duration} 
-                    onChange={e => setEditedHabit({...editedHabit, duration: parseInt(e.target.value) || 0})}
+                    onChange={e => {
+                      if (e.target.value === '' || /^\d+$/.test(e.target.value)) {
+                        setEditedHabit({...editedHabit, duration: parseInt(e.target.value) || 0 as any});
+                      }
+                    }}
                     className="text-lg font-bold outline-none w-full"
                   />
                   <select 

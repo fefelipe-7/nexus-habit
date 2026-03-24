@@ -14,8 +14,10 @@ type Props = {
 };
 
 export default function LogProgressModal({ isOpen, onClose, habit, currentAmount, onLog }: Props) {
-  const [value, setValue] = useState(currentAmount);
+  const [inputValue, setInputValue] = useState(currentAmount.toString());
   const nexusColor = getColorById(habit.color);
+
+  const value = parseFloat(inputValue) || 0;
 
   const handleSave = () => {
     onLog(value);
@@ -38,7 +40,8 @@ export default function LogProgressModal({ isOpen, onClose, habit, currentAmount
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="fixed bottom-0 left-0 right-0 bg-white rounded-t-[40px] p-8 z-[70] shadow-2xl lowercase"
+            onClick={(e) => e.stopPropagation()} // Prevent clicking through to parent HabitItem
+            className="fixed bottom-0 left-0 right-0 bg-white rounded-t-[40px] p-8 z-[70] shadow-2xl lowercase pointer-events-auto"
           >
             <div className="flex justify-between items-center mb-8">
               <div className="flex items-center gap-3">
@@ -62,7 +65,7 @@ export default function LogProgressModal({ isOpen, onClose, habit, currentAmount
               <div className="text-[10px] font-black uppercase tracking-widest text-[#8c8c8c] mb-4">enter amount ({habit.unit || 'units'})</div>
               <div className="flex items-center gap-8">
                 <button 
-                  onClick={() => setValue(Math.max(0, value - 1))}
+                  onClick={() => setInputValue(Math.max(0, value - 1).toString())}
                   className="w-14 h-14 rounded-2xl bg-[#f8f6f2] flex items-center justify-center text-[#2d2d2d] active:scale-90 transition-transform"
                 >
                   <Minus size={24} />
@@ -70,15 +73,15 @@ export default function LogProgressModal({ isOpen, onClose, habit, currentAmount
                 <div className="flex items-baseline gap-2">
                   <input 
                     type="number" 
-                    value={value} 
-                    onChange={e => setValue(parseFloat(e.target.value) || 0)}
+                    value={inputValue} 
+                    onChange={e => setInputValue(e.target.value)}
                     className="text-6xl font-bold text-[#2d2d2d] w-32 text-center outline-none bg-transparent"
                     autoFocus
                   />
                   <span className="text-xl font-bold text-orange-500">/ {habit.duration}</span>
                 </div>
                 <button 
-                  onClick={() => setValue(value + 1)}
+                  onClick={() => setInputValue((value + 1).toString())}
                   className="w-14 h-14 rounded-2xl bg-[#f8f6f2] flex items-center justify-center text-[#2d2d2d] active:scale-90 transition-transform"
                 >
                   <Plus size={24} />
@@ -91,7 +94,7 @@ export default function LogProgressModal({ isOpen, onClose, habit, currentAmount
                   return (
                     <button 
                       key={pct}
-                      onClick={() => setValue(quickValue)}
+                      onClick={() => setInputValue(quickValue.toString())}
                       className={cn(
                         "flex-1 py-3 rounded-xl text-[10px] font-bold uppercase tracking-wider transition-all",
                         value === quickValue ? "bg-[#2d2d2d] text-white" : "bg-gray-50 text-gray-400 hover:bg-gray-100"

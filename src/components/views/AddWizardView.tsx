@@ -53,7 +53,7 @@ export default function AddWizardView({ onSave, onAddTask, onAddProject, onClose
   const [categoryId, setCategoryId] = useState<string>('');
   const [repeatDays, setRepeatDays] = useState<number[]>([1,2,3,4,5]);
   const [reminders, setReminders] = useState(true);
-  const [duration, setDuration] = useState(10);
+  const [duration, setDuration] = useState('10');
   const [unit, setUnit] = useState('mins');
   const [isCustomUnit, setIsCustomUnit] = useState(false);
 
@@ -61,7 +61,7 @@ export default function AddWizardView({ onSave, onAddTask, onAddProject, onClose
   const [description, setDescription] = useState('');
   const [deadline, setDeadline] = useState(new Date().toISOString().split('T')[0]);
   const [priority, setPriority] = useState<Priority>('medium');
-  const [estimatedTime, setEstimatedTime] = useState(30);
+  const [estimatedTime, setEstimatedTime] = useState('30');
 
   const handleNext = () => {
     if (!typeSelected) return;
@@ -107,15 +107,28 @@ export default function AddWizardView({ onSave, onAddTask, onAddProject, onClose
   const handleSaveHabit = () => {
     onSave({
       name: name.toLowerCase(),
-      emojiUrl, color, repeatDays, reminders, categoryId,
-      duration, unit,
+      emojiUrl,
+      color,
+      categoryId,
+      repeatDays,
+      reminders,
+      duration: parseInt(duration) || 0,
+      unit,
+      streak: 0,
+      lastCompleted: null
     });
   };
 
   const handleSaveTask = () => {
     onAddTask({
       name: name.toLowerCase(),
-      description, deadline, priority, estimatedTime, emojiUrl, color, projectId
+      description,
+      deadline: deadline || undefined,
+      priority,
+      estimatedTime: parseInt(estimatedTime) || 0,
+      emojiUrl,
+      color,
+      projectId
     });
   };
 
@@ -379,7 +392,11 @@ function HabitStep3({ repeatDays, toggleDay, duration, setDuration, unit, setUni
         <div className="text-left px-2">
           <label className="text-[10px] font-black uppercase tracking-widest text-gray-300 block mb-2">set a target</label>
           <div className="flex gap-4 items-center">
-            <input type="number" value={duration} onChange={e => setDuration(parseInt(e.target.value) || 0)} className="text-4xl font-bold text-[#2d2d2d] w-24 outline-none bg-transparent" />
+            <input type="text" inputMode="numeric" value={duration} onChange={e => {
+              if (e.target.value === '' || /^\d+$/.test(e.target.value)) {
+                setDuration(e.target.value);
+              }
+            }} className="text-4xl font-bold text-[#2d2d2d] w-24 outline-none bg-transparent" />
             <span className="text-xl font-medium text-orange-500">{unit}</span>
           </div>
         </div>
@@ -617,11 +634,16 @@ function TaskStep2({ deadline, setDeadline, estimatedTime, setEstimatedTime }: a
           <div className="flex items-center gap-4">
             <div className="flex gap-2 items-end">
               <input 
-                type="number" 
-                value={estimatedTime} 
-                onChange={e => setEstimatedTime(parseInt(e.target.value) || 0)} 
-                className="text-4xl font-bold text-[#2d2d2d] bg-transparent outline-none w-24" 
-              />
+              type="text" 
+              inputMode="numeric"
+              value={estimatedTime} 
+              onChange={e => {
+                if (e.target.value === '' || /^\d+$/.test(e.target.value)) {
+                  setEstimatedTime(e.target.value);
+                }
+              }} 
+              className="text-4xl font-bold text-[#2d2d2d] w-24 outline-none bg-transparent" 
+            />
               <span className="text-xl font-medium text-blue-500 mb-1">mins</span>
             </div>
             <div className="flex-1 flex justify-end gap-1">
