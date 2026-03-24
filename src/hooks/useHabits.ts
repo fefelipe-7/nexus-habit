@@ -47,20 +47,23 @@ export function useHabits() {
   });
 
   const toggleCompletionMutation = useMutation({
-    mutationFn: ({ habitId, date }: { habitId: string, date: string }) => 
-      habitService.toggleCompletion(habitId, date),
+    mutationFn: ({ habitId, date, amount }: { habitId: string, date: string, amount?: number }) => 
+      habitService.toggleCompletion(habitId, date, amount),
     // Optimistic Update
-    onMutate: async ({ habitId, date }) => {
+    onMutate: async ({ habitId, date, amount }) => {
       await queryClient.cancelQueries({ queryKey: ['completions'] });
       const previousCompletions = queryClient.getQueryData(['completions']);
 
       queryClient.setQueryData(['completions'], (old: any[] | undefined) => {
         if (!old) return [];
-        const exists = old.find(c => c.habit_id === habitId && c.date === date);
+        const exists = old.find(c => c.habitId === habitId && c.date === date);
         if (exists) {
-          return old.filter(c => c.id !== exists.id);
+          if (amount !== undefined) {
+              return old.map(c => c.habitId === habitId && c.date === date ? { ...c, amount } : c);
+          }
+          return old.filter(c => !(c.habitId === habitId && c.date === date));
         } else {
-          return [...old, { id: 'temp-' + Date.now(), habit_id: habitId, date }];
+          return [...old, { id: 'temp-' + Date.now(), habitId, date, amount: amount ?? 1 }];
         }
       });
 

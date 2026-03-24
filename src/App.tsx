@@ -21,6 +21,7 @@ import { useAuth } from './hooks/useAuth';
 import { useHabits } from './hooks/useHabits';
 import { useTasks } from './hooks/useTasks';
 import { useProjects } from './hooks/useProjects';
+import { useProfile } from './hooks/useProfile';
 import { Loader2 } from 'lucide-react';
 
 const pageVariants = {
@@ -43,6 +44,7 @@ export default function App() {
   const [selectedDate, setSelectedDate] = useState(new Date());
   
   const { user, username, loading: authLoading, signOut } = useAuth();
+  const { profile } = useProfile();
   const { habits, completions, stats, isLoading: habitsLoading, createHabit, updateHabit, deleteHabit, toggleCompletion } = useHabits();
   const { tasks, toggleTask, createTask, updateTask, deleteTask, isLoading: tasksLoading } = useTasks();
   const { createProject, projects } = useProjects();
@@ -91,7 +93,7 @@ export default function App() {
                     completions={completions} 
                     selectedDate={selectedDate} 
                     setSelectedDate={setSelectedDate}
-                    toggleCompletion={(id, date) => toggleCompletion({ habitId: id, date: format(date, 'yyyy-MM-dd') })}
+                    toggleCompletion={(id, date, amount) => { toggleCompletion({ habitId: id, date: format(date, 'yyyy-MM-dd'), amount }); }}
                     toggleTask={toggleTask}
                     onHabitClick={(id) => navigateToModal(`/habit/${id}`)}
                     onTaskClick={(id) => navigateToModal(`/task/${id}`)}
@@ -99,6 +101,7 @@ export default function App() {
                     onProfileClick={() => navigateToModal('/profile')}
                     isLoading={habitsLoading || tasksLoading}
                     username={username}
+                    avatarUrl={profile?.avatarUrl}
                     stats={stats}
                   />
                 </motion.div>

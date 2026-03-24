@@ -4,10 +4,11 @@ import { motion } from 'framer-motion';
 type Props = {
   date: Date;
   username: string;
+  avatarUrl?: string;
   onProfileClick: () => void;
 };
 
-export default function Header({ date, username, onProfileClick }: Props) {
+export default function Header({ date, username, avatarUrl, onProfileClick }: Props) {
   const getGreeting = () => {
     const hour = new Date().getHours();
     if (hour < 12) return 'morning';
@@ -43,7 +44,7 @@ export default function Header({ date, username, onProfileClick }: Props) {
         transition={{ duration: 0.5, type: "spring", delay: 0.2 }}
         whileTap={{ scale: 0.9 }}
       >
-        <img src={`https://api.dicebear.com/7.x/adventurer/svg?seed=${username}&backgroundColor=ffdfbf`} alt="avatar" className="w-full h-full object-cover" />
+        <img src={avatarUrl || `https://api.dicebear.com/7.x/adventurer/svg?seed=${username}&backgroundColor=ffdfbf`} alt="avatar" className="w-full h-full object-cover" />
       </motion.button>
     </div>
   );

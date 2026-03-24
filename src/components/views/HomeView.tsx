@@ -15,7 +15,7 @@ type Props = {
   completions: Completion[];
   selectedDate: Date;
   setSelectedDate: (date: Date) => void;
-  toggleCompletion: (habitId: string, date: Date) => void;
+  toggleCompletion: (habitId: string, date: Date, amount?: number) => void;
   toggleTask: (taskId: string) => void;
   onShowStreak: () => void;
   onProfileClick: () => void;
@@ -23,6 +23,7 @@ type Props = {
   onTaskClick: (id: string) => void;
   isLoading?: boolean;
   username: string;
+  avatarUrl?: string;
   stats: any;
 };
 
@@ -41,7 +42,7 @@ const itemVariants = {
   show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 24 } }
 };
 
-export default function HomeView({ habits, tasks, completions, selectedDate, setSelectedDate, toggleCompletion, toggleTask, onShowStreak, onProfileClick, onHabitClick, onTaskClick, isLoading, username }: Props) {
+export default function HomeView({ habits, tasks, completions, selectedDate, setSelectedDate, toggleCompletion, toggleTask, onShowStreak, onProfileClick, onHabitClick, onTaskClick, isLoading, username, avatarUrl }: Props) {
   const navigate = useNavigate();
   const filteredHabits = habits.filter(habit => 
     habit.repeatDays.includes(selectedDate.getDay())
@@ -55,7 +56,7 @@ export default function HomeView({ habits, tasks, completions, selectedDate, set
       animate="show"
     >
       <motion.div variants={itemVariants}>
-        <Header date={selectedDate} username={username} onProfileClick={onProfileClick} />
+        <Header date={selectedDate} username={username} avatarUrl={avatarUrl} onProfileClick={onProfileClick} />
       </motion.div>
       <motion.div variants={itemVariants}>
         <CalendarStrip selectedDate={selectedDate} onSelectDate={setSelectedDate} />

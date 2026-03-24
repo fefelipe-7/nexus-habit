@@ -43,6 +43,7 @@ export type Project = {
 export type Completion = {
   habitId: string;
   date: string; // YYYY-MM-DD
+  amount: number;
 };
 
 export type Profile = {

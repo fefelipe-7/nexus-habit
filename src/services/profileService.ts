@@ -1,5 +1,6 @@
 import { supabase } from '../lib/supabase';
 import { Profile } from '../types';
+import { convertToWebP } from '../utils/image';
 
 export const profileService = {
   async getProfile() {
@@ -40,13 +41,32 @@ export const profileService = {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error('User not authenticated');
 
-    const fileExt = file.name.split('.').pop();
-    const fileName = `${user.id}/${Math.random()}.${fileExt}`;
+    // 1. Convert to WebP
+    const webpBlob = await convertToWebP(file);
+    const fileName = `${user.id}/${Date.now()}.webp`;
     const filePath = `${fileName}`;
 
+    // 2. Get current profile to find old avatar path
+    const { data: profile } = await this.getProfile();
+    const oldAvatarUrl = profile?.avatarUrl;
+
+    // 3. Delete old avatar if it exists in storage
+    if (oldAvatarUrl && oldAvatarUrl.includes('/storage/v1/object/public/avatars/')) {
+        const oldPath = oldAvatarUrl.split('/avatars/').pop();
+        if (oldPath) {
+            await supabase.storage
+              .from('avatars')
+              .remove([oldPath]);
+        }
+    }
+
+    // 4. Upload new WebP
     const { error: uploadError } = await supabase.storage
       .from('avatars')
-      .upload(filePath, file);
+      .upload(filePath, webpBlob, {
+        contentType: 'image/webp',
+        upsert: true
+      });
 
     if (uploadError) throw uploadError;
 

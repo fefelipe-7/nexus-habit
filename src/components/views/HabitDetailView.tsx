@@ -40,6 +40,7 @@ export default function HabitDetailView({ habit, completions, onUpdate, onClose,
   const isEditing = location.pathname.endsWith('/edit');
   const [editedHabit, setEditedHabit] = useState<Habit>(habit);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [isCustomUnit, setIsCustomUnit] = useState(!UNITS.includes(habit.unit || ''));
   
   const stats = useMemo(() => calculateHabitStats(habit, completions), [habit, completions]);
 
@@ -203,12 +204,30 @@ export default function HabitDetailView({ habit, completions, onUpdate, onClose,
                     className="text-lg font-bold outline-none w-full"
                   />
                   <select 
-                    value={editedHabit.unit} 
-                    onChange={e => setEditedHabit({...editedHabit, unit: e.target.value})}
+                    value={isCustomUnit ? 'custom' : editedHabit.unit} 
+                    onChange={e => {
+                      if (e.target.value === 'custom') {
+                        setIsCustomUnit(true);
+                      } else {
+                        setIsCustomUnit(false);
+                        setEditedHabit({...editedHabit, unit: e.target.value});
+                      }
+                    }}
                     className="text-xs text-[#f27d26] outline-none"
                   >
                     {UNITS.map(u => <option key={u} value={u}>{u}</option>)}
+                    {!UNITS.includes(editedHabit.unit || '') && <option value={editedHabit.unit}>{editedHabit.unit}</option>}
+                    <option value="custom">custom...</option>
                   </select>
+                  {isCustomUnit && (
+                    <input 
+                      type="text" 
+                      value={editedHabit.unit} 
+                      onChange={e => setEditedHabit({...editedHabit, unit: e.target.value})}
+                      placeholder="unit"
+                      className="text-xs text-[#f27d26] border-b border-orange-200 outline-none w-full"
+                    />
+                  )}
                 </div>
               ) : (
                 <p className="text-lg font-bold text-[#2d2d2d]">{editedHabit.duration} {editedHabit.unit || 'mins'}</p>
@@ -293,18 +312,30 @@ export default function HabitDetailView({ habit, completions, onUpdate, onClose,
                     const dayLabel = format(day.date, 'EEE, MMM d').toLowerCase();
                     return (
                       <div key={i} className="flex items-center justify-between py-2 border-b border-gray-50 last:border-0">
-                        <div>
-                          <p className="text-sm font-bold text-[#2d2d2d]">{dayLabel}</p>
-                          <p className="text-[10px] text-[#8c8c8c]">
-                            {!isScheduled ? 'rest day' : day.completed ? `${editedHabit.duration || 0}/${editedHabit.duration || 0} ${editedHabit.unit || 'units'} completed` : `0/${editedHabit.duration || 0} ${editedHabit.unit || 'units'} completed`}
-                          </p>
-                        </div>
-                        <div className={cn(
-                          "px-3 py-1 rounded-full text-[10px] font-bold",
-                          !isScheduled ? "bg-gray-100 text-gray-400" :
-                          day.completed ? "bg-green-100 text-green-600" : "bg-red-100 text-red-600"
-                        )}>
-                          {!isScheduled ? 'off' : day.completed ? 'completed' : 'missed'}
+                         <div className="flex-1">
+                            <div className="flex justify-between items-center">
+                                <p className="text-sm font-bold text-[#2d2d2d]">{dayLabel}</p>
+                                <div className={cn(
+                                "px-3 py-1 rounded-full text-[10px] font-bold",
+                                !isScheduled ? "bg-gray-100 text-gray-400" :
+                                day.completed ? "bg-green-100 text-green-600" : "bg-red-100 text-red-600"
+                                )}>
+                                {!isScheduled ? 'off' : day.completed ? 'completed' : 'missed'}
+                                </div>
+                            </div>
+                            <div className="mt-1">
+                                <p className="text-[10px] text-[#8c8c8c] lowercase">
+                                    {!isScheduled ? 'rest day' : `${day.amount || 0} / ${editedHabit.duration || 1} ${editedHabit.unit || 'units'} done`}
+                                </p>
+                                {isScheduled && editedHabit.duration && (
+                                    <div className="w-full h-1 bg-gray-50 rounded-full mt-1 overflow-hidden">
+                                        <div 
+                                            className="h-full bg-orange-400 rounded-full" 
+                                            style={{ width: `${Math.min(100, ((day.amount || 0) / editedHabit.duration) * 100)}%` }}
+                                        />
+                                    </div>
+                                )}
+                            </div>
                         </div>
                       </div>
                     );

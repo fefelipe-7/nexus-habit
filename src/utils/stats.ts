@@ -15,7 +15,12 @@ export const calculateHabitStats = (habit: Habit, completions: Completion[]): Ha
     .filter(c => c.habitId === habit.id)
     .sort((a, b) => parseISO(b.date).getTime() - parseISO(a.date).getTime());
 
-  const totalCompletions = habitCompletions.length;
+  // A completion counts as "done" for streak/rate if amount >= duration
+  const fullyCompletedDates = habitCompletions
+    .filter(c => c.amount >= (habit.duration || 1))
+    .map(c => c.date);
+
+  const totalCompletions = fullyCompletedDates.length;
   
   // Success Rate calculation
   const startDate = parseISO(habit.createdAt);
@@ -30,7 +35,7 @@ export const calculateHabitStats = (habit: Habit, completions: Completion[]): Ha
   // Longest Streak calculation
   let longestStreak = 0;
   let currentCalcStreak = 0;
-  const sortedDates = [...new Set(habitCompletions.map(c => c.date))].sort().reverse();
+  const sortedDates = [...new Set(fullyCompletedDates)].sort().reverse();
   
   // Note: Simple version, ideally accounts for scheduled days gap
   // But since we have habit.streak from DB (triggered), we use that for current
@@ -43,10 +48,10 @@ export const calculateHabitStats = (habit: Habit, completions: Completion[]): Ha
   let tempCurrent = 0;
   let lastDate: Date | null = null;
 
-  const allCompletionsSorted = [...habitCompletions].sort((a, b) => parseISO(a.date).getTime() - parseISO(b.date).getTime());
+  const allCompletionsSorted = [...fullyCompletedDates].sort().sort((a, b) => parseISO(a).getTime() - parseISO(b).getTime());
   
-  allCompletionsSorted.forEach(c => {
-    const d = parseISO(c.date);
+  allCompletionsSorted.forEach(dateStr => {
+    const d = parseISO(dateStr);
     if (!lastDate) {
       tempCurrent = 1;
     } else {
@@ -68,9 +73,11 @@ export const calculateHabitStats = (habit: Habit, completions: Completion[]): Ha
   const last7Days = Array.from({ length: 7 }).map((_, i) => {
     const d = subDays(new Date(), 6 - i);
     const dateStr = format(d, 'yyyy-MM-dd');
+    const completion = habitCompletions.find(c => c.date === dateStr);
     return {
       date: d,
-      completed: habitCompletions.some(c => c.date === dateStr)
+      completed: !!completion && completion.amount >= (habit.duration || 1),
+      amount: completion?.amount || 0
     };
   });
 

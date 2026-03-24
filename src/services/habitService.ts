@@ -65,35 +65,54 @@ export const habitService = {
   async getCompletions() {
     const { data, error } = await supabase
       .from('completions')
-      .select('habitId:habit_id, date');
+      .select('habitId:habit_id, date, amount');
     return { data, error };
   },
 
-  async toggleCompletion(habitId: string, date: string) {
+  async toggleCompletion(habitId: string, date: string, amount?: number) {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error('User not authenticated');
 
     // Check if completion exists
     const { data: existing } = await supabase
       .from('completions')
-      .select('id')
+      .select('id, amount')
       .eq('habit_id', habitId)
       .eq('date', date)
       .single();
 
     if (existing) {
+      // If amount is provided and different, update it. If not, delete it (traditional toggle)
+      if (amount !== undefined) {
+          const { data, error } = await supabase
+            .from('completions')
+            .update({ amount })
+            .eq('id', existing.id)
+            .select()
+            .single();
+          return { action: 'updated', data, error };
+      }
+
       const { error } = await supabase
         .from('completions')
         .delete()
         .eq('id', existing.id);
       return { action: 'deleted', error };
     } else {
+      // Get habit to set initial amount if not provided
+      const { data: habit } = await supabase.from('habits').select('duration').eq('id', habitId).single();
+      const initialAmount = amount !== undefined ? amount : (habit?.duration || 1);
+
       const { data, error } = await supabase
         .from('completions')
-        .insert([{ habit_id: habitId, date, user_id: user.id }])
+        .insert([{ habit_id: habitId, date, user_id: user.id, amount: initialAmount }])
         .select()
         .single();
       return { action: 'created', data, error };
     }
+  },
+
+  async logHabitProgress(habitId: string, date: string, amount: number) {
+    return this.toggleCompletion(habitId, date, amount);
   }
 };

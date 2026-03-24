@@ -10,7 +10,7 @@ type Props = {
   tasks: Task[];
   completions: Completion[];
   selectedDate: Date;
-  onToggleCompletion: (habitId: string, date: Date) => void;
+  onToggleCompletion: (habitId: string, date: Date, amount?: number) => void;
   onToggleTask: (taskId: string) => void;
   onShowStreak: () => void;
   onHabitClick: (id: string) => void;
@@ -61,7 +61,8 @@ export default function HabitList({ habits, tasks, completions, selectedDate, on
           <>
             {/* Habits */}
             {todaysHabits.map((habit, index) => {
-              const isCompleted = completions.some(c => c.habitId === habit.id && c.date === dateStr);
+              const completionForDay = completions.find(c => c.habitId === habit.id && c.date === dateStr);
+              const isCompleted = !!completionForDay && completionForDay.amount >= (habit.duration || 1);
               return (
                 <motion.div 
                   key={habit.id}
@@ -73,7 +74,8 @@ export default function HabitList({ habits, tasks, completions, selectedDate, on
                   <HabitItem
                     habit={habit}
                     isCompleted={isCompleted}
-                    onToggle={() => onToggleCompletion(habit.id, selectedDate)}
+                    completion={completionForDay}
+                    onToggle={(amount) => onToggleCompletion(habit.id, selectedDate, amount)}
                     onHabitClick={onHabitClick}
                     isLast={index === todaysHabits.length - 1 && relevantTasks.length === 0}
                   />

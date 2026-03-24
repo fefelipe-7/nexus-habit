@@ -55,6 +55,7 @@ export default function AddWizardView({ onSave, onAddTask, onAddProject, onClose
   const [reminders, setReminders] = useState(true);
   const [duration, setDuration] = useState(10);
   const [unit, setUnit] = useState('mins');
+  const [isCustomUnit, setIsCustomUnit] = useState(false);
 
   // Task specific
   const [description, setDescription] = useState('');
@@ -188,7 +189,7 @@ export default function AddWizardView({ onSave, onAddTask, onAddProject, onClose
             <div key={`habit-${step}`} className="h-full">
               {step === 1 && <HabitStep1 categoryId={categoryId} setCategoryId={setCategoryId} />}
               {step === 2 && <HabitStep2 name={name} setName={setName} emojiUrl={emojiUrl} setEmojiUrl={setEmojiUrl} color={color} setColor={setColor} />}
-              {step === 3 && <HabitStep3 repeatDays={repeatDays} toggleDay={(i: number) => setRepeatDays(prev => prev.includes(i) ? prev.filter(d => d !== i) : [...prev, i].sort())} duration={duration} setDuration={setDuration} unit={unit} setUnit={setUnit} reminders={reminders} setReminders={setReminders} />}
+              {step === 3 && <HabitStep3 repeatDays={repeatDays} toggleDay={(i: number) => setRepeatDays(prev => prev.includes(i) ? prev.filter(d => d !== i) : [...prev, i].sort())} duration={duration} setDuration={setDuration} unit={unit} setUnit={setUnit} isCustomUnit={isCustomUnit} setIsCustomUnit={setIsCustomUnit} reminders={reminders} setReminders={setReminders} />}
             </div>
           ) : typeSelected === 'task' ? (
             <div key={`task-${step}`} className="h-full">
@@ -354,7 +355,7 @@ function HabitStep2({ name, setName, emojiUrl, setEmojiUrl, color, setColor }: a
   );
 }
 
-function HabitStep3({ repeatDays, toggleDay, duration, setDuration, unit, setUnit, reminders, setReminders }: any) {
+function HabitStep3({ repeatDays, toggleDay, duration, setDuration, unit, setUnit, isCustomUnit, setIsCustomUnit, reminders, setReminders }: any) {
   return (
     <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="px-6 space-y-8 overflow-y-auto max-h-full pb-10 scrollbar-hide text-center">
       <div>
@@ -384,9 +385,28 @@ function HabitStep3({ repeatDays, toggleDay, duration, setDuration, unit, setUni
         </div>
         <div className="flex flex-wrap gap-2">
           {UNITS.map(u => (
-            <button key={u} onClick={() => setUnit(u)} className={cn("px-4 py-2 rounded-2xl text-xs font-bold transition-all", unit === u ? "bg-orange-100 text-[#f27d26]" : "bg-gray-50 text-gray-400 hover:bg-gray-100")}>{u}</button>
+            <button key={u} onClick={() => { setUnit(u); setIsCustomUnit(false); }} className={cn("px-4 py-2 rounded-2xl text-xs font-bold transition-all", unit === u && !isCustomUnit ? "bg-orange-100 text-[#f27d26]" : "bg-gray-50 text-gray-400 hover:bg-gray-100")}>{u}</button>
           ))}
+          <button 
+            onClick={() => setIsCustomUnit(true)} 
+            className={cn("px-4 py-2 rounded-2xl text-xs font-bold transition-all", isCustomUnit ? "bg-orange-100 text-[#f27d26]" : "bg-gray-50 text-gray-400 hover:bg-gray-100")}
+          >
+            {isCustomUnit ? 'custom...' : '+ custom'}
+          </button>
         </div>
+        
+        {isCustomUnit && (
+          <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="mt-2">
+            <input 
+              type="text" 
+              value={unit} 
+              onChange={e => setUnit(e.target.value)} 
+              placeholder="Enter unit (e.g. pages, km)" 
+              className="w-full bg-gray-50 p-4 rounded-2xl outline-none text-sm font-medium text-[#2d2d2d] focus:ring-2 focus:ring-orange-100 transition-all"
+              autoFocus
+            />
+          </motion.div>
+        )}
       </div>
 
       <button onClick={() => setReminders(!reminders)} className="w-full bg-white p-6 rounded-[40px] shadow-sm flex items-center justify-between group active:scale-[0.98] transition-all">
