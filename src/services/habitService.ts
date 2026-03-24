@@ -82,7 +82,7 @@ export const habitService = {
       .single();
 
     if (existing) {
-      // If amount is provided and different, update it. If not, delete it (traditional toggle)
+      // If amount is provided, update it
       if (amount !== undefined) {
           const { data, error } = await supabase
             .from('completions')
@@ -93,6 +93,20 @@ export const habitService = {
           return { action: 'updated', data, error };
       }
 
+      // Manual toggle (no amount)
+      // If it exists but it's not "completed" yet (amount < duration), complete it
+      const { data: habit } = await supabase.from('habits').select('duration').eq('id', habitId).single();
+      if (existing.amount < (habit?.duration || 1)) {
+          const { data, error } = await supabase
+            .from('completions')
+            .update({ amount: habit?.duration || 1 })
+            .eq('id', existing.id)
+            .select()
+            .single();
+          return { action: 'updated', data, error };
+      }
+
+      // If it's already completed, delete it (toggle off)
       const { error } = await supabase
         .from('completions')
         .delete()
