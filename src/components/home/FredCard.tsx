@@ -54,14 +54,15 @@ export default function FredCard({ habits, tasks, completions, selectedDate, sho
     return 'alone'; // Early day or few items, just starting
   }, [totalEntries, completedCount]);
 
-  // 3. Pick a phrase (stable for the current session/mood)
+  // 3. Pick a phrase (randomized even within the same mood)
   const phrase = useMemo(() => {
     const lines = (phrases as any)[`${mood}_lines` as keyof typeof phrases];
     if (!lines || lines.length === 0) return "just here, watching the day unfold...";
-    // Use a hash of the current date and mood to keep it stable for the day/mood
-    const seed = selectedDate.getDate() + mood.length;
-    return lines[seed % lines.length];
-  }, [mood, selectedDate]);
+    
+    // Pick a random index weighted by completion count to ensure it changes
+    const randomIndex = Math.floor(Math.random() * lines.length);
+    return lines[randomIndex];
+  }, [mood, completedCount, selectedDate]);
 
   // 4. Mascot Image Path
   const mascotPath = `/fred/fred ${mood}.webp`;

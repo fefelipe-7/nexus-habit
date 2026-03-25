@@ -15,6 +15,7 @@ const HabitDetailView = lazy(() => import('./components/views/HabitDetailView'))
 const TaskDetailView = lazy(() => import('./components/views/TaskDetailView'));
 const ProjectsView = lazy(() => import('./components/views/ProjectsView'));
 const ProjectDetailView = lazy(() => import('./components/views/ProjectDetailView'));
+const EditProjectView = lazy(() => import('./components/views/EditProjectView'));
 const LogProgressView = lazy(() => import('./components/views/LogProgressView'));
 const LoginView = lazy(() => import('./components/views/LoginView'));
 
@@ -209,8 +210,11 @@ export default function App() {
                     onClose={() => navigate(-1)} 
                   />
                 } />
-                <Route path="/project/:id/*" element={
+                <Route path="/project/:id" element={
                   <ProjectDetailView />
+                } />
+                <Route path="/project/:id/edit" element={
+                  <EditProjectView />
                 } />
                 <Route path="/habit/:id/log" element={
                   <LogProgressRoute habits={habits} completions={completions} onLog={(habitId, amount) => toggleCompletion({ habitId, date: format(selectedDate, 'yyyy-MM-dd'), amount })} onClose={() => navigate(-1)} />

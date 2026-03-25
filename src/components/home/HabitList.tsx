@@ -3,6 +3,7 @@ import HabitItem from './HabitItem';
 import { format, isSameDay } from 'date-fns';
 import { Flame, CheckCircle2 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { getColorById } from '../../constants/colors';
 import { cn } from '../../utils/cn';
 
@@ -19,6 +20,7 @@ type Props = {
 };
 
 export default function HabitList({ habits, tasks, completions, selectedDate, onToggleCompletion, onToggleTask, onShowStreak, onHabitClick, onTaskClick }: Props) {
+  const navigate = useNavigate();
   const dateStr = format(selectedDate, 'yyyy-MM-dd');
   
   // Filter habits for the selected day of the week
@@ -45,7 +47,12 @@ export default function HabitList({ habits, tasks, completions, selectedDate, on
     <div className="px-6 pb-32">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-medium text-[#2d2d2d] dark:text-white uppercase">daily routine</h2>
-        <button className="text-xs text-[#8c8c8c] dark:text-gray-500 hover:text-[#2d2d2d] dark:hover:text-white transition-colors">see all</button>
+        <button 
+          onClick={() => navigate('/journey')}
+          className="text-xs text-[#8c8c8c] dark:text-gray-500 hover:text-[#2d2d2d] dark:hover:text-white transition-colors"
+        >
+          see all
+        </button>
       </div>
       
       <motion.div 
@@ -122,27 +129,7 @@ export default function HabitList({ habits, tasks, completions, selectedDate, on
               </motion.div>
             ))}
             
-            {allCompleted && totalEntries > 0 && (
-              <motion.button 
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                onClick={onShowStreak}
-                className="mt-4 bg-gradient-to-r from-pink-500 to-red-500 text-white p-4 rounded-3xl shadow-sm flex items-center justify-between"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
-                    <Flame size={20} className="text-white fill-white/50" />
-                  </div>
-                  <div className="text-left">
-                    <h3 className="font-bold">Day complete!</h3>
-                    <p className="text-sm text-white/80">Everything checked off.</p>
-                  </div>
-                </div>
-                <div className="w-8 h-8 bg-white text-[#f22659] rounded-full flex items-center justify-center font-bold">
-                  16
-                </div>
-              </motion.button>
-            )}
+            {/* Streak card removed as per user request */}
           </>
         )}
       </motion.div>

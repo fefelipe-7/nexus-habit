@@ -167,10 +167,13 @@ export default function ProjectsView() {
                               <Edit2 size={16} /> edit project
                             </button>
                             <button 
-                              onClick={() => {
-                                setActiveMenuId(null);
-                                updateProject(project.id, { status: project.status === 'completed' ? 'active' : 'completed' });
-                              }}
+                                onClick={() => {
+                                  setActiveMenuId(null);
+                                  updateProject({ 
+                                    id: project.id, 
+                                    updates: { status: project.status === 'completed' ? 'active' : 'completed' } 
+                                  });
+                                }}
                               className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-[#2d2d2d] dark:text-white hover:bg-gray-50 dark:hover:bg-white/5 transition-colors border-t border-black/5 dark:border-white/5"
                             >
                               {project.status === 'completed' ? <Circle size={16} /> : <CheckCircle2 size={16} />}

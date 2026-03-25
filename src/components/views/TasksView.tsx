@@ -166,11 +166,11 @@ function BoardView({ tasks, onToggle, onDetail, getPriorityColor }: any) {
   const priorities: Priority[] = ['high', 'medium', 'low'];
   
   return (
-    <div className="flex gap-4 overflow-x-auto pb-6 scrollbar-hide -mx-6 px-6">
+    <div className="flex gap-4 overflow-x-auto pb-6 scrollbar-hide -mx-6 px-6 snap-x snap-mandatory">
       {priorities.map(p => {
         const pTasks = tasks.filter((t: Task) => t.priority === p);
         return (
-          <div key={p} className="w-[85%] flex-shrink-0 space-y-4">
+          <div key={p} className="w-[82%] flex-shrink-0 space-y-4 snap-start">
             <HeaderSection title={p} count={pTasks.length} color={p === 'high' ? 'bg-red-500' : p === 'medium' ? 'bg-[#2d2d2d]' : 'bg-blue-500'} />
             <div className="space-y-4">
               {pTasks.map((task: Task) => (

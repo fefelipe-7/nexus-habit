@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { format } from 'date-fns';
 import { NEXUS_COLORS, getColorById } from '../../constants/colors';
 import { HABIT_CATEGORIES } from '../../constants/categories';
+import { PROJECT_EMOJIS } from '../../constants/icons';
 import { useState, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 import { ArrowLeft, X, ArrowRight, CheckCircle2, Repeat, Layers, Folder, Clock, Target, CalendarDays, AlertTriangle, Calendar, Palette, Link2 } from 'lucide-react';
@@ -21,14 +22,7 @@ const DAYS = ['s', 'm', 't', 'w', 't', 'f', 's'];
 const COLORS = NEXUS_COLORS;
 const CATEGORIES = HABIT_CATEGORIES;
 const UNITS = ['mins', 'hours', 'kg', 'l', 'km', 'cups', 'units'];
-const EMOJIS = [
-  '/newhabitwizard/body.webp', '/newhabitwizard/book.webp', '/newhabitwizard/diamond.webp',
-  '/newhabitwizard/dislike.webp', '/newhabitwizard/idea.webp', '/newhabitwizard/job.webp',
-  '/newhabitwizard/medicine.webp', '/newhabitwizard/pencil.webp', '/newhabitwizard/pig.webp',
-  '/newhabitwizard/pray.webp', '/newhabitwizard/running.webp', '/newhabitwizard/secret.webp',
-  '/newhabitwizard/skills.webp', '/newhabitwizard/sleep.webp', '/newhabitwizard/student.webp',
-  '/newhabitwizard/sugar.webp', '/newhabitwizard/test.webp', '/newhabitwizard/water.webp',
-];
+const EMOJIS = PROJECT_EMOJIS;
 
 export default function AddWizardView({ onSave, onAddTask, onAddProject, onClose }: Props) {
   const location = useLocation();
