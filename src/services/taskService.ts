@@ -1,5 +1,6 @@
 import { supabase } from '../lib/supabase';
 import { Task } from '../types';
+import { BaseService } from './baseService';
 
 export const taskService = {
   async getTasks() {
@@ -11,8 +12,7 @@ export const taskService = {
   },
 
   async createTask(task: Omit<Task, 'id' | 'createdAt'>) {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) throw new Error('User not authenticated');
+    const userId = await BaseService.getUserId();
 
     const dbTask = {
       name: task.name,
@@ -22,7 +22,7 @@ export const taskService = {
       estimated_time: task.estimatedTime,
       emoji_url: task.emojiUrl,
       color: task.color,
-      user_id: user.id,
+      user_id: userId,
       project_id: task.projectId || null
     };
 

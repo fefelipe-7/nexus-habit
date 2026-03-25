@@ -1,5 +1,6 @@
 import { supabase } from '../lib/supabase';
 import { Habit, Completion } from '../types';
+import { BaseService } from './baseService';
 
 export const habitService = {
   async getHabits() {
@@ -11,8 +12,7 @@ export const habitService = {
   },
 
   async createHabit(habit: Omit<Habit, 'id' | 'streak'>) {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) throw new Error('User not authenticated');
+    const userId = await BaseService.getUserId();
 
     const dbHabit = {
       name: habit.name,
@@ -23,7 +23,7 @@ export const habitService = {
       category_id: habit.categoryId || 'default',
       duration: habit.duration,
       unit: habit.unit,
-      user_id: user.id
+      user_id: userId
     };
 
     const { data, error } = await supabase
@@ -70,8 +70,7 @@ export const habitService = {
   },
 
   async toggleCompletion(habitId: string, date: string, amount?: number) {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) throw new Error('User not authenticated');
+    const userId = await BaseService.getUserId();
 
     // Check if completion exists
     const { data: existing } = await supabase
@@ -82,7 +81,6 @@ export const habitService = {
       .single();
 
     if (existing) {
-      // If amount is provided, update it
       if (amount !== undefined) {
           const { data, error } = await supabase
             .from('completions')
@@ -93,8 +91,6 @@ export const habitService = {
           return { action: 'updated', data, error };
       }
 
-      // Manual toggle (no amount)
-      // If it exists but it's not "completed" yet (amount < duration), complete it
       const { data: habit } = await supabase.from('habits').select('duration').eq('id', habitId).single();
       if (existing.amount < (habit?.duration || 1)) {
           const { data, error } = await supabase
@@ -106,20 +102,18 @@ export const habitService = {
           return { action: 'updated', data, error };
       }
 
-      // If it's already completed, delete it (toggle off)
       const { error } = await supabase
         .from('completions')
         .delete()
         .eq('id', existing.id);
       return { action: 'deleted', error };
     } else {
-      // Get habit to set initial amount if not provided
       const { data: habit } = await supabase.from('habits').select('duration').eq('id', habitId).single();
       const initialAmount = amount !== undefined ? amount : (habit?.duration || 1);
 
       const { data, error } = await supabase
         .from('completions')
-        .insert([{ habit_id: habitId, date, user_id: user.id, amount: initialAmount }])
+        .insert([{ habit_id: habitId, date, user_id: userId, amount: initialAmount }])
         .select()
         .single();
       return { action: 'created', data, error };

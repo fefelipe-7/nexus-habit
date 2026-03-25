@@ -3,23 +3,27 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { taskService } from '../services/taskService';
 import { Task } from '../types';
 import { notificationService } from '../services/notificationService';
+import { useAuth } from './useAuth';
 
 export function useTasks() {
   const queryClient = useQueryClient();
+  const { user } = useAuth();
 
   const tasksQuery = useQuery({
-    queryKey: ['tasks'],
+    queryKey: ['tasks', user?.id],
     queryFn: async () => {
+      if (!user) return [];
       const { data, error } = await taskService.getTasks();
       if (error) throw error;
       return data as Task[];
     },
+    enabled: !!user,
   });
 
   const createTaskMutation = useMutation({
     mutationFn: taskService.createTask,
     onSuccess: ({ data }) => {
-      queryClient.invalidateQueries({ queryKey: ['tasks'] });
+      queryClient.invalidateQueries({ queryKey: ['tasks', user?.id] });
       if (data) notificationService.scheduleTaskReminder(data as Task);
     },
   });
@@ -28,7 +32,7 @@ export function useTasks() {
     mutationFn: ({ id, updates }: { id: string, updates: Partial<Task> }) => 
       taskService.updateTask(id, updates),
     onSuccess: ({ data }) => {
-      queryClient.invalidateQueries({ queryKey: ['tasks'] });
+      queryClient.invalidateQueries({ queryKey: ['tasks', user?.id] });
       if (data) notificationService.scheduleTaskReminder(data as Task);
     },
   });
@@ -36,19 +40,18 @@ export function useTasks() {
   const deleteTaskMutation = useMutation({
     mutationFn: taskService.deleteTask,
     onSuccess: (_data, id) => {
-      queryClient.invalidateQueries({ queryKey: ['tasks'] });
+      queryClient.invalidateQueries({ queryKey: ['tasks', user?.id] });
       notificationService.cancelNotification(id);
     },
   });
 
   const toggleTaskMutation = useMutation({
     mutationFn: taskService.toggleTask,
-    // Optimistic Update
     onMutate: async (taskId) => {
-      await queryClient.cancelQueries({ queryKey: ['tasks'] });
-      const previousTasks = queryClient.getQueryData(['tasks']);
+      await queryClient.cancelQueries({ queryKey: ['tasks', user?.id] });
+      const previousTasks = queryClient.getQueryData(['tasks', user?.id]);
 
-      queryClient.setQueryData(['tasks'], (old: Task[] | undefined) => {
+      queryClient.setQueryData(['tasks', user?.id], (old: Task[] | undefined) => {
         if (!old) return [];
         return old.map(t => t.id === taskId ? { 
           ...t, 
@@ -59,10 +62,10 @@ export function useTasks() {
       return { previousTasks };
     },
     onError: (_err, _newVal, context) => {
-      queryClient.setQueryData(['tasks'], context?.previousTasks);
+      queryClient.setQueryData(['tasks', user?.id], context?.previousTasks);
     },
     onSettled: (result: any) => {
-      queryClient.invalidateQueries({ queryKey: ['tasks'] });
+      queryClient.invalidateQueries({ queryKey: ['tasks', user?.id] });
       const data = result?.data;
       if (data) {
         if (data.completedAt) {

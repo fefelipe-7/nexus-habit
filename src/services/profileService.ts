@@ -1,24 +1,23 @@
 import { supabase } from '../lib/supabase';
 import { Profile } from '../types';
 import { convertToWebP } from '../utils/image';
+import { BaseService } from './baseService';
 
 export const profileService = {
   async getProfile() {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return { data: null, error: new Error('User not authenticated') };
+    const userId = await BaseService.getUserId();
 
     const { data, error } = await supabase
       .from('profiles')
       .select('id, displayName:display_name, bio, avatarUrl:avatar_url, settings, updatedAt:updated_at')
-      .eq('id', user.id)
+      .eq('id', userId)
       .single();
 
     return { data: data as Profile | null, error };
   },
 
   async updateProfile(updates: Partial<Profile>) {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) throw new Error('User not authenticated');
+    const userId = await BaseService.getUserId();
 
     const dbUpdates: any = {};
     if (updates.displayName) dbUpdates.display_name = updates.displayName;
@@ -30,7 +29,7 @@ export const profileService = {
     const { data, error } = await supabase
       .from('profiles')
       .update(dbUpdates)
-      .eq('id', user.id)
+      .eq('id', userId)
       .select('id, displayName:display_name, bio, avatarUrl:avatar_url, settings, updatedAt:updated_at')
       .single();
 
@@ -38,12 +37,11 @@ export const profileService = {
   },
 
   async uploadAvatar(file: File) {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) throw new Error('User not authenticated');
+    const userId = await BaseService.getUserId();
 
     // 1. Convert to WebP
     const webpBlob = await convertToWebP(file);
-    const fileName = `${user.id}/${Date.now()}.webp`;
+    const fileName = `${userId}/${Date.now()}.webp`;
     const filePath = `${fileName}`;
 
     // 2. Get current profile to find old avatar path

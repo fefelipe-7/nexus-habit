@@ -1,5 +1,6 @@
 import { supabase } from '../lib/supabase';
 import { Project } from '../types';
+import { BaseService } from './baseService';
 
 export const projectService = {
   async getProjects() {
@@ -11,8 +12,7 @@ export const projectService = {
   },
 
   async createProject(project: Omit<Project, 'id' | 'createdAt' | 'updatedAt' | 'status'>) {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) throw new Error('User not authenticated');
+    const userId = await BaseService.getUserId();
 
     const dbProject = {
       name: project.name,
@@ -20,7 +20,7 @@ export const projectService = {
       emoji_url: project.emojiUrl,
       color: project.color,
       deadline: project.deadline || null,
-      user_id: user.id
+      user_id: userId
     };
 
     const { data, error } = await supabase

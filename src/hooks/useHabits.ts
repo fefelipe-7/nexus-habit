@@ -4,32 +4,38 @@ import { habitService } from '../services/habitService';
 import { Habit } from '../types';
 import { calculateGlobalStats } from '../utils/stats';
 import { notificationService } from '../services/notificationService';
+import { useAuth } from './useAuth';
 
 export function useHabits() {
   const queryClient = useQueryClient();
+  const { user } = useAuth();
 
   const habitsQuery = useQuery({
-    queryKey: ['habits'],
+    queryKey: ['habits', user?.id],
     queryFn: async () => {
+      if (!user) return [];
       const { data, error } = await habitService.getHabits();
       if (error) throw error;
       return data as Habit[];
     },
+    enabled: !!user,
   });
 
   const completionsQuery = useQuery({
-    queryKey: ['completions'],
+    queryKey: ['completions', user?.id],
     queryFn: async () => {
+      if (!user) return [];
       const { data, error } = await habitService.getCompletions();
       if (error) throw error;
       return data;
     },
+    enabled: !!user,
   });
 
   const createHabitMutation = useMutation({
     mutationFn: habitService.createHabit,
     onSuccess: ({ data }) => {
-      queryClient.invalidateQueries({ queryKey: ['habits'] });
+      queryClient.invalidateQueries({ queryKey: ['habits', user?.id] });
       if (data) notificationService.scheduleHabitReminder(data as Habit);
     },
   });
@@ -38,7 +44,7 @@ export function useHabits() {
     mutationFn: ({ id, updates }: { id: string, updates: Partial<Habit> }) => 
       habitService.updateHabit(id, updates),
     onSuccess: ({ data }) => {
-      queryClient.invalidateQueries({ queryKey: ['habits'] });
+      queryClient.invalidateQueries({ queryKey: ['habits', user?.id] });
       if (data) notificationService.scheduleHabitReminder(data as Habit);
     },
   });
@@ -46,7 +52,7 @@ export function useHabits() {
   const deleteHabitMutation = useMutation({
     mutationFn: habitService.deleteHabit,
     onSuccess: (_data, id) => {
-      queryClient.invalidateQueries({ queryKey: ['habits'] });
+      queryClient.invalidateQueries({ queryKey: ['habits', user?.id] });
       notificationService.cancelNotification(id);
     },
   });
@@ -55,10 +61,10 @@ export function useHabits() {
     mutationFn: ({ habitId, date, amount }: { habitId: string, date: string, amount?: number }) => 
       habitService.toggleCompletion(habitId, date, amount),
     onMutate: async ({ habitId, date, amount }) => {
-      await queryClient.cancelQueries({ queryKey: ['completions'] });
-      const previousCompletions = queryClient.getQueryData(['completions']);
+      await queryClient.cancelQueries({ queryKey: ['completions', user?.id] });
+      const previousCompletions = queryClient.getQueryData(['completions', user?.id]);
 
-      queryClient.setQueryData(['completions'], (old: any[] | undefined) => {
+      queryClient.setQueryData(['completions', user?.id], (old: any[] | undefined) => {
         if (!old) return [];
         const exists = old.find(c => c.habitId === habitId && c.date === date);
         if (exists) {
@@ -74,10 +80,10 @@ export function useHabits() {
       return { previousCompletions };
     },
     onError: (_err, _newVal, context) => {
-      queryClient.setQueryData(['completions'], context?.previousCompletions);
+      queryClient.setQueryData(['completions', user?.id], context?.previousCompletions);
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['completions'] });
+      queryClient.invalidateQueries({ queryKey: ['completions', user?.id] });
     },
   });
 
