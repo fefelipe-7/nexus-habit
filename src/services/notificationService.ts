@@ -48,7 +48,7 @@ class NotificationService {
 
     const deadlineDate = parseISO(task.deadline);
     const now = new Date();
-    
+
     // Schedule for 9 AM on the deadline day
     let scheduledTime = setMinutes(setHours(deadlineDate, 9), 0);
 
@@ -59,8 +59,8 @@ class NotificationService {
     await LocalNotifications.schedule({
       notifications: [
         {
-          title: 'Task Deadline!',
-          body: `Reminder: "${task.name}" is due today.`,
+          title: 'task Deadline!',
+          body: `reminder: "${task.name}" is due today.`,
           id: this.generateId(task.id),
           schedule: { at: scheduledTime },
           sound: 'default',
@@ -80,9 +80,9 @@ class NotificationService {
   private generateId(uuid: string): number {
     let hash = 0;
     for (let i = 0; i < uuid.length; i++) {
-        const char = uuid.charCodeAt(i);
-        hash = ((hash << 5) - hash) + char;
-        hash = hash & hash; // Convert to 32bit integer
+      const char = uuid.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash; // Convert to 32bit integer
     }
     return Math.abs(hash);
   }
