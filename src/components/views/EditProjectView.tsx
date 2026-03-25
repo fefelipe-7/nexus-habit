@@ -4,7 +4,7 @@ import { ChevronLeft, Sparkles, Folder, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useProjects } from '../../hooks/useProjects';
 import { cn } from '../../utils/cn';
-import { COLORS, NEXUS_COLORS, getColorById } from '../../constants/colors';
+import { NEXUS_COLORS, getColorById } from '../../constants/colors';
 import { PROJECT_EMOJIS } from '../../constants/icons';
 
 export default function EditProjectView() {
@@ -144,7 +144,7 @@ export default function EditProjectView() {
           <div className="bg-white dark:bg-[#1a1a1a] rounded-3xl p-6 shadow-sm border border-black/5 dark:border-white/5">
             <label className="text-[10px] font-black uppercase tracking-widest text-[#8c8c8c] mb-4 block text-center">theme color</label>
             <div className="flex justify-between items-center">
-              {COLORS.map((color) => (
+              {NEXUS_COLORS.map((color) => (
                 <button
                   key={color.id}
                   onClick={() => setSelectedColor(color.id)}
