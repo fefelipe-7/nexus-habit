@@ -11,6 +11,7 @@ type Props = {
 export default function Header({ date, username, avatarUrl, onProfileClick }: Props) {
   const getGreeting = () => {
     const hour = new Date().getHours();
+    if (hour < 5) return 'dawn';
     if (hour < 12) return 'morning';
     if (hour < 18) return 'afternoon';
     return 'evening';

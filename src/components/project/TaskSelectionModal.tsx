@@ -15,10 +15,12 @@ export default function TaskSelectionModal({ isOpen, onClose, tasks, onAssociate
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [search, setSearch] = useState('');
 
-  const filteredTasks = tasks.filter(t => 
-    !t.projectId && 
-    t.name.toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredTasks = tasks.filter(t => {
+    if (t.projectId) return false;
+    if (t.completedAt) return false;
+    if (!search) return true;
+    return (t.name || '').toLowerCase().includes(search.toLowerCase());
+  });
 
   const toggleSelect = (id: string) => {
     setSelectedIds(prev => 

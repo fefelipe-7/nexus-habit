@@ -46,7 +46,7 @@ export default function BottomNav({ currentView, onChangeView }: Props) {
         <ExpandableTabs 
           tabs={tabs} 
           activeColor="text-[#f27d26] bg-[#f27d26]/10 dark:bg-orange-500/20" 
-          className="border-[#d1d1d1] dark:border-white/5 bg-[#f8f6f2] dark:bg-[#1a1a1a] shadow-[0_8px_16px_rgba(0,0,0,0.05)]"
+          className="bg-transparent border-none shadow-none"
           defaultSelected={viewToIndex[currentView]}
           onChange={handleTabChange}
         />

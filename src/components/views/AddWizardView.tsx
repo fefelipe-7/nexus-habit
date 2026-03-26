@@ -67,7 +67,7 @@ export default function AddWizardView({ onSave, onAddTask, onAddProject, onClose
       else handleSaveHabit();
     } else if (typeSelected === 'task') {
       if (step === 1 && !name.trim()) return;
-      if (step < 3) setStep(prev => prev + 1);
+      if (step < 4) setStep(prev => prev + 1);
       else handleSaveTask();
     } else if (typeSelected === 'project') {
       if (step === 1 && !name.trim()) return;
@@ -161,7 +161,7 @@ export default function AddWizardView({ onSave, onAddTask, onAddProject, onClose
             </h1>
             {step > 0 && (
               <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest leading-tight">
-                step 0{step} / 0{typeSelected === 'project' ? '3' : '3'}
+                step 0{step} / 0{typeSelected === 'task' ? '4' : '3'}
               </span>
             )}
           </div>
@@ -175,14 +175,16 @@ export default function AddWizardView({ onSave, onAddTask, onAddProject, onClose
       {step > 0 && (
         <div className="px-6 mb-8 mt-2">
           <div className="flex gap-2">
-            {[1, 2, 3].map((s) => (
+            {Array.from({ length: typeSelected === 'task' ? 4 : 3 }).map((_, i) => {
+              const s = i + 1;
+              return (
               <div key={s} className="flex-1">
                 <div className={cn(
                   "h-1.5 rounded-full transition-all duration-500", 
                   step === s ? "bg-[#f27d26] w-full" : step > s ? "bg-[#f27d26] opacity-40 w-full" : "bg-gray-200 dark:bg-gray-800 w-full"
                 )} />
               </div>
-            ))}
+            )})}
           </div>
         </div>
       )}
@@ -200,9 +202,10 @@ export default function AddWizardView({ onSave, onAddTask, onAddProject, onClose
             </div>
           ) : typeSelected === 'task' ? (
             <div key={`task-${step}`} className="h-full">
-              {step === 1 && <TaskStep1 name={name} setName={setName} description={description} setDescription={setDescription} projects={projects} projectId={projectId} setProjectId={setProjectId} />}
+              {step === 1 && <TaskStep1 name={name} setName={setName} description={description} setDescription={setDescription} />}
               {step === 2 && <TaskStep2 deadline={deadline} setDeadline={setDeadline} estimatedTime={estimatedTime} setEstimatedTime={setEstimatedTime} />}
               {step === 3 && <TaskStep3 emojiUrl={emojiUrl} setEmojiUrl={setEmojiUrl} color={color} setColor={setColor} priority={priority} setPriority={setPriority} name={name} deadline={deadline} />}
+              {step === 4 && <TaskStep4 projects={projects} projectId={projectId} setProjectId={setProjectId} />}
             </div>
           ) : (
             <div key={`project-${step}`} className="h-full">
@@ -225,8 +228,8 @@ export default function AddWizardView({ onSave, onAddTask, onAddProject, onClose
               canContinue ? "bg-[#2d2d2d] dark:bg-white text-white dark:text-black shadow-lg" : "bg-gray-200 dark:bg-gray-900 text-gray-400 dark:text-gray-700"
             )}
           >
-            <span>{step < 3 ? 'continue' : `save ${typeSelected}`}</span>
-            {step < 3 ? <ArrowRight size={20} /> : <CheckCircle2 size={20} />}
+            <span>{step < (typeSelected === 'task' ? 4 : 3) ? 'continue' : `save ${typeSelected}`}</span>
+            {step < (typeSelected === 'task' ? 4 : 3) ? <ArrowRight size={20} /> : <CheckCircle2 size={20} />}
           </button>
         </div>
       )}
@@ -439,7 +442,7 @@ function HabitStep3({ repeatDays, toggleDay, duration, setDuration, unit, setUni
 }
 
 // TASK STEPS - REFACTORED FOR BETTER LOGIC
-function TaskStep1({ name, setName, description, setDescription, projects, projectId, setProjectId }: any) {
+function TaskStep1({ name, setName, description, setDescription }: any) {
   return (
     <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="px-6 space-y-8 overflow-y-auto max-h-full pb-10 scrollbar-hide">
       <div className="text-center">
@@ -469,35 +472,6 @@ function TaskStep1({ name, setName, description, setDescription, projects, proje
             className="w-full bg-transparent p-6 outline-none text-base font-medium text-[#2d2d2d] dark:text-gray-300 h-32 resize-none placeholder:text-gray-200 dark:placeholder:text-gray-800 scrollbar-hide" 
           />
         </div>
-
-        <div>
-          <label className="text-[10px] font-black uppercase tracking-widest text-[#8c8c8c] dark:text-gray-600 block mb-3 px-4">Link to Project (Optional)</label>
-          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-            <button 
-              onClick={() => setProjectId('')}
-              className={cn(
-                "px-4 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap",
-                projectId === '' ? "bg-[#2d2d2d] dark:bg-white text-white dark:text-black shadow-md" : "bg-white dark:bg-[#1a1a1a] text-gray-400 dark:text-gray-700 border border-black/5 dark:border-white/5 shadow-sm"
-              )}
-            >
-              No Project
-            </button>
-            {projects.map((p: Project) => (
-              <button 
-                key={p.id}
-                onClick={() => setProjectId(p.id)}
-                className={cn(
-                  "px-4 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap flex items-center gap-2",
-                  projectId === p.id ? "bg-[#2d2d2d] dark:bg-white text-white dark:text-black shadow-md" : "bg-white dark:bg-[#1a1a1a] text-gray-400 dark:text-gray-700 border border-black/5 dark:border-white/5 shadow-sm"
-                )}
-              >
-                <img src={p.emojiUrl} alt="" className="w-4 h-4" />
-                {p.name}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
     </motion.div>
   );
 }
@@ -796,6 +770,57 @@ function ProjectStep3({ tasks, selectedTaskIds, setSelectedTaskIds }: { tasks: T
           })}
         </div>
       )}
+    </motion.div>
+  );
+}
+
+function TaskStep4({ projects, projectId, setProjectId }: any) {
+  return (
+    <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="px-6 space-y-8 overflow-y-auto max-h-full pb-10 scrollbar-hide">
+      <div className="text-center">
+        <div className="w-16 h-16 bg-purple-50 dark:bg-purple-950/20 rounded-full flex items-center justify-center mx-auto mb-4 text-purple-500">
+          <Folder size={24} />
+        </div>
+        <h2 className="text-xl font-bold text-[#2d2d2d] dark:text-white uppercase tracking-tighter">link to project</h2>
+        <p className="text-[#8c8c8c] dark:text-gray-600 text-[10px] font-black uppercase tracking-widest mt-1">group this task under an existing goal (optional)</p>
+      </div>
+
+      <div className="space-y-3">
+        <button 
+          onClick={() => setProjectId('')}
+          className={cn(
+            "w-full flex items-center gap-4 p-5 rounded-[24px] transition-all text-left",
+            projectId === '' ? "bg-purple-100/50 dark:bg-purple-500/20 ring-2 ring-purple-500/30" : "bg-white dark:bg-[#1a1a1a] shadow-sm border border-black/5 dark:border-white/5 hover:bg-gray-50 dark:hover:bg-white/5"
+          )}
+        >
+          <div className={cn("w-10 h-10 rounded-xl flex flex-shrink-0 items-center justify-center", projectId === '' ? "bg-purple-500 text-white" : "bg-gray-100 dark:bg-white/5 text-[#8c8c8c]")}>
+            <X size={20} />
+          </div>
+          <div>
+            <h3 className="font-bold text-[#2d2d2d] dark:text-white">No Project</h3>
+            <p className="text-[10px] uppercase font-black tracking-widest text-[#8c8c8c]">Standalone task</p>
+          </div>
+        </button>
+
+        {projects.map((p: any) => (
+          <button 
+            key={p.id}
+            onClick={() => setProjectId(p.id)}
+            className={cn(
+              "w-full flex items-center gap-4 p-5 rounded-[24px] transition-all text-left",
+              projectId === p.id ? "bg-purple-100/50 dark:bg-purple-500/20 ring-2 ring-purple-500/30" : "bg-white dark:bg-[#1a1a1a] shadow-sm border border-black/5 dark:border-white/5 hover:bg-gray-50 dark:hover:bg-white/5"
+            )}
+          >
+            <div className="w-10 h-10 bg-white dark:bg-[#1a1a1a] border border-black/5 dark:border-white/5 rounded-xl flex flex-shrink-0 items-center justify-center">
+              <img src={p.emojiUrl} alt="" className="w-6 h-6 object-contain" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <h3 className="font-bold text-[#2d2d2d] dark:text-white truncate">{p.name}</h3>
+              <p className="text-[10px] uppercase font-black tracking-widest text-[#8c8c8c] truncate">{p.description || "No description"}</p>
+            </div>
+          </button>
+        ))}
+      </div>
     </motion.div>
   );
 }

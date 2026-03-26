@@ -66,7 +66,7 @@ export function ExpandableTabs({
   return (
     <div
       className={cn(
-        "flex flex-nowrap items-center gap-1 rounded-2xl border bg-white p-1 shadow-sm overflow-x-auto scrollbar-hide",
+        "flex flex-nowrap items-center gap-1 p-1 overflow-x-auto scrollbar-hide",
         className
       )}
     >

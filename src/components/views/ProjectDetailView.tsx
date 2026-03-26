@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Folder, Edit2, Trash2, Plus, CheckCircle2, Circle, Sparkles } from 'lucide-react';
+import { Folder, Edit2, Trash2, Plus, CheckCircle2, Circle, Sparkles, ArrowLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useProjects } from '../../hooks/useProjects';
@@ -56,9 +56,12 @@ export default function ProjectDetailView() {
       {/* Header */}
       <div className="flex items-center justify-between px-6 pt-12 pb-4">
         <div className="flex items-center gap-3">
-          <button onClick={() => navigate('/projects')} className="w-10 h-10 bg-white dark:bg-[#1a1a1a] rounded-2xl flex items-center justify-center shadow-sm border border-black/5 dark:border-white/5">
-            <img src={project.emojiUrl} alt="" className="w-6 h-6 object-contain" />
+          <button onClick={() => navigate('/projects')} className="w-10 h-10 bg-white dark:bg-[#1a1a1a] rounded-full flex items-center justify-center shadow-sm border border-black/5 dark:border-white/5 text-[#2d2d2d] dark:text-white active:scale-90 transition-transform">
+            <ArrowLeft size={20} />
           </button>
+          <div className="w-10 h-10 bg-white dark:bg-[#1a1a1a] rounded-2xl flex items-center justify-center shadow-sm border border-black/5 dark:border-white/5">
+            <img src={project.emojiUrl} alt="" className="w-6 h-6 object-contain" />
+          </div>
           <h1 className="text-xl font-bold text-[#2d2d2d] dark:text-white">{project.name}</h1>
         </div>
         <div className="flex gap-2">

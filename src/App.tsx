@@ -1,8 +1,9 @@
-import { useState, useMemo, lazy, Suspense, useEffect } from 'react';
+import { useState, useMemo, lazy, Suspense, useEffect, useCallback, useRef } from 'react';
 import { format, addDays } from 'date-fns';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Routes, Route, useLocation, useNavigate, Navigate, useParams } from 'react-router-dom';
-import { Folder, Loader2 } from 'lucide-react';
+import { Folder, Loader2, LogOut } from 'lucide-react';
+import { App as CapApp } from '@capacitor/app';
 
 // Lazy load views for better bundle splitting
 const HomeView = lazy(() => import('./components/views/HomeView'));
@@ -20,6 +21,7 @@ const LogProgressView = lazy(() => import('./components/views/LogProgressView'))
 const LoginView = lazy(() => import('./components/views/LoginView'));
 
 import BottomNav from './components/layout/BottomNav';
+import ConfirmDialog from './components/ui/ConfirmDialog';
 import FloatingActionButton from './components/layout/FloatingActionButton';
 import { Habit, Task, Completion, Project } from './types';
 import { useAuth } from './hooks/useAuth';
@@ -47,6 +49,7 @@ export default function App() {
   const location = useLocation();
   const navigate = useNavigate();
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const [showExitDialog, setShowExitDialog] = useState(false);
   
   const { user, username, loading: authLoading, signOut } = useAuth();
   const { profile } = useProfile();
@@ -81,6 +84,35 @@ export default function App() {
       notificationService.requestPermissions();
     }
   }, [profile?.settings?.notifications]);
+
+  // Android hardware back button handler
+  const locationRef = useRef(location);
+  const navigateRef = useRef(navigate);
+  locationRef.current = location;
+  navigateRef.current = navigate;
+
+  useEffect(() => {
+    const listener = CapApp.addListener('backButton', () => {
+      const loc = locationRef.current;
+      const nav = navigateRef.current;
+      const currentPath = loc.pathname;
+
+      // If exit dialog is already shown, dismiss it
+      // (handled by dialog's own onCancel)
+
+      // On home page, show exit confirmation
+      if (currentPath === '/') {
+        setShowExitDialog(true);
+      } else {
+        // Navigate back through route history
+        nav(-1);
+      }
+    });
+
+    return () => {
+      listener.then(h => h.remove());
+    };
+  }, []);
 
   const background = location.state?.background;
 
@@ -250,6 +282,21 @@ export default function App() {
               </>
             )}
           </AnimatePresence>
+
+          {/* Exit Confirmation Dialog */}
+          <ConfirmDialog
+            isOpen={showExitDialog}
+            title="sair do nexus?"
+            message="tem certeza que deseja fechar o aplicativo?"
+            confirmText="sair"
+            cancelText="ficar"
+            onConfirm={() => {
+              setShowExitDialog(false);
+              CapApp.exitApp();
+            }}
+            onCancel={() => setShowExitDialog(false)}
+            isDestructive={false}
+          />
         </div>
       </div>
     </Suspense>
