@@ -472,6 +472,7 @@ function TaskStep1({ name, setName, description, setDescription }: any) {
             className="w-full bg-transparent p-6 outline-none text-base font-medium text-[#2d2d2d] dark:text-gray-300 h-32 resize-none placeholder:text-gray-200 dark:placeholder:text-gray-800 scrollbar-hide" 
           />
         </div>
+      </div>
     </motion.div>
   );
 }
